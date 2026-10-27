@@ -27,10 +27,13 @@ import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 import axios from 'axios';
 import { PioneerLogoBrand } from '../components/PioneerLogo';
+import { getApiBase } from '../utils/api';
 
 const AthleteEnroll = () => {
     const navigate = useNavigate();
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
     const [enrolledPass, setEnrolledPass] = useState(null);
     const [passQrDataUrl, setPassQrDataUrl] = useState('');
 
@@ -113,11 +116,11 @@ const AthleteEnroll = () => {
             ...formData,
             sport: selected.name,
             coach: selected.coach,
-            membership: `${selected.name} - ${selectedPlan.name}`
+            membership: `${selected.name} - ${formData.planType || 'Membership'}`
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name.trim() || !formData.phone.trim()) {
             alert('Please enter your full name and contact number.');
@@ -129,7 +132,10 @@ const AthleteEnroll = () => {
             return;
         }
 
-        const newId = `ATH-${Math.floor(100 + Math.random() * 900)}`;
+        setIsSubmitting(true);
+        setSubmitError(null);
+
+        const newId = `ATH-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
         const newAthlete = {
             id: newId,
             name: formData.name.trim(),
@@ -154,25 +160,45 @@ const AthleteEnroll = () => {
             status: 'Active'
         };
 
-        // Save into localStorage
         try {
-            const existing = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
-            const updated = [newAthlete, ...existing];
-            localStorage.setItem('playpeak_athletes', JSON.stringify(updated));
+            const API_BASE = getApiBase();
+            let finalAthlete = newAthlete;
 
-            // Send to MongoDB Atlas API
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/';
-            axios.post(`${API_BASE}athletes`, newAthlete).catch(e => console.warn(e));
+            // Send to MongoDB Atlas API & AWAIT response
+            try {
+                const res = await axios.post(`${API_BASE}athletes`, newAthlete);
+                if (res.data?.data) {
+                    finalAthlete = res.data.data;
+                }
+            } catch (apiErr) {
+                console.warn('Primary API endpoint failed, attempting fallback...', apiErr);
+                if (API_BASE !== '/api/') {
+                    try {
+                        const fallbackRes = await axios.post('/api/athletes', newAthlete);
+                        if (fallbackRes.data?.data) {
+                            finalAthlete = fallbackRes.data.data;
+                        }
+                    } catch (e2) {
+                        console.error('Fallback endpoint also failed:', e2);
+                    }
+                }
+            }
 
-            // If amount was paid, also create payment record
+            // Save to local storage as local device copy
+            try {
+                const existing = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
+                const updated = [finalAthlete, ...existing.filter(a => a.id !== finalAthlete.id)];
+                localStorage.setItem('playpeak_athletes', JSON.stringify(updated));
+            } catch (e) {}
+
+            // If amount was paid, also create payment record in MongoDB Atlas
             if (paidAmt > 0) {
-                const existingPay = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
                 const newPay = {
-                    id: `PAY-${Math.floor(100 + Math.random() * 900)}`,
-                    athleteId: newId,
-                    athleteName: newAthlete.name,
-                    sport: newAthlete.sport,
-                    plan: newAthlete.membership,
+                    id: `PAY-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`,
+                    athleteId: finalAthlete.id,
+                    athleteName: finalAthlete.name,
+                    sport: finalAthlete.sport,
+                    plan: finalAthlete.membership,
                     amount: paidAmt,
                     paymentMode: formData.paymentMode,
                     utrNumber: formData.paymentMode === 'Online' ? formData.utrNumber.trim() : '',
@@ -180,33 +206,45 @@ const AthleteEnroll = () => {
                     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                     method: formData.paymentMode === 'Online' ? `Online UPI (UTR: ${formData.utrNumber.trim()})` : 'Reception Cash Desk',
                     status: 'Completed',
-                    receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`
+                    receiptNo: `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`
                 };
-                localStorage.setItem('playpeak_payments', JSON.stringify([newPay, ...existingPay]));
-                axios.post(`${API_BASE}payments`, newPay).catch(e => console.warn(e));
+                try {
+                    const existingPay = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
+                    localStorage.setItem('playpeak_payments', JSON.stringify([newPay, ...existingPay]));
+                } catch (e) {}
+
+                axios.post(`${API_BASE}payments`, newPay).catch(() => {
+                    axios.post('/api/payments', newPay).catch(err => console.warn(err));
+                });
             }
 
             // Generate QR code for athlete gate pass
-            const passData = `https://playpeak.vercel.app/enroll?ref=${newAthlete.id}&sport=${encodeURIComponent(newAthlete.sport)}`;
-            QRCode.toDataURL(passData, { width: 320, margin: 2, color: { dark: '#0F172A', light: '#FFFFFF' } })
-                .then(url => setPassQrDataUrl(url))
-                .catch(() => setPassQrDataUrl(''));
+            const passData = `https://playpeak.vercel.app/enroll?ref=${finalAthlete.id}&sport=${encodeURIComponent(finalAthlete.sport)}`;
+            try {
+                const qrUrl = await QRCode.toDataURL(passData, { width: 320, margin: 2, color: { dark: '#0F172A', light: '#FFFFFF' } });
+                setPassQrDataUrl(qrUrl);
+            } catch (e) {
+                setPassQrDataUrl('');
+            }
 
-            // Dispatch custom window event and BroadcastChannel for instant real-time admin sync without reload
+            // Dispatch instant real-time sync events
             window.dispatchEvent(new Event('storage'));
-            window.dispatchEvent(new CustomEvent('playpeak_athlete_enrolled', { detail: newAthlete }));
+            window.dispatchEvent(new CustomEvent('playpeak_athlete_enrolled', { detail: finalAthlete }));
 
             try {
                 const channel = new BroadcastChannel('playpeak_realtime_sync');
-                channel.postMessage({ type: 'ATHLETE_ENROLLED', athlete: newAthlete });
+                channel.postMessage({ type: 'ATHLETE_ENROLLED', athlete: finalAthlete });
                 channel.close();
             } catch (e) {}
-        } catch (err) {
-            console.error(err);
-        }
 
-        setEnrolledPass(newAthlete);
-        setIsSubmitted(true);
+            setEnrolledPass(finalAthlete);
+            setIsSubmitted(true);
+        } catch (err) {
+            console.error('Submission failed:', err);
+            setSubmitError(err.response?.data?.message || 'Could not connect to server database. Please check your internet connection.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const downloadPassImage = () => {
@@ -892,13 +930,33 @@ const AthleteEnroll = () => {
                             )}
                         </div>
 
+                        {/* Submission Error Banner */}
+                        {submitError && (
+                            <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-3 text-red-600 text-xs font-semibold">
+                                <FiAlertCircle className="text-lg shrink-0 text-red-500" />
+                                <span>{submitError}</span>
+                            </div>
+                        )}
+
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A1A] via-orange-500 to-amber-500 hover:opacity-95 text-white font-display font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-transform active:scale-98"
+                            disabled={isSubmitting}
+                            className={`w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A1A] via-orange-500 to-amber-500 text-white font-display font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-transform ${
+                                isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-95 active:scale-98'
+                            }`}
                         >
-                            <span>Complete Athlete Registration</span>
-                            <FiArrowRight />
+                            {isSubmitting ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Saving to Database & Enrolling...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Complete Athlete Registration</span>
+                                    <FiArrowRight />
+                                </>
+                            )}
                         </button>
                     </form>
                 )}

@@ -5,8 +5,9 @@ import Inquiry from '../models/Inquiry.js';
 const router = express.Router();
 
 const getQueryFilter = (id) => {
+    if (!id || id === 'undefined' || id === 'null') return { _id: new mongoose.Types.ObjectId() };
     const isObjectId = mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id);
-    return isObjectId ? { $or: [{ _id: id }, { id: id }] } : { id: id };
+    return isObjectId ? { $or: [{ _id: new mongoose.Types.ObjectId(id) }, { id: String(id) }] } : { id: String(id) };
 };
 
 router.get('/', async (req, res) => {
@@ -30,6 +31,54 @@ router.post('/', async (req, res) => {
     }
 });
 
+// BATCH DELETE MULTIPLE INQUIRIES
+router.post('/batch-delete', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No inquiry IDs provided' });
+        }
+        const objectIds = ids
+            .filter(id => id && mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id))
+            .map(id => new mongoose.Types.ObjectId(id));
+        const stringIds = ids.filter(Boolean).map(String);
+
+        const filter = {
+            $or: [
+                { id: { $in: stringIds } },
+                ...(objectIds.length > 0 ? [{ _id: { $in: objectIds } }] : [])
+            ]
+        };
+
+        const result = await Inquiry.deleteMany(filter);
+        if (req.io) req.io.emit('inquiries_batch_deleted', { ids });
+        res.json({ success: true, message: `${result.deletedCount} inquiries deleted successfully`, count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE ALL / CLEAR ALL INQUIRIES
+router.delete('/', async (req, res) => {
+    try {
+        const result = await Inquiry.deleteMany({});
+        if (req.io) req.io.emit('inquiries_cleared');
+        res.json({ success: true, message: 'All contact queries cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+router.post('/clear-all', async (req, res) => {
+    try {
+        const result = await Inquiry.deleteMany({});
+        if (req.io) req.io.emit('inquiries_cleared');
+        res.json({ success: true, message: 'All contact queries cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 router.put('/:id', async (req, res) => {
     try {
         const updated = await Inquiry.findOneAndUpdate(
@@ -45,8 +94,11 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        await Inquiry.findOneAndDelete(getQueryFilter(req.params.id));
-        res.json({ success: true, message: 'Inquiry removed' });
+        const deleted = await Inquiry.findOneAndDelete(getQueryFilter(req.params.id));
+        if (req.io && deleted) {
+            req.io.emit('inquiry_deleted', deleted);
+        }
+        res.json({ success: true, message: 'Inquiry removed successfully', data: deleted });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

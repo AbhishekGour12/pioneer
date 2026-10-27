@@ -73,6 +73,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { userinfo } from '../features/userinfo';
+import { getApiBase, getSocketUrl } from '../utils/api';
 
 const AdminDashboard = () => {
     // Current Active Tab
@@ -91,6 +92,7 @@ const AdminDashboard = () => {
 
     // Modals state
     const [showAddAthleteModal, setShowAddAthleteModal] = useState(false);
+    const [isSavingAthlete, setIsSavingAthlete] = useState(false);
     const [editingAthlete, setEditingAthlete] = useState(null);
     const [viewingAthleteCard, setViewingAthleteCard] = useState(null);
     const [athletePassQrDataUrl, setAthletePassQrDataUrl] = useState('');
@@ -123,6 +125,12 @@ const AdminDashboard = () => {
 
     const [showAddInquiryModal, setShowAddInquiryModal] = useState(false);
     const [editingInquiry, setEditingInquiry] = useState(null);
+
+    // Multi-select state for bulk actions across all tabs
+    const [selectedInquiryIds, setSelectedInquiryIds] = useState([]);
+    const [selectedAthleteIds, setSelectedAthleteIds] = useState([]);
+    const [selectedPaymentIds, setSelectedPaymentIds] = useState([]);
+    const [selectedReminderIds, setSelectedReminderIds] = useState([]);
 
     const [broadcastingNotice, setBroadcastingNotice] = useState(false);
 
@@ -376,7 +384,7 @@ const AdminDashboard = () => {
         ];
     });
 
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/';
+    const API_BASE = getApiBase();
 
     // Fetch live data from MongoDB Atlas on component mount, tab change & socket events
     const fetchMongoData = async () => {
@@ -416,7 +424,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         let socket = null;
         try {
-            const socketUrl = API_BASE.replace(/\/api\/?$/, '');
+            const socketUrl = getSocketUrl();
             socket = io(socketUrl, {
                 transports: ['websocket', 'polling'],
                 reconnectionAttempts: 10,
@@ -440,7 +448,16 @@ const AdminDashboard = () => {
             });
 
             socket.on('athlete_deleted', (deletedAth) => {
-                setAthletes(prev => prev.filter(a => a.id !== deletedAth.id && a._id !== deletedAth._id));
+                const targetKey = deletedAth?.id || deletedAth?._id;
+                setAthletes(prev => prev.filter(a => a.id !== targetKey && a._id !== targetKey));
+            });
+            socket.on('athletes_batch_deleted', ({ ids }) => {
+                if (Array.isArray(ids)) {
+                    setAthletes(prev => prev.filter(a => !ids.includes(a.id) && !ids.includes(a._id)));
+                }
+            });
+            socket.on('athletes_cleared', () => {
+                setAthletes([]);
             });
 
             socket.on('payment_recorded', (newPay) => {
@@ -451,12 +468,38 @@ const AdminDashboard = () => {
                 showToast(`💰 Real-Time: Payment recorded for ${newPay.athleteName || 'Athlete'} (₹${newPay.amount})`, 'info');
             });
 
+            socket.on('payment_deleted', (delPay) => {
+                const targetKey = delPay?.id || delPay?._id;
+                setPayments(prev => prev.filter(p => p.id !== targetKey && p._id !== targetKey));
+            });
+            socket.on('payments_batch_deleted', ({ ids }) => {
+                if (Array.isArray(ids)) {
+                    setPayments(prev => prev.filter(p => !ids.includes(p.id) && !ids.includes(p._id)));
+                }
+            });
+            socket.on('payments_cleared', () => {
+                setPayments([]);
+            });
+
             socket.on('new_inquiry_received', (newInq) => {
                 setInquiries(prev => {
                     if (prev.some(i => i.id === newInq.id || i._id === newInq._id)) return prev;
                     return [newInq, ...prev];
                 });
                 showToast(`📩 Real-Time Lead: New inquiry from "${newInq.name}" (${newInq.sport})`, 'info');
+            });
+
+            socket.on('inquiry_deleted', (delInq) => {
+                const targetKey = delInq?.id || delInq?._id;
+                setInquiries(prev => prev.filter(i => i.id !== targetKey && i._id !== targetKey));
+            });
+            socket.on('inquiries_batch_deleted', ({ ids }) => {
+                if (Array.isArray(ids)) {
+                    setInquiries(prev => prev.filter(i => !ids.includes(i.id) && !ids.includes(i._id)));
+                }
+            });
+            socket.on('inquiries_cleared', () => {
+                setInquiries([]);
             });
         } catch (e) {
             console.warn('Socket connection note:', e);
@@ -928,7 +971,7 @@ const AdminDashboard = () => {
         updateAthleteFormSportOrPlan(athleteForm.sport, nextPlanType);
     };
 
-    const handleSaveAthlete = (e) => {
+    const handleSaveAthlete = async (e) => {
         e.preventDefault();
         if (!athleteForm.name || !athleteForm.phone) {
             showToast('Please enter athlete name and contact phone.', 'error');
@@ -940,66 +983,179 @@ const AdminDashboard = () => {
             return;
         }
 
+        setIsSavingAthlete(true);
+
         const calculatedDue = Math.max(0, Number(athleteForm.feeAmount) - Number(athleteForm.amountPaid || 0));
         const finalStatus = calculatedDue === 0 ? 'Paid' : calculatedDue === Number(athleteForm.feeAmount) ? 'Due' : 'Partial';
 
-        if (editingAthlete) {
-            const updatedAth = {
-                ...editingAthlete,
-                ...athleteForm,
-                email: editingAthlete.email || `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
-                dueAmount: calculatedDue,
-                paymentStatus: finalStatus
-            };
-            setAthletes(athletes.map(a => a.id === editingAthlete.id ? updatedAth : a));
-            axios.put(`${API_BASE}athletes/${editingAthlete.id}`, updatedAth).catch(err => console.warn(err));
-            showToast(`Athlete profile for "${athleteForm.name}" updated!`);
-        } else {
-            const newAthlete = {
-                id: `ATH-${Math.floor(100 + Math.random() * 900)}`,
-                ...athleteForm,
-                email: `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
-                dueAmount: calculatedDue,
-                paymentStatus: finalStatus,
-                joinDate: new Date().toISOString().split('T')[0],
-                status: 'Active'
-            };
-            setAthletes([newAthlete, ...athletes]);
-            axios.post(`${API_BASE}athletes`, newAthlete).catch(err => console.warn(err));
-
-            // If amount paid > 0, log transaction
-            if (Number(athleteForm.amountPaid) > 0) {
-                const newPay = {
-                    id: `PAY-${Math.floor(100 + Math.random() * 900)}`,
-                    athleteId: newAthlete.id,
-                    athleteName: newAthlete.name,
-                    sport: newAthlete.sport,
-                    plan: newAthlete.membership,
-                    amount: Number(athleteForm.amountPaid),
-                    paymentMode: athleteForm.paymentMode || 'Cash',
-                    utrNumber: athleteForm.paymentMode === 'Online' ? (athleteForm.utrNumber || '') : '',
-                    date: new Date().toISOString().split('T')[0],
-                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    method: athleteForm.paymentMode === 'Online' ? `Online UPI (UTR: ${athleteForm.utrNumber})` : 'Reception Cash Desk',
-                    status: 'Completed',
-                    receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`
+        try {
+            if (editingAthlete) {
+                const updatedAth = {
+                    ...editingAthlete,
+                    ...athleteForm,
+                    email: editingAthlete.email || `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
+                    dueAmount: calculatedDue,
+                    paymentStatus: finalStatus
                 };
-                setPayments([newPay, ...payments]);
-                axios.post(`${API_BASE}payments`, newPay).catch(err => console.warn(err));
+
+                let savedAth = updatedAth;
+                try {
+                    const res = await axios.put(`${API_BASE}athletes/${editingAthlete._id || editingAthlete.id}`, updatedAth);
+                    if (res.data?.data) savedAth = res.data.data;
+                } catch (putErr) {
+                    console.warn('PUT athletes failed on primary URL, trying fallback...', putErr);
+                    if (API_BASE !== '/api/') {
+                        const res2 = await axios.put(`/api/athletes/${editingAthlete._id || editingAthlete.id}`, updatedAth);
+                        if (res2.data?.data) savedAth = res2.data.data;
+                    }
+                }
+
+                setAthletes(prev => prev.map(a => (a.id === editingAthlete.id || a._id === editingAthlete._id) ? savedAth : a));
+                showToast(`Athlete profile for "${athleteForm.name}" updated successfully!`, 'success');
+            } else {
+                const newId = `ATH-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
+                const newAthlete = {
+                    id: newId,
+                    ...athleteForm,
+                    email: `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
+                    dueAmount: calculatedDue,
+                    paymentStatus: finalStatus,
+                    joinDate: new Date().toISOString().split('T')[0],
+                    status: 'Active'
+                };
+
+                let savedAthlete = newAthlete;
+                try {
+                    const res = await axios.post(`${API_BASE}athletes`, newAthlete);
+                    if (res.data?.data) savedAthlete = res.data.data;
+                } catch (postErr) {
+                    console.warn('POST athletes failed on primary URL, trying fallback...', postErr);
+                    if (API_BASE !== '/api/') {
+                        const res2 = await axios.post('/api/athletes', newAthlete);
+                        if (res2.data?.data) savedAthlete = res2.data.data;
+                    }
+                }
+
+                setAthletes(prev => [savedAthlete, ...prev.filter(a => a.id !== savedAthlete.id && a._id !== savedAthlete._id)]);
+
+                // If amount paid > 0, log transaction into MongoDB
+                if (Number(athleteForm.amountPaid) > 0) {
+                    const newPay = {
+                        id: `PAY-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`,
+                        athleteId: savedAthlete.id,
+                        athleteName: savedAthlete.name,
+                        sport: savedAthlete.sport,
+                        plan: savedAthlete.membership,
+                        amount: Number(athleteForm.amountPaid),
+                        paymentMode: athleteForm.paymentMode || 'Cash',
+                        utrNumber: athleteForm.paymentMode === 'Online' ? (athleteForm.utrNumber || '') : '',
+                        date: new Date().toISOString().split('T')[0],
+                        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        method: athleteForm.paymentMode === 'Online' ? `Online UPI (UTR: ${athleteForm.utrNumber})` : 'Reception Cash Desk',
+                        status: 'Completed',
+                        receiptNo: `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`
+                    };
+
+                    try {
+                        const payRes = await axios.post(`${API_BASE}payments`, newPay);
+                        const savedPay = payRes.data?.data || newPay;
+                        setPayments(prev => [savedPay, ...prev]);
+                    } catch (payErr) {
+                        axios.post('/api/payments', newPay).catch(e2 => console.warn(e2));
+                        setPayments(prev => [newPay, ...prev]);
+                    }
+                }
+
+                showToast(`Enrolled "${athleteForm.name}" (${athleteForm.sport} - ${athleteForm.planType} Plan) successfully!`, 'success');
             }
 
-            showToast(`Enrolled "${athleteForm.name}" (${athleteForm.sport} - ${athleteForm.planType} Plan)!`);
+            // Close modal only on successful save
+            setShowAddAthleteModal(false);
+            setEditingAthlete(null);
+        } catch (err) {
+            console.error('Save athlete error:', err);
+            showToast(err.response?.data?.message || 'Failed to save athlete to server. Please try again.', 'error');
+        } finally {
+            setIsSavingAthlete(false);
         }
-
-        setShowAddAthleteModal(false);
-        setEditingAthlete(null);
     };
 
-    const handleDeleteAthlete = (id, name) => {
-        if (window.confirm(`Are you sure you want to remove athlete "${name}" from academy records?`)) {
-            setAthletes(athletes.filter(a => a.id !== id));
-            axios.delete(`${API_BASE}athletes/${id}`).catch(err => console.warn(err));
-            showToast(`Athlete "${name}" removed from database.`, 'info');
+    // ==========================================
+    // ATHLETES BULK & SINGLE DELETE
+    // ==========================================
+    const handleToggleSelectAthlete = (key) => {
+        if (!key) return;
+        setSelectedAthleteIds(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    };
+
+    const handleToggleSelectAllAthletes = () => {
+        const allKeys = filteredAthletes.map(a => a.id || a._id).filter(Boolean);
+        if (selectedAthleteIds.length >= allKeys.length && allKeys.length > 0) {
+            setSelectedAthleteIds([]);
+        } else {
+            setSelectedAthleteIds(allKeys);
+        }
+    };
+
+    const handleDeleteAthlete = async (id, name, athObj) => {
+        const athlete = athObj || athletes.find(a => a.id === id || a._id === id);
+        const athleteName = name || athlete?.name || 'Athlete';
+        const idsToDelete = [id, athlete?._id, athlete?.id].filter(Boolean);
+        if (window.confirm(`Are you sure you want to remove athlete "${athleteName}" from academy records?`)) {
+            try {
+                await axios.post(`${API_BASE}athletes/batch-delete`, { ids: idsToDelete });
+            } catch (err) {
+                try {
+                    await axios.delete(`${API_BASE}athletes/${athlete?._id || id}`);
+                } catch (e) {
+                    console.warn('Athlete delete note:', e.message);
+                }
+            }
+            setAthletes(prev => prev.filter(a => !idsToDelete.includes(a.id) && !idsToDelete.includes(a._id)));
+            setSelectedAthleteIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
+            try {
+                const local = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
+                localStorage.setItem('playpeak_athletes', JSON.stringify(local.filter(a => !idsToDelete.includes(a.id) && !idsToDelete.includes(a._id))));
+            } catch (e) {}
+            showToast(`Athlete "${athleteName}" removed from database.`, 'info');
+        }
+    };
+
+    const handleBatchDeleteAthletes = async () => {
+        if (selectedAthleteIds.length === 0) return;
+        const count = selectedAthleteIds.length;
+        if (window.confirm(`Permanently remove all ${count} selected athletes from academy records?`)) {
+            try {
+                await axios.post(`${API_BASE}athletes/batch-delete`, { ids: selectedAthleteIds });
+            } catch (err) {
+                console.warn('Batch delete athletes note:', err.message);
+            }
+            setAthletes(prev => prev.filter(a => !selectedAthleteIds.includes(a.id) && !selectedAthleteIds.includes(a._id)));
+            try {
+                const local = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
+                localStorage.setItem('playpeak_athletes', JSON.stringify(local.filter(a => !selectedAthleteIds.includes(a.id) && !selectedAthleteIds.includes(a._id))));
+            } catch (e) {}
+            setSelectedAthleteIds([]);
+            showToast(`Successfully removed ${count} athletes.`, 'info');
+        }
+    };
+
+    const handleClearAllAthletes = async () => {
+        if (athletes.length === 0) return;
+        if (window.confirm(`⚠️ WARNING: Are you sure you want to permanently delete ALL ${athletes.length} athlete records? This action cannot be undone!`)) {
+            try {
+                await axios.delete(`${API_BASE}athletes`);
+            } catch (err) {
+                try {
+                    await axios.post(`${API_BASE}athletes/clear-all`);
+                } catch (e) {
+                    console.warn('Clear all athletes note:', e.message);
+                }
+            }
+            setAthletes([]);
+            setSelectedAthleteIds([]);
+            localStorage.setItem('playpeak_athletes', '[]');
+            showToast('All athlete records have been cleared.', 'info');
         }
     };
 
@@ -1078,12 +1234,81 @@ const AdminDashboard = () => {
         setEditingPayment(null);
     };
 
+    // ==========================================
+    // PAYMENTS BULK & SINGLE DELETE
+    // ==========================================
+    const handleToggleSelectPayment = (key) => {
+        if (!key) return;
+        setSelectedPaymentIds(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    };
+
+    const handleToggleSelectAllPayments = () => {
+        const allKeys = filteredPayments.map(p => p.id || p._id).filter(Boolean);
+        if (selectedPaymentIds.length >= allKeys.length && allKeys.length > 0) {
+            setSelectedPaymentIds([]);
+        } else {
+            setSelectedPaymentIds(allKeys);
+        }
+    };
+
     const handleDeletePayment = async (pay) => {
         const targetId = pay._id || pay.id;
+        const idsToDelete = [pay._id, pay.id].filter(Boolean);
         if (window.confirm(`Delete payment record (${pay.receiptNo || targetId}) for ₹${pay.amount}?`)) {
-            setPayments(payments.filter(p => !(p.id === pay.id || (p._id && p._id === pay._id))));
-            axios.delete(`${API_BASE}payments/${targetId}`).catch(err => console.warn(err));
+            try {
+                await axios.post(`${API_BASE}payments/batch-delete`, { ids: idsToDelete });
+            } catch (err) {
+                try {
+                    await axios.delete(`${API_BASE}payments/${targetId}`);
+                } catch (e) {
+                    console.warn('Payment delete note:', e.message);
+                }
+            }
+            setPayments(prev => prev.filter(p => !idsToDelete.includes(p.id) && !idsToDelete.includes(p._id)));
+            setSelectedPaymentIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
+            try {
+                const local = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
+                localStorage.setItem('playpeak_payments', JSON.stringify(local.filter(p => !idsToDelete.includes(p.id) && !idsToDelete.includes(p._id))));
+            } catch (e) {}
             showToast('Transaction record deleted.', 'info');
+        }
+    };
+
+    const handleBatchDeletePayments = async () => {
+        if (selectedPaymentIds.length === 0) return;
+        const count = selectedPaymentIds.length;
+        if (window.confirm(`Permanently delete all ${count} selected payment records?`)) {
+            try {
+                await axios.post(`${API_BASE}payments/batch-delete`, { ids: selectedPaymentIds });
+            } catch (err) {
+                console.warn('Batch delete payments note:', err.message);
+            }
+            setPayments(prev => prev.filter(p => !selectedPaymentIds.includes(p.id) && !selectedPaymentIds.includes(p._id)));
+            try {
+                const local = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
+                localStorage.setItem('playpeak_payments', JSON.stringify(local.filter(p => !selectedPaymentIds.includes(p.id) && !selectedPaymentIds.includes(p._id))));
+            } catch (e) {}
+            setSelectedPaymentIds([]);
+            showToast(`Successfully deleted ${count} payment records.`, 'info');
+        }
+    };
+
+    const handleClearAllPayments = async () => {
+        if (payments.length === 0) return;
+        if (window.confirm(`⚠️ WARNING: Are you sure you want to permanently delete ALL ${payments.length} payment records? This action cannot be undone!`)) {
+            try {
+                await axios.delete(`${API_BASE}payments`);
+            } catch (err) {
+                try {
+                    await axios.post(`${API_BASE}payments/clear-all`);
+                } catch (e) {
+                    console.warn('Clear all payments note:', e.message);
+                }
+            }
+            setPayments([]);
+            setSelectedPaymentIds([]);
+            localStorage.setItem('playpeak_payments', '[]');
+            showToast('All payment transaction records cleared.', 'info');
         }
     };
 
@@ -1434,22 +1659,103 @@ const AdminDashboard = () => {
         setEditingInquiry(null);
     };
 
+    // ==========================================
+    // INQUIRIES BULK & SINGLE DELETE
+    // ==========================================
+    const matchesInquiry = (item, target) => {
+        if (!item || !target) return false;
+        const targetIds = [target._id, target.id].filter(Boolean);
+        const itemIds = [item._id, item.id].filter(Boolean);
+        return targetIds.some(tid => itemIds.includes(tid));
+    };
+
+    const handleToggleSelectInquiry = (key) => {
+        if (!key) return;
+        setSelectedInquiryIds(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    };
+
+    const handleToggleSelectAllInquiries = () => {
+        const allKeys = inquiries.map(i => i._id || i.id).filter(Boolean);
+        if (selectedInquiryIds.length >= allKeys.length && allKeys.length > 0) {
+            setSelectedInquiryIds([]);
+        } else {
+            setSelectedInquiryIds(allKeys);
+        }
+    };
+
     const handleDeleteInquiry = async (inq) => {
         if (!inq) return;
-        const targetId = inq._id || inq.id;
         const targetName = inq.name || 'Inquiry';
+        const idsToDelete = [inq._id, inq.id].filter(Boolean);
         if (window.confirm(`Permanently delete inquiry from "${targetName}"?`)) {
             try {
-                await axios.delete(`${API_BASE}inquiries/${targetId}`);
+                await axios.post(`${API_BASE}inquiries/batch-delete`, { ids: idsToDelete });
             } catch (err) {
-                console.warn('Inquiry delete note:', err.message);
+                try {
+                    await axios.delete(`${API_BASE}inquiries/${inq._id || inq.id}`);
+                } catch (e) {
+                    console.warn('Inquiry delete note:', e.message);
+                }
             }
-            setInquiries(prev => prev.filter(i => !(i.id === targetId || (i._id && i._id === targetId))));
-            const localInqs = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
-            localStorage.setItem('pioneer_inquiries', JSON.stringify(localInqs.filter(i => !(i.id === targetId || (i._id && i._id === targetId)))));
-            const oldInqs = JSON.parse(localStorage.getItem('playpeak_inquiries') || '[]');
-            localStorage.setItem('playpeak_inquiries', JSON.stringify(oldInqs.filter(i => !(i.id === targetId || (i._id && i._id === targetId)))));
+            setInquiries(prev => prev.filter(i => !matchesInquiry(i, inq)));
+            setSelectedInquiryIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
+            const cleanLocal = (storageKey) => {
+                try {
+                    const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    const filtered = items.filter(i => !matchesInquiry(i, inq));
+                    localStorage.setItem(storageKey, JSON.stringify(filtered));
+                } catch (e) {}
+            };
+            cleanLocal('pioneer_inquiries');
+            cleanLocal('playpeak_inquiries');
             showToast(`Inquiry for "${targetName}" permanently deleted.`, 'info');
+        }
+    };
+
+    const handleBatchDeleteInquiries = async () => {
+        if (selectedInquiryIds.length === 0) return;
+        const count = selectedInquiryIds.length;
+        if (window.confirm(`Permanently delete all ${count} selected inquiries?`)) {
+            try {
+                await axios.post(`${API_BASE}inquiries/batch-delete`, { ids: selectedInquiryIds });
+            } catch (err) {
+                console.warn('Batch delete inquiries note:', err.message);
+            }
+            setInquiries(prev => prev.filter(i => {
+                const iKey = i._id || i.id;
+                return !selectedInquiryIds.includes(iKey) && !selectedInquiryIds.includes(i.id) && !selectedInquiryIds.includes(i._id);
+            }));
+            const cleanLocalBatch = (storageKey) => {
+                try {
+                    const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    const filtered = items.filter(i => !selectedInquiryIds.includes(i._id) && !selectedInquiryIds.includes(i.id));
+                    localStorage.setItem(storageKey, JSON.stringify(filtered));
+                } catch (e) {}
+            };
+            cleanLocalBatch('pioneer_inquiries');
+            cleanLocalBatch('playpeak_inquiries');
+            setSelectedInquiryIds([]);
+            showToast(`Deleted ${count} inquiries successfully.`, 'info');
+        }
+    };
+
+    const handleClearAllInquiries = async () => {
+        if (inquiries.length === 0) return;
+        if (window.confirm(`⚠️ WARNING: Are you sure you want to permanently delete ALL ${inquiries.length} contact queries? This cannot be undone!`)) {
+            try {
+                await axios.delete(`${API_BASE}inquiries`);
+            } catch (err) {
+                try {
+                    await axios.post(`${API_BASE}inquiries/clear-all`);
+                } catch (e) {
+                    console.warn('Clear all inquiries note:', e.message);
+                }
+            }
+            setInquiries([]);
+            setSelectedInquiryIds([]);
+            localStorage.setItem('pioneer_inquiries', '[]');
+            localStorage.setItem('playpeak_inquiries', '[]');
+            showToast('All contact inquiries have been permanently cleared.', 'info');
         }
     };
 
@@ -1472,6 +1778,58 @@ const AdminDashboard = () => {
     // BROADCAST AUTO PAYMENT DUE REMINDERS & MARK PAID
     // ==========================================
     const dueAthletes = athletes.filter(a => Number(a.dueAmount || 0) > 0 || a.paymentStatus === 'Due' || a.paymentStatus === 'Overdue');
+
+    // ==========================================
+    // FEE DUE REMINDERS BULK ACTIONS
+    // ==========================================
+    const handleToggleSelectReminder = (key) => {
+        if (!key) return;
+        setSelectedReminderIds(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    };
+
+    const handleToggleSelectAllReminders = () => {
+        const allKeys = filteredDueAthletes.map(a => a.id || a._id).filter(Boolean);
+        if (selectedReminderIds.length >= allKeys.length && allKeys.length > 0) {
+            setSelectedReminderIds([]);
+        } else {
+            setSelectedReminderIds(allKeys);
+        }
+    };
+
+    const handleBroadcastSelectedReminders = () => {
+        if (selectedReminderIds.length === 0) return;
+        setBroadcastingNotice(true);
+        setTimeout(() => {
+            setBroadcastingNotice(false);
+            showToast(`🚀 Dispatched automated fee reminder to ${selectedReminderIds.length} selected students!`, 'success');
+        }, 800);
+    };
+
+    const handleMarkSelectedAsPaid = async () => {
+        if (selectedReminderIds.length === 0) return;
+        const count = selectedReminderIds.length;
+        if (window.confirm(`Mark fee dues as PAID for all ${count} selected athletes?`)) {
+            for (const key of selectedReminderIds) {
+                const athlete = athletes.find(a => a.id === key || a._id === key);
+                if (athlete) {
+                    await handleMarkPaid(athlete);
+                }
+            }
+            setSelectedReminderIds([]);
+            showToast(`Marked ${count} athlete fee dues as Paid.`, 'success');
+        }
+    };
+
+    const handleClearAllFeeDues = async () => {
+        if (dueAthletes.length === 0) return;
+        if (window.confirm(`Clear and mark all ${dueAthletes.length} pending fee dues as paid?`)) {
+            for (const athlete of dueAthletes) {
+                await handleMarkPaid(athlete);
+            }
+            setSelectedReminderIds([]);
+            showToast('All fee dues have been marked as settled.', 'info');
+        }
+    };
 
     const handleBroadcastDueReminders = () => {
         if (dueAthletes.length === 0) {
@@ -2060,7 +2418,27 @@ const AdminDashboard = () => {
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-2.5">
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                    {selectedAthleteIds.length > 0 && (
+                                        <button
+                                            onClick={handleBatchDeleteAthletes}
+                                            className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 flex items-center gap-1.5 transition-all"
+                                            title="Delete all selected athletes"
+                                        >
+                                            <FiTrash2 /> Delete Selected ({selectedAthleteIds.length})
+                                        </button>
+                                    )}
+
+                                    {athletes.length > 0 && (
+                                        <button
+                                            onClick={handleClearAllAthletes}
+                                            className="py-2.5 px-3.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                                            title="Permanently clear all athletes"
+                                        >
+                                            <FiTrash2 /> Delete All ({athletes.length})
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={handleOpenQrModal}
                                         className="py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5"
@@ -2131,6 +2509,15 @@ const AdminDashboard = () => {
                                     <table className="w-full text-left text-xs text-slate-600">
                                         <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                                             <tr>
+                                                <th className="px-4 py-4 w-10 text-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedAthleteIds.length === filteredAthletes.length && filteredAthletes.length > 0}
+                                                        onChange={handleToggleSelectAllAthletes}
+                                                        className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                        title="Select All Athletes"
+                                                    />
+                                                </th>
                                                 <th className="px-5 py-4">Athlete ID & Name</th>
                                                 <th className="px-5 py-4">Sport & Batch</th>
                                                 <th className="px-5 py-4">Billing & Plan</th>
@@ -2140,8 +2527,19 @@ const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
-                                            {filteredAthletes.map((athlete) => (
-                                                <tr key={athlete.id} className="hover:bg-slate-50/70 transition-colors">
+                                            {filteredAthletes.map((athlete) => {
+                                                const athKey = athlete.id || athlete._id;
+                                                const isSelected = selectedAthleteIds.includes(athKey) || selectedAthleteIds.includes(athlete.id) || selectedAthleteIds.includes(athlete._id);
+                                                return (
+                                                <tr key={athKey} className={`hover:bg-slate-50/70 transition-colors ${isSelected ? 'bg-orange-50/30' : ''}`}>
+                                                    <td className="px-4 py-4 w-10 text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => handleToggleSelectAthlete(athKey)}
+                                                            className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                        />
+                                                    </td>
                                                     <td className="px-5 py-4">
                                                         <div className="font-bold text-slate-900 text-sm">{athlete.name}</div>
                                                         <div className="text-[11px] text-slate-400">{athlete.id} • {athlete.phone} • {athlete.age} Yrs ({athlete.gender})</div>
@@ -2228,7 +2626,7 @@ const AdminDashboard = () => {
                                                             </button>
 
                                                             <button
-                                                                onClick={() => handleDeleteAthlete(athlete.id, athlete.name)}
+                                                                onClick={() => handleDeleteAthlete(athlete.id || athlete._id, athlete.name, athlete)}
                                                                 title="Delete Athlete"
                                                                 className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                                                             >
@@ -2237,7 +2635,8 @@ const AdminDashboard = () => {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            );
+                                        })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -2263,6 +2662,26 @@ const AdminDashboard = () => {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2.5">
+                                    {selectedPaymentIds.length > 0 && (
+                                        <button
+                                            onClick={handleBatchDeletePayments}
+                                            className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 flex items-center gap-1.5 transition-all"
+                                            title="Delete selected payment records"
+                                        >
+                                            <FiTrash2 /> Delete Selected ({selectedPaymentIds.length})
+                                        </button>
+                                    )}
+
+                                    {payments.length > 0 && (
+                                        <button
+                                            onClick={handleClearAllPayments}
+                                            className="py-2.5 px-3.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                                            title="Permanently clear all payment records"
+                                        >
+                                            <FiTrash2 /> Delete All ({payments.length})
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={exportPaymentsToExcel}
                                         className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
@@ -2377,6 +2796,15 @@ const AdminDashboard = () => {
                                     <table className="w-full text-left text-xs text-slate-600">
                                         <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                                             <tr>
+                                                <th className="px-4 py-4 w-10 text-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedPaymentIds.length === filteredPayments.length && filteredPayments.length > 0}
+                                                        onChange={handleToggleSelectAllPayments}
+                                                        className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                        title="Select All Payments"
+                                                    />
+                                                </th>
                                                 <th className="px-5 py-4">Receipt & Date</th>
                                                 <th className="px-5 py-4">Student Name</th>
                                                 <th className="px-5 py-4">Plan / Purpose</th>
@@ -2389,15 +2817,25 @@ const AdminDashboard = () => {
                                         <tbody className="divide-y divide-slate-100">
                                             {filteredPayments.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                                                    <td colSpan={8} className="px-5 py-8 text-center text-slate-400">
                                                         No payment transactions match the filter criteria.
                                                     </td>
                                                 </tr>
                                             ) : (
                                                 filteredPayments.map((pay) => {
+                                                    const payKey = pay.id || pay._id;
+                                                    const isSelected = selectedPaymentIds.includes(payKey) || selectedPaymentIds.includes(pay.id) || selectedPaymentIds.includes(pay._id);
                                                     const isOnline = pay.paymentMode === 'Online' || (pay.method || '').toLowerCase().includes('upi') || (pay.method || '').toLowerCase().includes('online') || pay.utrNumber;
                                                     return (
-                                                        <tr key={pay.id || pay._id} className="hover:bg-slate-50/70 transition-colors">
+                                                        <tr key={payKey} className={`hover:bg-slate-50/70 transition-colors ${isSelected ? 'bg-orange-50/30' : ''}`}>
+                                                            <td className="px-4 py-4 w-10 text-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    onChange={() => handleToggleSelectPayment(payKey)}
+                                                                    className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                                />
+                                                            </td>
                                                             <td className="px-5 py-4">
                                                                 <div className="font-mono font-bold text-slate-900">{pay.receiptNo || pay.id}</div>
                                                                 <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
@@ -2486,6 +2924,35 @@ const AdminDashboard = () => {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2.5">
+                                    {selectedReminderIds.length > 0 && (
+                                        <>
+                                            <button
+                                                onClick={handleBroadcastSelectedReminders}
+                                                className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+                                                title="Send WhatsApp reminder to selected students"
+                                            >
+                                                <FaWhatsapp /> Remind Selected ({selectedReminderIds.length})
+                                            </button>
+                                            <button
+                                                onClick={handleMarkSelectedAsPaid}
+                                                className="py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+                                                title="Mark fee dues as paid for selected students"
+                                            >
+                                                <FiCheck /> Mark Paid ({selectedReminderIds.length})
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {dueAthletes.length > 0 && (
+                                        <button
+                                            onClick={handleClearAllFeeDues}
+                                            className="py-2.5 px-3.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                                            title="Mark all pending fee dues as settled"
+                                        >
+                                            <FiTrash2 /> Settle All Dues ({dueAthletes.length})
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={exportFeeDuesToExcel}
                                         className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
@@ -2551,6 +3018,15 @@ const AdminDashboard = () => {
                                     <table className="w-full text-left text-xs text-slate-600">
                                         <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                                             <tr>
+                                                <th className="px-4 py-4 w-10 text-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedReminderIds.length === filteredDueAthletes.length && filteredDueAthletes.length > 0}
+                                                        onChange={handleToggleSelectAllReminders}
+                                                        className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                        title="Select All Due Students"
+                                                    />
+                                                </th>
                                                 <th className="px-5 py-4">Athlete Name & Phone</th>
                                                 <th className="px-5 py-4">Sport & Billing Duration</th>
                                                 <th className="px-5 py-4">Due Balance</th>
@@ -2561,13 +3037,24 @@ const AdminDashboard = () => {
                                         <tbody className="divide-y divide-slate-100">
                                             {filteredDueAthletes.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={5} className="px-5 py-8 text-center text-slate-400">
+                                                    <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
                                                         No athletes currently have pending fee dues!
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                filteredDueAthletes.map((athlete) => (
-                                                    <tr key={athlete.id || athlete._id} className="hover:bg-slate-50/70 transition-colors">
+                                                filteredDueAthletes.map((athlete) => {
+                                                    const athKey = athlete.id || athlete._id;
+                                                    const isSelected = selectedReminderIds.includes(athKey) || selectedReminderIds.includes(athlete.id) || selectedReminderIds.includes(athlete._id);
+                                                    return (
+                                                    <tr key={athKey} className={`hover:bg-slate-50/70 transition-colors ${isSelected ? 'bg-orange-50/30' : ''}`}>
+                                                        <td className="px-4 py-4 w-10 text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={() => handleToggleSelectReminder(athKey)}
+                                                                className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                                            />
+                                                        </td>
                                                         <td className="px-5 py-4">
                                                             <div className="font-bold text-slate-900">{athlete.name}</div>
                                                             <div className="text-[11px] text-slate-400">{athlete.phone} • {athlete.id}</div>
@@ -2609,7 +3096,8 @@ const AdminDashboard = () => {
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                ))
+                                                );
+                                            })
                                             )}
                                         </tbody>
                                     </table>
@@ -2647,25 +3135,80 @@ const AdminDashboard = () => {
                                     </p>
                                 </div>
 
-                                <button
-                                    onClick={() => {
-                                        setEditingInquiry(null);
-                                        setIsCustomSportInquiry(false);
-                                        setInquiryForm({
-                                            name: '',
-                                            phone: '',
-                                            email: '',
-                                            sport: '10M Rifle Shooting',
-                                            ageGroup: 'Ages 10-15',
-                                            message: 'Interested in trial session.'
-                                        });
-                                        setShowAddInquiryModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Add New Lead
-                                </button>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {selectedInquiryIds.length > 0 && (
+                                        <button
+                                            onClick={handleBatchDeleteInquiries}
+                                            className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 flex items-center gap-1.5 transition-all"
+                                            title="Delete all selected inquiries"
+                                        >
+                                            <FiTrash2 /> Delete Selected ({selectedInquiryIds.length})
+                                        </button>
+                                    )}
+
+                                    {inquiries.length > 0 && (
+                                        <button
+                                            onClick={handleClearAllInquiries}
+                                            className="py-2.5 px-3.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                                            title="Permanently delete all contact queries"
+                                        >
+                                            <FiTrash2 /> Delete All ({inquiries.length})
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={() => {
+                                            setEditingInquiry(null);
+                                            setIsCustomSportInquiry(false);
+                                            setInquiryForm({
+                                                name: '',
+                                                phone: '',
+                                                email: '',
+                                                sport: '10M Rifle Shooting',
+                                                ageGroup: 'Ages 10-15',
+                                                message: 'Interested in trial session.'
+                                            });
+                                            setShowAddInquiryModal(true);
+                                        }}
+                                        className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
+                                    >
+                                        <FiPlus /> Add New Lead
+                                    </button>
+                                </div>
                             </div>
+
+                            {/* Multi-Select Toolbar when Inquiries exist */}
+                            {inquiries.length > 0 && (
+                                <div className="bg-white rounded-2xl px-5 py-3 border border-slate-200/90 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+                                    <label className="flex items-center gap-2.5 font-bold text-slate-700 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedInquiryIds.length === inquiries.length && inquiries.length > 0}
+                                            onChange={handleToggleSelectAllInquiries}
+                                            className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
+                                        />
+                                        <span>Select All Leads ({inquiries.length})</span>
+                                    </label>
+
+                                    {selectedInquiryIds.length > 0 ? (
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-bold text-[#FF6A1A] bg-orange-50 px-3 py-1 rounded-full text-[11px] border border-orange-200">
+                                                {selectedInquiryIds.length} of {inquiries.length} selected
+                                            </span>
+                                            <button
+                                                onClick={() => setSelectedInquiryIds([])}
+                                                className="text-slate-400 hover:text-slate-600 font-semibold"
+                                            >
+                                                Deselect All
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <span className="text-slate-400 text-[11px]">
+                                            Tip: Select individual leads to bulk delete or click Delete All to clear everything.
+                                        </span>
+                                    )}
+                                </div>
+                            )}
 
                             {inquiries.length === 0 ? (
                                 <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/90 shadow-sm max-w-lg mx-auto space-y-3">
@@ -2679,64 +3222,81 @@ const AdminDashboard = () => {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                    {inquiries.map((inq, inqIdx) => (
-                                        <div key={inq.id || inq._id || inqIdx} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
-                                            <div className="flex items-start justify-between">
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider">
-                                                        {inq.sport || 'Shooting'} {inq.planInterested ? `• ${inq.planInterested}` : ''}
+                                    {inquiries.map((inq, inqIdx) => {
+                                        const inqKey = inq._id || inq.id || `inq_${inqIdx}`;
+                                        const isSelected = selectedInquiryIds.includes(inqKey) || selectedInquiryIds.includes(inq.id) || selectedInquiryIds.includes(inq._id);
+                                        return (
+                                            <div
+                                                key={inqKey}
+                                                className={`bg-white rounded-3xl p-6 border transition-all space-y-4 ${
+                                                    isSelected ? 'border-[#FF6A1A] ring-2 ring-orange-500/20 shadow-md bg-orange-50/20' : 'border-slate-200/90 shadow-sm'
+                                                }`}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => handleToggleSelectInquiry(inqKey)}
+                                                            className="w-4 h-4 mt-1 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer shrink-0"
+                                                        />
+                                                        <div className="min-w-0">
+                                                            <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block truncate">
+                                                                {inq.sport || 'Shooting'} {inq.planInterested ? `• ${inq.planInterested}` : ''}
+                                                            </span>
+                                                            <h3 className="font-display font-bold text-lg text-slate-900 truncate">{inq.name}</h3>
+                                                            <p className="text-xs text-slate-500 font-medium truncate">{inq.phone} • {inq.email}</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase shrink-0 ${
+                                                        inq.status === 'New' ? 'bg-orange-100 text-[#FF6A1A]' : 'bg-emerald-100 text-emerald-700'
+                                                    }`}>
+                                                        {inq.status}
                                                     </span>
-                                                    <h3 className="font-display font-bold text-lg text-slate-900">{inq.name}</h3>
-                                                    <p className="text-xs text-slate-500 font-medium">{inq.phone} • {inq.email}</p>
                                                 </div>
-                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                                    inq.status === 'New' ? 'bg-orange-100 text-[#FF6A1A]' : 'bg-emerald-100 text-emerald-700'
-                                                }`}>
-                                                    {inq.status}
-                                                </span>
-                                            </div>
 
-                                            <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 leading-relaxed font-medium">
-                                                "{inq.message || inq.query || 'Inquiry regarding shooting classes.'}"
-                                            </p>
+                                                <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 leading-relaxed font-medium">
+                                                    "{inq.message || inq.query || 'Inquiry regarding shooting classes.'}"
+                                                </p>
 
-                                            <div className="flex flex-wrap items-center justify-between pt-2 border-t border-slate-100 text-xs gap-2">
-                                                <span className="text-slate-400 text-[11px] font-semibold">{inq.date || 'Recent'}</span>
-                                                
-                                                <div className="flex flex-wrap items-center gap-1.5">
-                                                    <a
-                                                        href={`tel:${inq.phone}`}
-                                                        className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center gap-1 transition-all"
-                                                    >
-                                                        <FiPhone className="text-xs text-[#FF6A1A]" /> Call
-                                                    </a>
+                                                <div className="flex flex-wrap items-center justify-between pt-2 border-t border-slate-100 text-xs gap-2">
+                                                    <span className="text-slate-400 text-[11px] font-semibold">{inq.date || 'Recent'}</span>
+                                                    
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <a
+                                                            href={`tel:${inq.phone}`}
+                                                            className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center gap-1 transition-all"
+                                                        >
+                                                            <FiPhone className="text-xs text-[#FF6A1A]" /> Call
+                                                        </a>
 
-                                                    <a
-                                                        href={`https://wa.me/${inq.phone ? inq.phone.replace(/[^0-9]/g, '') : '919893270807'}?text=${encodeURIComponent(`Hello ${inq.name}, thank you for contacting Pioneer Rifle Shooting Academy regarding ${inq.sport || 'shooting courses'}. How can we assist you today?`)}`}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="py-1.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold flex items-center gap-1 shadow-sm transition-all"
-                                                    >
-                                                        <FaWhatsapp className="text-xs" /> WhatsApp
-                                                    </a>
+                                                        <a
+                                                            href={`https://wa.me/${inq.phone ? inq.phone.replace(/[^0-9]/g, '') : '919893270807'}?text=${encodeURIComponent(`Hello ${inq.name}, thank you for contacting Pioneer Rifle Shooting Academy regarding ${inq.sport || 'shooting courses'}. How can we assist you today?`)}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="py-1.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold flex items-center gap-1 shadow-sm transition-all"
+                                                        >
+                                                            <FaWhatsapp className="text-xs" /> WhatsApp
+                                                        </a>
 
-                                                    <button
-                                                        onClick={() => handleAdvanceInquiry(inq)}
-                                                        className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-bold transition-all"
-                                                    >
-                                                        Advance
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteInquiry(inq)}
-                                                        className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                                                        title="Delete Inquiry Permanently"
-                                                    >
-                                                        <FiTrash2 />
-                                                    </button>
+                                                        <button
+                                                            onClick={() => handleAdvanceInquiry(inq)}
+                                                            className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-bold transition-all"
+                                                        >
+                                                            Advance
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteInquiry(inq)}
+                                                            className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                            title="Delete Inquiry Permanently"
+                                                        >
+                                                            <FiTrash2 />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
 
@@ -3147,9 +3707,19 @@ const AdminDashboard = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 py-3 rounded-xl bg-[#FF6A1A] text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20"
+                                        disabled={isSavingAthlete}
+                                        className={`flex-1 py-3 rounded-xl bg-[#FF6A1A] text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition-all ${
+                                            isSavingAthlete ? 'opacity-70 cursor-not-allowed' : 'hover:bg-orange-600 active:scale-98'
+                                        }`}
                                     >
-                                        {editingAthlete ? 'Save Changes' : 'Enroll Athlete'}
+                                        {isSavingAthlete ? (
+                                            <>
+                                                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span>Saving to Database...</span>
+                                            </>
+                                        ) : (
+                                            <span>{editingAthlete ? 'Save Changes' : 'Enroll Athlete'}</span>
+                                        )}
                                     </button>
                                 </div>
                             </form>

@@ -15,6 +15,7 @@ import {
 import { FaInstagram, FaYoutube, FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 
 import axios from 'axios';
+import { getApiBase } from '../utils/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/';
+    const API_BASE = getApiBase();
     const leadPayload = {
       id: 'inq_' + Date.now(),
       name: formData.name.trim(),

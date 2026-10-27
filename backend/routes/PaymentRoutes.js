@@ -5,8 +5,9 @@ import Payment from '../models/Payment.js';
 const router = express.Router();
 
 const getQueryFilter = (id) => {
+    if (!id || id === 'undefined' || id === 'null') return { _id: new mongoose.Types.ObjectId() };
     const isObjectId = mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id);
-    return isObjectId ? { $or: [{ _id: id }, { id: id }] } : { id: id };
+    return isObjectId ? { $or: [{ _id: new mongoose.Types.ObjectId(id) }, { id: String(id) }] } : { id: String(id) };
 };
 
 // GET all payments
@@ -27,14 +28,69 @@ router.get('/', async (req, res) => {
 // CREATE payment
 router.post('/', async (req, res) => {
     try {
-        const id = req.body.id || `PAY-${Math.floor(100 + Math.random() * 900)}`;
-        const receiptNo = req.body.receiptNo || `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-        const payment = new Payment({ ...req.body, id, receiptNo });
+        let paymentId = req.body.id;
+        if (!paymentId || await Payment.findOne({ id: paymentId })) {
+            paymentId = `PAY-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
+        }
+        let receiptNo = req.body.receiptNo;
+        if (!receiptNo || await Payment.findOne({ receiptNo })) {
+            receiptNo = `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+        const payment = new Payment({ ...req.body, id: paymentId, receiptNo });
         const saved = await payment.save();
         if (req.io) req.io.emit('payment_recorded', saved);
         res.status(201).json({ success: true, data: saved });
     } catch (err) {
+        console.error('❌ Failed to record payment in MongoDB:', err);
         res.status(400).json({ success: false, message: err.message });
+    }
+});
+
+// BATCH DELETE MULTIPLE PAYMENTS
+router.post('/batch-delete', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No payment IDs provided' });
+        }
+        const objectIds = ids
+            .filter(id => id && mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id))
+            .map(id => new mongoose.Types.ObjectId(id));
+        const stringIds = ids.filter(Boolean).map(String);
+
+        const filter = {
+            $or: [
+                { id: { $in: stringIds } },
+                ...(objectIds.length > 0 ? [{ _id: { $in: objectIds } }] : [])
+            ]
+        };
+
+        const result = await Payment.deleteMany(filter);
+        if (req.io) req.io.emit('payments_batch_deleted', { ids });
+        res.json({ success: true, message: `${result.deletedCount} payments removed successfully`, count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE ALL / CLEAR ALL PAYMENTS
+router.delete('/', async (req, res) => {
+    try {
+        const result = await Payment.deleteMany({});
+        if (req.io) req.io.emit('payments_cleared');
+        res.json({ success: true, message: 'All payment records cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+router.post('/clear-all', async (req, res) => {
+    try {
+        const result = await Payment.deleteMany({});
+        if (req.io) req.io.emit('payments_cleared');
+        res.json({ success: true, message: 'All payment records cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -58,7 +114,8 @@ router.delete('/:id', async (req, res) => {
     try {
         const deleted = await Payment.findOneAndDelete(getQueryFilter(req.params.id));
         if (!deleted) return res.status(404).json({ success: false, message: 'Payment not found' });
-        res.json({ success: true, message: 'Payment record deleted' });
+        if (req.io) req.io.emit('payment_deleted', deleted);
+        res.json({ success: true, message: 'Payment record deleted', data: deleted });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

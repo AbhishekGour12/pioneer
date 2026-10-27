@@ -13,7 +13,7 @@ import Inquiry from './models/Inquiry.js';
 import User from './models/User.js';
 import bcrypt from 'bcrypt';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://agour4000_db_user:JBtFi3xShorDsMqY@cluster0.rvzhrqw.mongodb.net/playpeak?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://pioneersportacademy_db_user:lxIk4lx6tZxdk5AU@cluster0.rvbq5qq.mongodb.net/pioneer?retryWrites=true&w=majority&appName=Cluster0';
 
 const seedData = async () => {
     try {

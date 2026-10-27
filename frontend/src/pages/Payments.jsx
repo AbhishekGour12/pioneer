@@ -14,6 +14,7 @@ import {
 import { FaWhatsapp, FaPhoneAlt } from 'react-icons/fa';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { getApiBase } from '../utils/api';
 
 const Payments = () => {
     const [selectedShift, setSelectedShift] = useState('evening'); // morning, afternoon, evening, flexible
@@ -28,7 +29,7 @@ const Payments = () => {
             basePrice: 5000, 
             cycleLabel: 'One-Time / Year',
             popular: false,
-            badge: 'Annual Registration',
+            badge: 'Official Fee #1 (Annual)',
             desc: 'Mandatory annual registration for all shooters, securing official affiliation, digital locker access, and shooter accreditation.',
             features: [
                 'Official Pioneer Shooter Registration & ID Card',
@@ -44,7 +45,7 @@ const Payments = () => {
             basePrice: 4700, 
             cycleLabel: 'Per Month',
             popular: true,
-            badge: 'Official Training Fee',
+            badge: 'Official Fee #2 (Monthly)',
             desc: 'Standard monthly training fee including daily range practice, weapons, target papers, pellets, and coach mentorship.',
             features: [
                 'Daily Practice Sessions (Duration: 1 to 1.5 Hours)',
@@ -52,23 +53,6 @@ const Payments = () => {
                 'Target Papers provided every session',
                 'Match Weapons & Shooting Equipment access',
                 'Expert Coaching Support (8:00 AM - 8:00 PM)'
-            ]
-        },
-        { 
-            id: 'new-admission-combo',
-            name: 'New Shooter Admission (Full Combo)', 
-            basePrice: 9700, 
-            cycleLabel: 'Annual Reg + 1st Month',
-            popular: true,
-            badge: 'Recommended for New Shooters',
-            desc: 'Complete onboarding package combining mandatory One-Time Annual Registration (₹5,000) and First Month Training Fee (₹4,700).',
-            features: [
-                'One-Time Annual Registration (₹5,000 fee included)',
-                'First Full Month Daily Training (₹4,700 fee included)',
-                'Official Pioneer Shooter ID Card & Gate Pass',
-                'District & State Shooting Trials Affiliation',
-                'Daily 1 - 1.5 Hr Practice (Weapons, Pellets & Targets Included)',
-                'Certified ISSF / NRAI Coach Mentorship'
             ]
         }
     ];
@@ -92,7 +76,7 @@ const Payments = () => {
         const message = `Hello Pioneer Rifle Shooting Academy! 🎯\n\nI want to enroll for:\n📋 *Plan:* ${plan.name} (₹${plan.basePrice.toLocaleString()})\n⏰ *Shift Preference:* ${shiftLabel}\n\nPlease guide me through admission and lane confirmation.`;
         
         // Log inquiry in background for Admin Dashboard
-        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/';
+        const API_BASE = getApiBase();
         const leadPayload = {
             id: 'inq_' + Date.now(),
             name: user?.name || 'Prospective Shooter',
@@ -183,8 +167,31 @@ const Payments = () => {
                     </div>
                 </div>
 
-                {/* Pioneer Academy Official Fees Structures Grid */}
-                <div className="grid lg:grid-cols-3 md:grid-cols-2 max-w-6xl mx-auto gap-8 mb-16 items-stretch">
+                {/* New Admission Combo Callout */}
+                <div className="max-w-4xl mx-auto mb-8 bg-orange-50/80 border border-[#FF6A1A]/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                    <div className="space-y-1 text-center sm:text-left">
+                        <div className="flex items-center gap-2 justify-center sm:justify-start">
+                            <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
+                            <span className="font-bold uppercase tracking-wider text-[#FF6A1A] text-[11px]">
+                                New Shooter Admission Account Policy
+                            </span>
+                        </div>
+                        <p className="text-slate-700 leading-relaxed">
+                            For fresh admissions, both fees are accounted together upon enrollment: 
+                            <strong className="text-slate-900 font-bold ml-1">₹5,000 (Annual Registration) + ₹4,700 (1st Month Training) = ₹9,700 Total</strong>.
+                        </p>
+                    </div>
+                    <Link
+                        to="/enroll"
+                        className="shrink-0 px-4 py-2.5 rounded-xl bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5"
+                    >
+                        <span>Enroll Now (₹9,700)</span>
+                        <FiArrowRight />
+                    </Link>
+                </div>
+
+                {/* Pioneer Academy Official Fees Structures Grid (Strictly 2 Cards) */}
+                <div className="grid md:grid-cols-2 max-w-4xl mx-auto gap-8 mb-16 items-stretch">
                     {membershipPlans.map((plan) => (
                         <div
                             key={plan.id}

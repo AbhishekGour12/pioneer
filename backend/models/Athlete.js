@@ -15,14 +15,14 @@ const AthleteSchema = new mongoose.Schema({
     feeAmount: { type: Number, default: 4700 },
     amountPaid: { type: Number, default: 4700 },
     dueAmount: { type: Number, default: 0 },
-    paymentStatus: { type: String, enum: ['Paid', 'Partial', 'Due'], default: 'Paid' },
-    emergencyContact: { type: String },
+    paymentStatus: { type: String, default: 'Paid' },
+    emergencyContact: { type: String, default: '' },
     bloodGroup: { type: String, default: 'B+' },
     joinDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
-    status: { type: String, enum: ['Active', 'Pending', 'Inactive', 'Suspended'], default: 'Active' },
-    paymentMode: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
+    status: { type: String, default: 'Active' },
+    paymentMode: { type: String, default: 'Cash' },
     utrNumber: { type: String, default: '' },
-    notes: { type: String }
+    notes: { type: String, default: '' }
 }, { timestamps: true });
 
 export default mongoose.model('Athlete', AthleteSchema);

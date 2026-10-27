@@ -5,8 +5,9 @@ import Athlete from '../models/Athlete.js';
 const router = express.Router();
 
 const getQueryFilter = (id) => {
+    if (!id || id === 'undefined' || id === 'null') return { _id: new mongoose.Types.ObjectId() };
     const isObjectId = mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id);
-    return isObjectId ? { $or: [{ _id: id }, { id: id }] } : { id: id };
+    return isObjectId ? { $or: [{ _id: new mongoose.Types.ObjectId(id) }, { id: String(id) }] } : { id: String(id) };
 };
 
 // GET all athletes with optional sport and status filtering
@@ -47,13 +48,66 @@ router.get('/:id', async (req, res) => {
 // CREATE new athlete
 router.post('/', async (req, res) => {
     try {
-        const id = req.body.id || `ATH-${Math.floor(100 + Math.random() * 900)}`;
-        const athlete = new Athlete({ ...req.body, id });
+        let athleteId = req.body.id;
+        if (!athleteId || await Athlete.findOne({ id: athleteId })) {
+            athleteId = `ATH-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
+        }
+        const athlete = new Athlete({ ...req.body, id: athleteId });
         const saved = await athlete.save();
+        console.log(`🎯 New athlete enrolled successfully in MongoDB: ${saved.name} (${saved.id})`);
         if (req.io) req.io.emit('athlete_created', saved);
         res.status(201).json({ success: true, data: saved });
     } catch (err) {
+        console.error('❌ Failed to create athlete in MongoDB:', err);
         res.status(400).json({ success: false, message: err.message });
+    }
+});
+
+// BATCH DELETE MULTIPLE ATHLETES
+router.post('/batch-delete', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No athlete IDs provided' });
+        }
+        const objectIds = ids
+            .filter(id => id && mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id))
+            .map(id => new mongoose.Types.ObjectId(id));
+        const stringIds = ids.filter(Boolean).map(String);
+
+        const filter = {
+            $or: [
+                { id: { $in: stringIds } },
+                ...(objectIds.length > 0 ? [{ _id: { $in: objectIds } }] : [])
+            ]
+        };
+
+        const result = await Athlete.deleteMany(filter);
+        if (req.io) req.io.emit('athletes_batch_deleted', { ids });
+        res.json({ success: true, message: `${result.deletedCount} athletes removed successfully`, count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE ALL / CLEAR ALL ATHLETES
+router.delete('/', async (req, res) => {
+    try {
+        const result = await Athlete.deleteMany({});
+        if (req.io) req.io.emit('athletes_cleared');
+        res.json({ success: true, message: 'All athlete records cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+router.post('/clear-all', async (req, res) => {
+    try {
+        const result = await Athlete.deleteMany({});
+        if (req.io) req.io.emit('athletes_cleared');
+        res.json({ success: true, message: 'All athlete records cleared successfully', count: result.deletedCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -79,7 +133,7 @@ router.delete('/:id', async (req, res) => {
         const deleted = await Athlete.findOneAndDelete(getQueryFilter(req.params.id));
         if (!deleted) return res.status(404).json({ success: false, message: 'Athlete not found' });
         if (req.io) req.io.emit('athlete_deleted', deleted);
-        res.json({ success: true, message: 'Athlete removed from academy records' });
+        res.json({ success: true, message: 'Athlete removed from academy records', data: deleted });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
