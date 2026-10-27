@@ -152,6 +152,15 @@ const AthleteEnroll = () => {
             amountPaid: paidAmt,
             dueAmount: dueAmount,
             paymentStatus: dueAmount === 0 ? 'Paid' : dueAmount === totalFee ? 'Due' : 'Partial',
+            monthlyFee: 4700,
+            registrationFee: 5000,
+            nextDueDate: (() => {
+                const nd = new Date();
+                nd.setMonth(nd.getMonth() + 1);
+                return nd.toISOString().split('T')[0];
+            })(),
+            lastPaymentDate: new Date().toISOString().split('T')[0],
+            paidMonthsCount: (formData.planType === 'Combo' || formData.planType === 'Monthly') ? 1 : 0,
             paymentMode: formData.paymentMode,
             utrNumber: formData.paymentMode === 'Online' ? formData.utrNumber.trim() : '',
             joinDate: new Date().toISOString().split('T')[0],

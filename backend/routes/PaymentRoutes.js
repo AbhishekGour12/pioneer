@@ -97,12 +97,19 @@ router.post('/clear-all', async (req, res) => {
 // UPDATE payment
 router.put('/:id', async (req, res) => {
     try {
+        const updateData = { ...req.body };
+        delete updateData._id;
+        delete updateData.__v;
+        delete updateData.createdAt;
+        delete updateData.updatedAt;
+
         const updated = await Payment.findOneAndUpdate(
             getQueryFilter(req.params.id),
-            { $set: req.body },
-            { new: true }
+            { $set: updateData },
+            { new: true, runValidators: false }
         );
         if (!updated) return res.status(404).json({ success: false, message: 'Payment not found' });
+        if (req.io) req.io.emit('payment_updated', updated);
         res.json({ success: true, data: updated });
     } catch (err) {
         res.status(400).json({ success: false, message: err.message });

@@ -16,6 +16,18 @@ const AthleteSchema = new mongoose.Schema({
     amountPaid: { type: Number, default: 4700 },
     dueAmount: { type: Number, default: 0 },
     paymentStatus: { type: String, default: 'Paid' },
+    monthlyFee: { type: Number, default: 4700 },
+    registrationFee: { type: Number, default: 5000 },
+    nextDueDate: { 
+        type: String, 
+        default: () => {
+            const d = new Date();
+            d.setMonth(d.getMonth() + 1);
+            return d.toISOString().split('T')[0];
+        } 
+    },
+    lastPaymentDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
+    paidMonthsCount: { type: Number, default: 1 },
     emergencyContact: { type: String, default: '' },
     bloodGroup: { type: String, default: 'B+' },
     joinDate: { type: String, default: () => new Date().toISOString().split('T')[0] },
@@ -23,6 +35,6 @@ const AthleteSchema = new mongoose.Schema({
     paymentMode: { type: String, default: 'Cash' },
     utrNumber: { type: String, default: '' },
     notes: { type: String, default: '' }
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 export default mongoose.model('Athlete', AthleteSchema);

@@ -81,11 +81,20 @@ router.post('/clear-all', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
+        const updateData = { ...req.body };
+        delete updateData._id;
+        delete updateData.__v;
+        delete updateData.createdAt;
+        delete updateData.updatedAt;
+
         const updated = await Inquiry.findOneAndUpdate(
             getQueryFilter(req.params.id),
-            { $set: req.body },
-            { new: true }
+            { $set: updateData },
+            { new: true, runValidators: false }
         );
+        if (req.io && updated) {
+            req.io.emit('inquiry_updated', updated);
+        }
         res.json({ success: true, data: updated });
     } catch (err) {
         res.status(400).json({ success: false, message: err.message });

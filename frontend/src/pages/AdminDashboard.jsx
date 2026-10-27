@@ -105,6 +105,15 @@ const AdminDashboard = () => {
     const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
     const [editingPayment, setEditingPayment] = useState(null);
 
+    // Fee Collection & Month Advance Modal
+    const [showCollectFeeModal, setShowCollectFeeModal] = useState(false);
+    const [feeCollectionTarget, setFeeCollectionTarget] = useState(null);
+    const [feeMonthsToCollect, setFeeMonthsToCollect] = useState(1);
+    const [feeCollectionPaymentMode, setFeeCollectionPaymentMode] = useState('Cash');
+    const [feeCollectionUtr, setFeeCollectionUtr] = useState('');
+    const [isProcessingFeeCollection, setIsProcessingFeeCollection] = useState(false);
+    const [reminderStatusFilter, setReminderStatusFilter] = useState('All');
+
     const [showAddCoachModal, setShowAddCoachModal] = useState(false);
     const [editingCoach, setEditingCoach] = useState(null);
 
@@ -725,6 +734,10 @@ const AdminDashboard = () => {
         setEditingAthlete(null);
         setIsCustomSportAdmin(false);
         setIsCustomTimingAdmin(false);
+        const nextM = new Date();
+        nextM.setMonth(nextM.getMonth() + 1);
+        const defaultNextDue = nextM.toISOString().split('T')[0];
+
         setAthleteForm({
             name: '',
             phone: '',
@@ -742,7 +755,10 @@ const AdminDashboard = () => {
             paymentMode: 'Cash',
             utrNumber: '',
             emergencyContact: '',
-            bloodGroup: 'B+'
+            bloodGroup: 'B+',
+            monthlyFee: 4700,
+            registrationFee: 5000,
+            nextDueDate: defaultNextDue
         });
         setShowAddAthleteModal(true);
     };
@@ -819,36 +835,58 @@ const AdminDashboard = () => {
 
         try {
             if (editingAthlete) {
+                const targetId = editingAthlete._id || editingAthlete.id;
                 const updatedAth = {
                     ...editingAthlete,
                     ...athleteForm,
                     email: editingAthlete.email || `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
                     dueAmount: calculatedDue,
-                    paymentStatus: finalStatus
+                    paymentStatus: finalStatus,
+                    monthlyFee: athleteForm.monthlyFee || 4700,
+                    registrationFee: athleteForm.registrationFee || 5000,
+                    nextDueDate: athleteForm.nextDueDate || editingAthlete.nextDueDate || (() => {
+                        const d = new Date();
+                        d.setMonth(d.getMonth() + 1);
+                        return d.toISOString().split('T')[0];
+                    })()
                 };
+
+                const { _id, __v, createdAt, updatedAt, ...cleanPutPayload } = updatedAth;
 
                 let savedAth = updatedAth;
                 try {
-                    const res = await axios.put(`${API_BASE}athletes/${editingAthlete._id || editingAthlete.id}`, updatedAth);
+                    const res = await axios.put(`${API_BASE}athletes/${targetId}`, cleanPutPayload);
                     if (res.data?.data) savedAth = res.data.data;
                 } catch (putErr) {
                     console.warn('PUT athletes failed on primary URL, trying fallback...', putErr);
-                    if (API_BASE !== '/api/') {
-                        const res2 = await axios.put(`/api/athletes/${editingAthlete._id || editingAthlete.id}`, updatedAth);
+                    try {
+                        const fallbackUrl = API_BASE.includes('onrender.com') ? `/api/athletes/${targetId}` : `https://pioneer-gvve.onrender.com/api/athletes/${targetId}`;
+                        const res2 = await axios.put(fallbackUrl, cleanPutPayload);
                         if (res2.data?.data) savedAth = res2.data.data;
+                    } catch (e2) {
+                        console.error('Fallback PUT failed too:', e2);
                     }
                 }
 
-                setAthletes(prev => prev.map(a => (a.id === editingAthlete.id || a._id === editingAthlete._id) ? savedAth : a));
+                setAthletes(prev => prev.map(a => (a.id === editingAthlete.id || (a._id && a._id === editingAthlete._id)) ? savedAth : a));
                 showToast(`Athlete profile for "${athleteForm.name}" updated successfully!`, 'success');
             } else {
                 const newId = `ATH-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
+                const nextM = new Date();
+                nextM.setMonth(nextM.getMonth() + 1);
+                const defaultNextDue = nextM.toISOString().split('T')[0];
+
                 const newAthlete = {
                     id: newId,
                     ...athleteForm,
                     email: `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
                     dueAmount: calculatedDue,
                     paymentStatus: finalStatus,
+                    monthlyFee: 4700,
+                    registrationFee: 5000,
+                    nextDueDate: athleteForm.nextDueDate || defaultNextDue,
+                    lastPaymentDate: new Date().toISOString().split('T')[0],
+                    paidMonthsCount: (athleteForm.planType === 'Combo' || athleteForm.planType === 'Monthly') ? 1 : 0,
                     joinDate: new Date().toISOString().split('T')[0],
                     status: 'Active'
                 };
@@ -1564,12 +1602,87 @@ const AdminDashboard = () => {
     };
 
     // ==========================================
-    // BROADCAST AUTO PAYMENT DUE REMINDERS & MARK PAID
+    // RECURRING MONTHLY BILLING & FEE DUE CALCULATOR
     // ==========================================
-    const dueAthletes = athletes.filter(a => Number(a.dueAmount || 0) > 0 || a.paymentStatus === 'Due' || a.paymentStatus === 'Overdue');
+    const calculateAthleteFeeSchedule = (athlete) => {
+        const today = new Date();
+        const monthlyFee = Number(athlete.monthlyFee || (athlete.planType === 'Registration' ? 5000 : 4700));
+
+        let dueDate;
+        if (athlete.nextDueDate && !isNaN(new Date(athlete.nextDueDate).getTime())) {
+            dueDate = new Date(athlete.nextDueDate);
+        } else if (athlete.joinDate && !isNaN(new Date(athlete.joinDate).getTime())) {
+            dueDate = new Date(athlete.joinDate);
+            dueDate.setMonth(dueDate.getMonth() + 1);
+        } else {
+            dueDate = new Date();
+            dueDate.setMonth(dueDate.getMonth() + 1);
+        }
+
+        const nextDueDateStr = dueDate.toISOString().split('T')[0];
+        const diffMs = today.getTime() - dueDate.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        let isOverdue = false;
+        let overdueMonths = 0;
+        let totalDue = monthlyFee;
+        let statusBadge = '';
+        let badgeType = 'upcoming'; // 'overdue' | 'due_soon' | 'upcoming'
+
+        if (diffDays > 0) {
+            isOverdue = true;
+            overdueMonths = Math.max(1, Math.ceil(diffDays / 30));
+            totalDue = overdueMonths * monthlyFee;
+            badgeType = 'overdue';
+            statusBadge = `${overdueMonths} Mo Overdue`;
+        } else {
+            const daysLeft = Math.abs(diffDays);
+            if (daysLeft <= 7) {
+                badgeType = 'due_soon';
+                statusBadge = daysLeft === 0 ? 'Due Today' : `Due in ${daysLeft}d`;
+            } else {
+                badgeType = 'upcoming';
+                statusBadge = `Due in ${daysLeft}d`;
+            }
+            totalDue = monthlyFee;
+        }
+
+        if (Number(athlete.dueAmount || 0) > 0) {
+            totalDue = Math.max(totalDue, Number(athlete.dueAmount));
+            if (!isOverdue) {
+                badgeType = 'due_soon';
+                statusBadge = 'Balance Due';
+            }
+        }
+
+        return {
+            nextDueDateStr,
+            isOverdue,
+            overdueMonths,
+            diffDays,
+            totalDue,
+            statusBadge,
+            badgeType,
+            monthlyFee
+        };
+    };
+
+    // Calculate recurring fee schedules for all active athletes
+    const dueAthletes = athletes.map(a => {
+        const sched = calculateAthleteFeeSchedule(a);
+        return {
+            ...a,
+            ...sched
+        };
+    }).sort((a, b) => {
+        if (a.isOverdue && !b.isOverdue) return -1;
+        if (!a.isOverdue && b.isOverdue) return 1;
+        if (a.isOverdue && b.isOverdue) return b.diffDays - a.diffDays;
+        return a.diffDays - b.diffDays;
+    });
 
     // ==========================================
-    // FEE DUE REMINDERS BULK ACTIONS
+    // FEE DUE REMINDERS BULK & MODAL ACTIONS
     // ==========================================
     const handleToggleSelectReminder = (key) => {
         if (!key) return;
@@ -1594,10 +1707,108 @@ const AdminDashboard = () => {
         }, 800);
     };
 
+    const handleOpenCollectFeeModal = (athlete) => {
+        setFeeCollectionTarget(athlete);
+        setFeeMonthsToCollect(athlete.overdueMonths > 0 ? athlete.overdueMonths : 1);
+        setFeeCollectionPaymentMode('Cash');
+        setFeeCollectionUtr('');
+        setShowCollectFeeModal(true);
+    };
+
+    const handleCollectFeeMonth = async (athlete, monthsToPay = 1, paymentMode = 'Cash', utrNumber = '') => {
+        const athId = athlete._id || athlete.id;
+        const monthlyFee = Number(athlete.monthlyFee || 4700);
+        const paidAmount = Number(monthsToPay) * monthlyFee;
+
+        let currentDueDate;
+        if (athlete.nextDueDate && !isNaN(new Date(athlete.nextDueDate).getTime())) {
+            currentDueDate = new Date(athlete.nextDueDate);
+        } else if (athlete.joinDate && !isNaN(new Date(athlete.joinDate).getTime())) {
+            currentDueDate = new Date(athlete.joinDate);
+            currentDueDate.setMonth(currentDueDate.getMonth() + 1);
+        } else {
+            currentDueDate = new Date();
+            currentDueDate.setMonth(currentDueDate.getMonth() + 1);
+        }
+
+        const newDueDateObj = new Date(currentDueDate);
+        newDueDateObj.setMonth(newDueDateObj.getMonth() + Number(monthsToPay));
+        const newNextDueDate = newDueDateObj.toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const updatedFields = {
+            nextDueDate: newNextDueDate,
+            lastPaymentDate: todayStr,
+            dueAmount: Math.max(0, Number(athlete.dueAmount || 0) - paidAmount),
+            amountPaid: (Number(athlete.amountPaid) || 0) + paidAmount,
+            paidMonthsCount: (Number(athlete.paidMonthsCount) || 1) + Number(monthsToPay),
+            paymentStatus: 'Paid'
+        };
+
+        const { _id, __v, createdAt, updatedAt, ...cleanUpdateFields } = updatedFields;
+
+        try {
+            // 1. Update Athlete in MongoDB
+            let savedAth = null;
+            try {
+                const res = await axios.put(`${API_BASE}athletes/${athId}`, cleanUpdateFields);
+                savedAth = res.data?.data;
+            } catch (err) {
+                const res2 = await axios.put(`/api/athletes/${athId}`, cleanUpdateFields);
+                savedAth = res2.data?.data;
+            }
+
+            // 2. Insert Payment record in MongoDB
+            const receiptNo = `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`;
+            const newPay = {
+                id: `PAY-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`,
+                athleteId: athlete.id || athId,
+                athleteName: athlete.name,
+                sport: athlete.sport || '10M Rifle Shooting',
+                plan: `${athlete.sport} Monthly Fee (${monthsToPay} Mo)`,
+                amount: paidAmount,
+                paymentMode: paymentMode,
+                utrNumber: paymentMode === 'Online' ? utrNumber : '',
+                method: paymentMode === 'Online' ? `Online UPI (UTR: ${utrNumber})` : 'Reception Cash Desk',
+                date: todayStr,
+                dueDate: newNextDueDate,
+                status: 'Completed',
+                receiptNo: receiptNo,
+                note: `Monthly Training Fee collected for ${monthsToPay} Month(s). Next Due Date: ${newNextDueDate}`
+            };
+
+            try {
+                const payRes = await axios.post(`${API_BASE}payments`, newPay);
+                const savedPay = payRes.data?.data || newPay;
+                setPayments(prev => [savedPay, ...prev]);
+            } catch (e) {
+                await axios.post('/api/payments', newPay).catch(() => {});
+                setPayments(prev => [newPay, ...prev]);
+            }
+
+            // 3. Update local state
+            setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, ...updatedFields } : a));
+
+            showToast(`✅ Collected ₹${paidAmount.toLocaleString()} (${monthsToPay} Mo) for ${athlete.name}! Next Due Date: ${newNextDueDate}`, 'success');
+
+            return { success: true, newNextDueDate, receiptNo };
+        } catch (err) {
+            console.error('Failed to collect monthly fee:', err);
+            showToast(`Error recording fee payment: ${err.message}`, 'error');
+            return { success: false };
+        }
+    };
+
+    // Quick Mark as Paid (Advances Next Due Date by 1 Month or overdue count)
+    const handleMarkPaid = async (athlete) => {
+        const months = athlete.overdueMonths > 0 ? athlete.overdueMonths : 1;
+        await handleCollectFeeMonth(athlete, months, 'Cash', '');
+    };
+
     const handleMarkSelectedAsPaid = async () => {
         if (selectedReminderIds.length === 0) return;
         const count = selectedReminderIds.length;
-        if (window.confirm(`Mark fee dues as PAID for all ${count} selected athletes?`)) {
+        if (window.confirm(`Collect monthly fee & advance billing cycle for all ${count} selected athletes?`)) {
             for (const key of selectedReminderIds) {
                 const athlete = athletes.find(a => a.id === key || a._id === key);
                 if (athlete) {
@@ -1605,80 +1816,43 @@ const AdminDashboard = () => {
                 }
             }
             setSelectedReminderIds([]);
-            showToast(`Marked ${count} athlete fee dues as Paid.`, 'success');
+            showToast(`Marked ${count} athlete monthly fees as Paid & advanced due dates.`, 'success');
         }
     };
 
     const handleClearAllFeeDues = async () => {
-        if (dueAthletes.length === 0) return;
-        if (window.confirm(`Clear and mark all ${dueAthletes.length} pending fee dues as paid?`)) {
-            for (const athlete of dueAthletes) {
+        const overdues = dueAthletes.filter(a => a.isOverdue || a.dueAmount > 0);
+        if (overdues.length === 0) return;
+        if (window.confirm(`Clear and advance billing dates for all ${overdues.length} pending/overdue students?`)) {
+            for (const athlete of overdues) {
                 await handleMarkPaid(athlete);
             }
             setSelectedReminderIds([]);
-            showToast('All fee dues have been marked as settled.', 'info');
+            showToast('All overdue fee balances settled and cycles updated.', 'info');
         }
     };
 
     const handleBroadcastDueReminders = () => {
-        if (dueAthletes.length === 0) {
-            showToast('No athletes have pending fee dues at this moment.', 'info');
+        const overdues = dueAthletes.filter(a => a.isOverdue || a.dueAmount > 0 || a.badgeType === 'due_soon');
+        if (overdues.length === 0) {
+            showToast('All students are up-to-date with fee schedules!', 'info');
             return;
         }
 
         setBroadcastingNotice(true);
         setTimeout(() => {
             setBroadcastingNotice(false);
-            showToast(`🚀 Automated fee reminders dispatched to ${dueAthletes.length} athletes via WhatsApp & SMS!`, 'success');
+            showToast(`🚀 Automated fee reminders dispatched to ${overdues.length} athletes via WhatsApp & SMS!`, 'success');
         }, 1200);
     };
 
     const handleSendIndividualReminder = (athlete) => {
-        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from Pioneer Rifle Shooting Academy: Your ${athlete.sport} (${athlete.planType} Plan) fee balance of INR ${athlete.dueAmount} is pending. Please settle via UPI (9893270807@upi) or reception. Thank you!`);
-        window.open(`https://wa.me/${athlete.phone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+        const dueText = athlete.isOverdue 
+            ? `Your monthly fee is OVERDUE by ${athlete.overdueMonths} month(s) (Total ₹${athlete.totalDue.toLocaleString()}).`
+            : `Your monthly training fee of ₹${athlete.totalDue.toLocaleString()} is due on ${athlete.nextDueDateStr}.`;
+        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from Pioneer Rifle Shooting Academy: ${dueText} Please pay via UPI (9893270807@upi) or at academy desk. Thank you!`);
+        window.open(`https://wa.me/${(athlete.phone || '').replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
         showToast(`Opened WhatsApp reminder for ${athlete.name}`);
-    };
-
-    // Mark fee due as permanently paid in MongoDB & log payment
-    const handleMarkPaid = async (athlete) => {
-        const athId = athlete._id || athlete.id;
-        const paidAmount = Number(athlete.dueAmount || 0) > 0 ? Number(athlete.dueAmount) : (Number(athlete.feeAmount) || 4700);
-
-        try {
-            // 1. Update athlete in MongoDB
-            await axios.put(`${API_BASE}athletes/${athId}`, {
-                dueAmount: 0,
-                paymentStatus: 'Paid',
-                amountPaid: (Number(athlete.amountPaid) || 0) + paidAmount
-            });
-
-            // 2. Insert payment record in MongoDB
-            const newPay = {
-                id: `PAY-${Date.now().toString().slice(-6)}`,
-                athleteId: athlete.id || athId,
-                athleteName: athlete.name,
-                sport: athlete.sport || '10M Rifle Shooting',
-                plan: athlete.membership || athlete.planType || 'Monthly Training Fee',
-                amount: paidAmount,
-                paymentMode: 'Cash',
-                method: 'Reception Cash Desk',
-                date: new Date().toISOString().split('T')[0],
-                status: 'Completed',
-                receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-                note: 'Fee due marked as paid from Admin Reminders tab'
-            };
-            await axios.post(`${API_BASE}payments`, newPay).catch(e => console.warn(e));
-
-            // 3. Update local states
-            setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
-            setPayments(prev => [newPay, ...prev]);
-
-            showToast(`Marked ${athlete.name}'s balance (₹${paidAmount.toLocaleString()}) as Fully Paid!`, 'success');
-        } catch (err) {
-            console.error('Error marking athlete as paid:', err);
-            setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
-            showToast(`Marked ${athlete.name} fee balance as paid.`, 'info');
-        }
     };
 
     // ==========================================
@@ -1766,7 +1940,8 @@ const AdminDashboard = () => {
     const totalAthletesCount = athletes.length;
     const activeAthletesCount = athletes.filter(a => a.status === 'Active').length;
     const totalCollectedRevenue = payments.reduce((acc, p) => acc + Number(p.amount || 0), 0);
-    const totalPendingDues = athletes.reduce((acc, a) => acc + Number(a.dueAmount || 0), 0);
+    const overdueAthletesCount = dueAthletes.filter(a => a.isOverdue || a.dueAmount > 0).length;
+    const totalPendingDues = dueAthletes.reduce((acc, a) => acc + (a.isOverdue || a.dueAmount > 0 ? Number(a.totalDue || a.dueAmount || 0) : 0), 0);
     const totalCoachesCount = coaches.length;
 
     // Filter athletes
@@ -1785,9 +1960,15 @@ const AdminDashboard = () => {
 
     const filteredDueAthletes = dueAthletes.filter(a => {
         const matchesSearch = (a.name || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
-                              (a.phone || '').includes(reminderSearch);
+                              (a.phone || '').includes(reminderSearch) ||
+                              (a.id || '').toLowerCase().includes(reminderSearch.toLowerCase());
         const matchesSport = reminderSportFilter === 'All' || a.sport === reminderSportFilter;
-        return matchesSearch && matchesSport;
+        const matchesStatus = reminderStatusFilter === 'All' ? true
+                            : reminderStatusFilter === 'Overdue' ? a.isOverdue
+                            : reminderStatusFilter === 'DueSoon' ? a.badgeType === 'due_soon'
+                            : reminderStatusFilter === 'Upcoming' ? a.badgeType === 'upcoming'
+                            : true;
+        return matchesSearch && matchesSport && matchesStatus;
     });
 
     // Payments Hub Filter State
@@ -2396,7 +2577,10 @@ const AdminDashboard = () => {
                                                                         paymentMode: athlete.paymentMode || 'Cash',
                                                                         utrNumber: athlete.utrNumber || '',
                                                                         emergencyContact: athlete.emergencyContact || '',
-                                                                        bloodGroup: athlete.bloodGroup || 'B+'
+                                                                        bloodGroup: athlete.bloodGroup || 'B+',
+                                                                        monthlyFee: athlete.monthlyFee || 4700,
+                                                                        registrationFee: athlete.registrationFee || 5000,
+                                                                        nextDueDate: athlete.nextDueDate ? new Date(athlete.nextDueDate).toISOString().split('T')[0] : ''
                                                                     });
                                                                     setIsCustomSportAdmin(!sportsList.some(s => s.name === athlete.sport));
                                                                     setIsCustomTimingAdmin(!adminTimingShifts.includes(athlete.batchTime));
@@ -2755,18 +2939,25 @@ const AdminDashboard = () => {
                             </div>
 
                             {/* Summary Card */}
-                            <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div className="space-y-1">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pending Collection</span>
-                                    <div className="font-display font-black text-3xl text-red-600">₹{totalPendingDues.toLocaleString()}</div>
-                                    <p className="text-xs text-slate-500">{dueAthletes.length} students currently have pending balance.</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Overdue / Pending</span>
+                                    <div className="font-display font-black text-2xl text-red-600">₹{totalPendingDues.toLocaleString()}</div>
+                                    <p className="text-xs text-slate-500 font-medium">
+                                        <strong className="text-red-600">{overdueAthletesCount}</strong> students have overdue monthly fees
+                                    </p>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="text-right text-xs text-slate-400">
-                                        <p>Auto Reminder System: <strong className="text-emerald-600">Active</strong></p>
-                                        <p>Schedule: 1st & 15th of Every Month</p>
-                                    </div>
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Monthly Fee Standard</span>
+                                    <div className="font-display font-black text-2xl text-slate-900">₹4,700 <span className="text-xs font-normal text-slate-400">/ mo</span></div>
+                                    <p className="text-xs text-slate-500 font-medium">Auto-advances billing cycle by +1 month on collection</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Billing Automation</span>
+                                    <div className="font-display font-black text-2xl text-emerald-600">Active Live</div>
+                                    <p className="text-xs text-slate-500 font-medium">100% synced with MongoDB Atlas payments ledger</p>
                                 </div>
                             </div>
 
@@ -2776,20 +2967,60 @@ const AdminDashboard = () => {
                                     <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input
                                         type="text"
-                                        placeholder="Search dues by student name or phone..."
+                                        placeholder="Search by student name, phone, or ID..."
                                         value={reminderSearch}
                                         onChange={(e) => setReminderSearch(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
                                     />
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                    {/* Category Filter Pills */}
+                                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                                        <button
+                                            type="button"
+                                            onClick={() => setReminderStatusFilter('All')}
+                                            className={`px-3 py-1.5 rounded-lg transition-all ${
+                                                reminderStatusFilter === 'All' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            All ({dueAthletes.length})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setReminderStatusFilter('Overdue')}
+                                            className={`px-3 py-1.5 rounded-lg transition-all ${
+                                                reminderStatusFilter === 'Overdue' ? 'bg-red-500 text-white shadow-sm' : 'text-red-600 hover:text-red-700'
+                                            }`}
+                                        >
+                                            Overdue ({dueAthletes.filter(a => a.isOverdue).length})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setReminderStatusFilter('DueSoon')}
+                                            className={`px-3 py-1.5 rounded-lg transition-all ${
+                                                reminderStatusFilter === 'DueSoon' ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-700 hover:text-amber-900'
+                                            }`}
+                                        >
+                                            Due Soon ({dueAthletes.filter(a => a.badgeType === 'due_soon').length})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setReminderStatusFilter('Upcoming')}
+                                            className={`px-3 py-1.5 rounded-lg transition-all ${
+                                                reminderStatusFilter === 'Upcoming' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:text-emerald-900'
+                                            }`}
+                                        >
+                                            Upcoming ({dueAthletes.filter(a => a.badgeType === 'upcoming').length})
+                                        </button>
+                                    </div>
+
                                     <select
                                         value={reminderSportFilter}
                                         onChange={(e) => setReminderSportFilter(e.target.value)}
                                         className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
                                     >
-                                        <option value="All">All Sports</option>
+                                        <option value="All">All Disciplines</option>
                                         {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                                     </select>
                                 </div>
@@ -2810,18 +3041,23 @@ const AdminDashboard = () => {
                                                         title="Select All Due Students"
                                                     />
                                                 </th>
-                                                <th className="px-5 py-4">Athlete Name & Phone</th>
-                                                <th className="px-5 py-4">Sport & Billing Duration</th>
-                                                <th className="px-5 py-4">Due Balance</th>
+                                                <th className="px-5 py-4">Athlete & Contact</th>
+                                                <th className="px-5 py-4">Discipline & Rate</th>
+                                                <th className="px-5 py-4">Next Due Date & Cycle</th>
+                                                <th className="px-5 py-4">Calculated Due</th>
                                                 <th className="px-5 py-4">Status</th>
-                                                <th className="px-5 py-4 text-right">Remind & Collect</th>
+                                                <th className="px-5 py-4 text-right">Collect & Remind</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
                                             {filteredDueAthletes.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={6} className="px-5 py-8 text-center text-slate-400">
-                                                        No athletes currently have pending fee dues!
+                                                    <td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                                                        <div className="flex flex-col items-center justify-center gap-2">
+                                                            <FiCheckCircle className="text-3xl text-emerald-500" />
+                                                            <span className="font-bold text-slate-700">No athletes match the selected fee due criteria!</span>
+                                                            <span className="text-xs text-slate-400">All registered students are up to date or no results matched search.</span>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ) : (
@@ -2839,42 +3075,68 @@ const AdminDashboard = () => {
                                                             />
                                                         </td>
                                                         <td className="px-5 py-4">
-                                                            <div className="font-bold text-slate-900">{athlete.name}</div>
-                                                            <div className="text-[11px] text-slate-400">{athlete.phone} • {athlete.id}</div>
+                                                            <div className="font-bold text-slate-900 text-sm">{athlete.name}</div>
+                                                            <div className="text-[11px] text-slate-400">{athlete.phone} • <span className="font-mono text-slate-500">{athlete.id}</span></div>
                                                         </td>
 
                                                         <td className="px-5 py-4">
                                                             <div className="font-semibold text-slate-800">{athlete.sport}</div>
-                                                            <div className="text-[11px] text-slate-400">{athlete.planType || 'Monthly'} Plan • {athlete.membership}</div>
+                                                            <div className="text-[11px] text-[#FF6A1A] font-bold">₹{athlete.monthlyFee.toLocaleString()}/mo</div>
                                                         </td>
 
                                                         <td className="px-5 py-4">
-                                                            <div className="font-bold text-red-600 text-sm">₹{athlete.dueAmount?.toLocaleString()}</div>
-                                                            <div className="text-[10px] text-slate-400">Total: ₹{athlete.feeAmount?.toLocaleString()}</div>
+                                                            <div className="font-extrabold text-slate-900">{athlete.nextDueDateStr}</div>
+                                                            {athlete.isOverdue ? (
+                                                                <div className="text-[11px] font-bold text-red-600 flex items-center gap-1">
+                                                                    <span>⚠️</span>
+                                                                    <span>{athlete.overdueMonths} Month{athlete.overdueMonths > 1 ? 's' : ''} Overdue</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="text-[11px] font-semibold text-emerald-600">
+                                                                    Due in {athlete.daysLeft} days
+                                                                </div>
+                                                            )}
                                                         </td>
 
                                                         <td className="px-5 py-4">
-                                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-700">
-                                                                {athlete.paymentStatus}
+                                                            <div className={`font-extrabold text-sm ${athlete.isOverdue ? 'text-red-600' : 'text-slate-900'}`}>
+                                                                ₹{athlete.totalDue.toLocaleString()}
+                                                            </div>
+                                                            <div className="text-[10px] text-slate-400">
+                                                                {athlete.isOverdue ? `${athlete.overdueMonths} mo × ₹${athlete.monthlyFee.toLocaleString()}` : 'Upcoming 1 Month'}
+                                                            </div>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                                athlete.isOverdue 
+                                                                    ? 'bg-red-100 text-red-700'
+                                                                    : athlete.badgeType === 'due_soon'
+                                                                    ? 'bg-amber-100 text-amber-800'
+                                                                    : 'bg-emerald-100 text-emerald-700'
+                                                            }`}>
+                                                                {athlete.isOverdue ? `🔴 ${athlete.overdueMonths} Mo Overdue` : athlete.badgeType === 'due_soon' ? `🟡 ${athlete.statusBadge}` : `🟢 Current`}
                                                             </span>
                                                         </td>
 
                                                         <td className="px-5 py-4 text-right">
                                                             <div className="flex items-center justify-end gap-2">
                                                                 <button
-                                                                    onClick={() => handleSendIndividualReminder(athlete)}
-                                                                    className="py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
+                                                                    onClick={() => handleOpenCollectFeeModal(athlete)}
+                                                                    className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+                                                                    title="Collect fee and advance next due date"
                                                                 >
-                                                                    <FaWhatsapp />
-                                                                    <span>WhatsApp</span>
+                                                                    <FiDollarSign className="text-xs" />
+                                                                    <span>Collect Fee</span>
                                                                 </button>
 
                                                                 <button
-                                                                    onClick={() => handleMarkPaid(athlete)}
-                                                                    className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+                                                                    onClick={() => handleSendIndividualReminder(athlete)}
+                                                                    className="py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
+                                                                    title="Send WhatsApp payment reminder"
                                                                 >
-                                                                    <FiCheck />
-                                                                    <span>Mark Paid</span>
+                                                                    <FaWhatsapp />
+                                                                    <span>WhatsApp</span>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -3425,6 +3687,27 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
 
+                                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
+                                    <div>
+                                        <label className="block font-bold text-slate-700 mb-1">Monthly Fee (₹)</label>
+                                        <input
+                                            type="number"
+                                            value={athleteForm.monthlyFee || 4700}
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, monthlyFee: Number(e.target.value) })}
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block font-bold text-slate-700 mb-1">Next Due / Billing Date</label>
+                                        <input
+                                            type="date"
+                                            value={athleteForm.nextDueDate ? athleteForm.nextDueDate.split('T')[0] : ''}
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, nextDueDate: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                                        />
+                                    </div>
+                                </div>
+
                                 {Number(athleteForm.amountPaid || 0) > 0 && (
                                     <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
                                         <div>
@@ -3502,6 +3785,213 @@ const AdminDashboard = () => {
                                             </>
                                         ) : (
                                             <span>{editingAthlete ? 'Save Changes' : 'Enroll Athlete'}</span>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ========================================================================= */}
+            {/* MODAL: MONTHLY TRAINING FEE COLLECTION & DUE DATE ADVANCE */}
+            {/* ========================================================================= */}
+            <AnimatePresence>
+                {showCollectFeeModal && feeCollectionTarget && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden"
+                        >
+                            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#FF6A1A] flex items-center justify-center font-black">
+                                        <FiDollarSign className="text-lg" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-display font-black text-slate-900 text-base">Collect Monthly Fee</h3>
+                                        <p className="text-[11px] text-slate-500 font-semibold">
+                                            {feeCollectionTarget.name} • <span className="font-mono text-slate-400">{feeCollectionTarget.id}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowCollectFeeModal(false)}
+                                    className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition-colors"
+                                >
+                                    <FiX className="text-lg" />
+                                </button>
+                            </div>
+
+                            <form
+                                onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    if (feeCollectionPaymentMode === 'Online' && !feeCollectionUtr.trim()) {
+                                        showToast('Please enter the 12-digit UTR Number for online payment.', 'error');
+                                        return;
+                                    }
+                                    setIsProcessingFeeCollection(true);
+                                    try {
+                                        const res = await handleCollectFeeMonth(
+                                            feeCollectionTarget,
+                                            feeMonthsToCollect,
+                                            feeCollectionPaymentMode,
+                                            feeCollectionUtr
+                                        );
+                                        if (res?.success) {
+                                            setShowCollectFeeModal(false);
+                                            setFeeCollectionTarget(null);
+                                        }
+                                    } finally {
+                                        setIsProcessingFeeCollection(false);
+                                    }
+                                }}
+                                className="p-5 space-y-4"
+                            >
+                                {/* Student Summary Box */}
+                                <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 space-y-2 text-xs">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 font-medium">Discipline:</span>
+                                        <span className="font-bold text-slate-800">{feeCollectionTarget.sport}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 font-medium">Monthly Standard Fee:</span>
+                                        <span className="font-bold text-[#FF6A1A]">₹{(feeCollectionTarget.monthlyFee || 4700).toLocaleString()}/month</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 font-medium">Current Next Due Date:</span>
+                                        <span className="font-bold text-slate-900">{feeCollectionTarget.nextDueDateStr || feeCollectionTarget.nextDueDate || 'Not set'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 font-medium">Current Status:</span>
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                            feeCollectionTarget.isOverdue ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
+                                        }`}>
+                                            {feeCollectionTarget.isOverdue ? `⚠️ ${feeCollectionTarget.overdueMonths} Mo Overdue` : 'Current'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Months to Collect */}
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-bold text-slate-700">
+                                        Select Number of Months to Collect
+                                    </label>
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {[1, 2, 3, 6].map(m => (
+                                            <button
+                                                key={m}
+                                                type="button"
+                                                onClick={() => setFeeMonthsToCollect(m)}
+                                                className={`py-2 rounded-xl text-xs font-bold border transition-all ${
+                                                    Number(feeMonthsToCollect) === m
+                                                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {m} Month{m > 1 ? 's' : ''}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Amount Calculation & Next Due Preview */}
+                                <div className="bg-orange-50/70 rounded-2xl p-3.5 border border-orange-200/80 space-y-2">
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="font-medium text-slate-600">Total Amount to Collect:</span>
+                                        <strong className="text-base font-black text-slate-900">
+                                            ₹{(Number(feeMonthsToCollect || 1) * Number(feeCollectionTarget.monthlyFee || 4700)).toLocaleString()}
+                                        </strong>
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 flex items-center justify-between border-t border-orange-200/60 pt-2">
+                                        <span>Next Due Date after Payment:</span>
+                                        <span className="font-bold text-emerald-700">
+                                            {(() => {
+                                                let curr;
+                                                if (feeCollectionTarget.nextDueDate && !isNaN(new Date(feeCollectionTarget.nextDueDate).getTime())) {
+                                                    curr = new Date(feeCollectionTarget.nextDueDate);
+                                                } else {
+                                                    curr = new Date();
+                                                }
+                                                const newD = new Date(curr);
+                                                newD.setMonth(newD.getMonth() + Number(feeMonthsToCollect || 1));
+                                                return newD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                                            })()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Payment Mode */}
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-bold text-slate-700">Payment Mode</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFeeCollectionPaymentMode('Cash')}
+                                            className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                                                feeCollectionPaymentMode === 'Cash'
+                                                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            Reception Cash Desk
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFeeCollectionPaymentMode('Online')}
+                                            className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                                                feeCollectionPaymentMode === 'Online'
+                                                    ? 'bg-[#FF6A1A] text-white border-[#FF6A1A] shadow-sm'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            Online UPI / Transfer
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {feeCollectionPaymentMode === 'Online' && (
+                                    <div className="space-y-1">
+                                        <label className="block text-xs font-bold text-slate-700">
+                                            12-Digit UTR Number / Reference ID <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="e.g. 429812903421"
+                                            value={feeCollectionUtr}
+                                            onChange={(e) => setFeeCollectionUtr(e.target.value)}
+                                            className="w-full px-3 py-2 bg-white border border-[#FF6A1A] rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div className="pt-2 flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCollectFeeModal(false)}
+                                        className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isProcessingFeeCollection}
+                                        className={`flex-1 py-3 rounded-xl bg-[#FF6A1A] text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition-all ${
+                                            isProcessingFeeCollection ? 'opacity-70 cursor-not-allowed' : 'hover:bg-orange-600 active:scale-98'
+                                        }`}
+                                    >
+                                        {isProcessingFeeCollection ? (
+                                            <>
+                                                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span>Updating...</span>
+                                            </>
+                                        ) : (
+                                            <span>Confirm & Collect ₹{(Number(feeMonthsToCollect || 1) * Number(feeCollectionTarget.monthlyFee || 4700)).toLocaleString()}</span>
                                         )}
                                     </button>
                                 </div>
