@@ -12,9 +12,8 @@ import {
     FiHeart,
     FiShield
 } from 'react-icons/fi';
-import { FaFutbol, FaTrophy, FaMedal, FaRunning, FaBasketballBall, FaSwimmer } from 'react-icons/fa';
-import { GiCricketBat, GiShuttlecock, GiTennisRacket, GiWhistle, GiLaurelCrown } from 'react-icons/gi';
-import { MdOutlineStadium } from 'react-icons/md';
+import { FaTrophy, FaMedal } from 'react-icons/fa';
+import { GiWhistle, GiLaurelCrown } from 'react-icons/gi';
 
 const About = () => {
     // 4 Stats
@@ -22,46 +21,46 @@ const About = () => {
         {
             icon: <FiUsers className="w-5 h-5 text-[#FF6A1A]" />,
             number: '500+',
-            label: 'Students Trained'
+            label: 'Shooters Trained'
         },
         {
             icon: <GiWhistle className="w-5 h-5 text-[#FF6A1A]" />,
-            number: '20+',
-            label: 'Expert Coaches'
+            number: '8 AM - 8 PM',
+            label: 'Open All 7 Days'
         },
         {
             icon: <FiTarget className="w-5 h-5 text-[#FF6A1A]" />,
-            number: '10+',
-            label: 'Sports Programs'
+            number: '1 - 1.5 Hrs',
+            label: 'Daily Session Duration'
         },
         {
             icon: <FaTrophy className="w-5 h-5 text-[#FF6A1A]" />,
-            number: '15+',
-            label: 'Annual Tournaments'
+            number: '₹4,700',
+            label: 'Monthly (Weapons Included)'
         }
     ];
 
-    // Core Values / Pillars
+    // Core Values / Pillars - DISCIPLINE • FOCUS • CONSISTENCY • SUCCESS
     const corePillars = [
         {
             icon: <GiWhistle className="w-6 h-6 text-[#FF6A1A]" />,
-            title: 'Professional Coaching',
-            desc: 'Certified and experienced national mentors guiding athletes with personalized drill regimens.'
+            title: 'Discipline',
+            desc: 'Strict range safety protocols, posture discipline, and dedicated training habits for high precision.'
         },
         {
-            icon: <MdOutlineStadium className="w-6 h-6 text-blue-600" />,
-            title: 'Modern Infrastructure',
-            desc: 'World-class turf, synthetic courts, Olympic swimming pools, and floodlit training arenas.'
+            icon: <FiTarget className="w-6 h-6 text-blue-600" />,
+            title: 'Focus',
+            desc: 'Laser-sharp sight alignment, breath synchronization, and unwavering mental calmness at the trigger.'
         },
         {
-            icon: <FaRunning className="w-6 h-6 text-emerald-600" />,
-            title: 'Holistic Personal Growth',
-            desc: 'We cultivate discipline, sportsmanship, strategic thinking, and leadership for life.'
+            icon: <FiCheckCircle className="w-6 h-6 text-emerald-600" />,
+            title: 'Consistency',
+            desc: 'Daily 1 to 1.5 hour focused practice sessions building rock-solid trigger muscle memory and stance.'
         },
         {
             icon: <FaTrophy className="w-6 h-6 text-amber-500" />,
-            title: 'Competitive Exposure',
-            desc: 'Regular inter-academy leagues, state trials, and national talent scouting championships.'
+            title: 'Success',
+            desc: 'Preparing champion shooters for district, state, and national podiums through structured match prep.'
         }
     ];
 
@@ -69,30 +68,30 @@ const About = () => {
     const coaches = [
         {
             name: "Coach Rajesh Sharma",
-            role: "Head Coach - Football Academy",
-            badge: "AFC 'A' Licensed",
-            desc: "14+ years of grassroots and youth academy development. Mentored dozens of state and national U-17 players.",
+            role: "Head Coach - 10M Air Rifle",
+            badge: "NRAI / ISSF Certified",
+            desc: "14+ years of national shooting coaching. Guided numerous junior and senior shooters to state and national medals.",
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop"
         },
         {
             name: "Coach Vikram Singh",
-            role: "Director of Cricket Development",
-            badge: "BCCI Certified Coach",
-            desc: "Former Ranji Trophy cricketer specializing in batting biomechanics, power-hitting, and spin-bowling tactics.",
+            role: "Director of Pistol Development",
+            badge: "National Medalist Coach",
+            desc: "Expert in 10M Air Pistol trigger biomechanics, recoil stabilization, and high-pressure match temperament.",
             image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop"
         },
         {
             name: "Coach Ananya Sen",
-            role: "Head of Badminton & Racquet Sports",
-            badge: "National Gold Medalist",
-            desc: "Specializes in explosive court agility, shuttle precision, and tournament mental conditioning.",
+            role: "Beginner Training & Foundation Lead",
+            badge: "Certified Shooting Mentor",
+            desc: "Specializes in firearm safety, stance foundation, sighting geometry, and youth athlete talent nurturing.",
             image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop"
         },
         {
             name: "Coach Rahul Nair",
-            role: "Head Basketball & Athletic Trainer",
-            badge: "FIBA Level-2 Coach",
-            desc: "Expert in tactical half-court execution, shooting dynamics, and youth plyometric conditioning.",
+            role: "Mental Focus & Biomechanics Coach",
+            badge: "Sports Psychology Specialist",
+            desc: "Focuses on breath control, heart rate synchronization, visual focus, and competitive match endurance.",
             image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop"
         }
     ];
@@ -104,7 +103,7 @@ const About = () => {
             <div className="relative bg-[#0A0E17] text-white py-20 overflow-hidden">
                 <div 
                     className="absolute inset-0 bg-cover bg-center opacity-40"
-                    style={{ backgroundImage: `url('/images/playpeak/hero-football.jpg')` }}
+                    style={{ backgroundImage: `url('/images/shooting/shooting-team-trophy.jpg')` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#070A0F]/95 via-[#070A0F]/80 to-[#070A0F]/40" />
 
@@ -112,17 +111,17 @@ const About = () => {
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
                         <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
                         <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A1A]">
-                            ABOUT PLAYPEAK
+                            PIONEER RIFLE SHOOTING ACADEMY
                         </span>
                     </div>
 
                     <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-                        More Than An Academy. <br />
-                        <span className="text-[#FF6A1A]">A Champion Community.</span>
+                        Shoot Today, <br />
+                        <span className="text-[#FF6A1A]">Then Lead Tomorrow.</span>
                     </h1>
 
                     <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-                        At PlayPeak Sports Academy, we believe sports shape better humans. Our mission is to nurture talent, build character and create opportunities for every aspiring athlete.
+                        At Pioneer Rifle Shooting Academy, we provide a professional, disciplined and focused training environment for aspiring shooters. We don't just teach shooting, we build champions.
                     </p>
                 </div>
             </div>
@@ -153,20 +152,20 @@ const About = () => {
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
                             <span className="text-xs font-bold uppercase tracking-wider text-[#FF6A1A]">
-                                OUR PHILOSOPHY
+                                OUR MISSION & COMMITMENT
                             </span>
                         </div>
 
                         <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                            Building Strong Bodies, Sharp Minds & Unbreakable Spirits
+                            Train Hard. Aim High. Achieve Excellence.
                         </h2>
 
                         <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                            PlayPeak Sports Academy was founded on a simple principle: every young child and aspiring athlete deserves access to certified mentorship, Olympic-standard facilities, and a supportive environment that inspires them to excel.
+                            At Pioneer Rifle Shooting Academy, we provide a professional, disciplined and focused training environment for aspiring shooters. We are committed to providing quality training and helping every shooter develop discipline, focus, and competitive shooting skills in a safe, professional and supportive environment.
                         </p>
 
                         <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                            Through structured training programs in football, cricket, badminton, basketball, tennis, and swimming, we guide athletes from their very first practice drill all the way to state and national tournament podiums.
+                            With open timings from 8:00 AM to 8:00 PM across all days, our daily practice sessions generally last 1 to 1.5 hours. Our all-inclusive training fee covers weapons & equipment, pellet boxes, target papers, and certified coach support.
                         </p>
 
                         <div className="pt-2">
@@ -174,7 +173,7 @@ const About = () => {
                                 to="/contact"
                                 className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-semibold text-sm shadow-md transition-all hover:scale-105"
                             >
-                                Book a Free Trial Session <FiArrowRight />
+                                Book a Trial Range Session <FiArrowRight />
                             </Link>
                         </div>
                     </div>
@@ -183,16 +182,16 @@ const About = () => {
                     <div className="lg:col-span-6 relative">
                         <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group">
                             <img 
-                                src="/images/playpeak/coach-guiding-kids.jpg" 
-                                alt="PlayPeak Academy Coach with Young Kids" 
+                                src="/images/shooting/shooting-squad-steps.jpg" 
+                                alt="Pioneer Shooting Academy Champions & Squad" 
                                 className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-700" 
                             />
                         </div>
 
                         {/* Floating Badge */}
                         <div className="absolute -bottom-5 -left-5 bg-slate-900 text-white p-5 rounded-3xl shadow-xl border border-white/10 hidden sm:block">
-                            <p className="font-display font-black text-xl text-[#FF6A1A]">#1 Youth Sports Academy</p>
-                            <p className="text-xs text-slate-300 mt-0.5">Where Champions Are Made Every Day</p>
+                            <p className="font-display font-black text-xl text-[#FF6A1A]">Pioneer Shooting Academy</p>
+                            <p className="text-xs text-slate-300 mt-0.5">We don't just teach shooting, we build champions.</p>
                         </div>
                     </div>
 
@@ -207,11 +206,11 @@ const About = () => {
                         <div className="flex items-center justify-center gap-2 mb-2">
                             <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
                             <span className="text-xs font-bold uppercase tracking-wider text-[#FF6A1A]">
-                                WHY PLAYPEAK
+                                CORE PILLARS
                             </span>
                         </div>
                         <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
-                            The Four Pillars of Excellence
+                            Discipline • Focus • Consistency • Success
                         </h2>
                     </div>
 
@@ -287,10 +286,10 @@ const About = () => {
             <div className="bg-slate-900 text-white py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
                     <h2 className="font-display text-3xl sm:text-4xl font-black text-white">
-                        Ready to Start Your Sporting Journey?
+                        Ready to Start Your Shooting Journey?
                     </h2>
                     <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
-                        Take the first step towards a healthier, stronger and brighter future. Join PlayPeak Sports Academy today.
+                        Shoot today, then lead tomorrow. Join Pioneer Rifle Shooting Academy today.
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-4">
                         <Link

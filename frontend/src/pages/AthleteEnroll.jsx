@@ -21,11 +21,12 @@ import {
     FiDownload,
     FiPrinter
 } from 'react-icons/fi';
-import { FaFutbol, FaQrcode } from 'react-icons/fa';
+import { FaQrcode } from 'react-icons/fa';
 import { GiWhistle, GiMedal } from 'react-icons/gi';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 import axios from 'axios';
+import { PioneerLogoBrand } from '../components/PioneerLogo';
 
 const AthleteEnroll = () => {
     const navigate = useNavigate();
@@ -37,48 +38,82 @@ const AthleteEnroll = () => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
-        email: '',
         age: 15,
         gender: 'Male',
-        sport: 'Football',
-        batchTime: 'Evening Prime (05:00 PM - 07:00 PM)',
-        coach: 'Coach Rajesh Sharma (AFC Pro)',
-        planType: 'Monthly', // Monthly, Yearly, Quarterly
-        membership: 'Pro Academy Membership',
-        amountPaid: 0,
+        sport: '10M Rifle Shooting',
+        batchTime: 'Evening Prime Shift (04:00 PM - 07:00 PM)',
+        coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
+        planType: 'Combo', // 'Combo' (9700) | 'Monthly' (4700) | 'Registration' (5000)
+        membership: 'New Shooter Admission (Annual Reg ₹5,000 + 1st Month Training ₹4,700)',
+        amountPaid: 9700,
+        paymentMode: 'Cash', // 'Cash' | 'Online'
+        utrNumber: '',
         emergencyContact: '',
         bloodGroup: 'B+',
         notes: ''
     });
 
-    const sportsOptions = [
-        { name: 'Football', coach: 'Coach Rajesh Sharma (AFC Pro)', monthly: 3999, yearly: 39990, quarterly: 10499 },
-        { name: 'Cricket', coach: 'Coach Vikram Singh (BCCI)', monthly: 3499, yearly: 34990, quarterly: 9499 },
-        { name: 'Basketball', coach: 'Coach Rahul Nair (FIBA)', monthly: 3799, yearly: 37990, quarterly: 9999 },
-        { name: 'Badminton', coach: 'Coach Ananya Sen (National)', monthly: 2499, yearly: 24990, quarterly: 6999 },
-        { name: 'Swimming', coach: 'Coach Vikram Joshi', monthly: 3200, yearly: 32000, quarterly: 8600 },
-        { name: 'Tennis', coach: 'Coach Elena Rostova', monthly: 3400, yearly: 34000, quarterly: 9200 },
-        { name: 'Combat / MMA', coach: 'Coach Devendra Patil', monthly: 2999, yearly: 29990, quarterly: 7999 },
-        { name: 'Strength & Conditioning', coach: 'Coach Elena Rostova', monthly: 2499, yearly: 24990, quarterly: 6999 },
-        { name: 'Pro Esports', coach: 'Coach Tyler Ray', monthly: 2200, yearly: 22000, quarterly: 5999 }
+    const [isCustomSport, setIsCustomSport] = useState(false);
+    const [isCustomTiming, setIsCustomTiming] = useState(false);
+
+    const timingShifts = [
+        'Morning Shift (06:00 AM - 09:00 AM)',
+        'Forenoon Shift (09:00 AM - 12:00 PM)',
+        'Afternoon Shift (12:00 PM - 04:00 PM)',
+        'Evening Prime Shift (04:00 PM - 07:00 PM)',
+        'Night Training Shift (07:00 PM - 09:30 PM)',
+        'Flexible Open Slot'
     ];
 
-    // Current Sport Pricing
-    const currentSportConfig = sportsOptions.find(s => s.sport === formData.sport) || sportsOptions[0];
-    const totalFee = formData.planType === 'Yearly' 
-        ? currentSportConfig.yearly 
-        : formData.planType === 'Quarterly' 
-        ? currentSportConfig.quarterly 
-        : currentSportConfig.monthly;
+    const sportsOptions = [
+        { name: '10M Rifle Shooting', coach: 'Coach Rajesh Sharma (ISSF / NRAI)' },
+        { name: '10M Pistol Shooting', coach: 'Coach Vikram Singh (National Medalist)' },
+        { name: 'Beginner Training Course', coach: 'Coach Ananya Sen (Shooting Lead)' },
+        { name: 'Competitive Match Prep', coach: 'Master Coach & NRAI Mentors' }
+    ];
 
-    const dueAmount = Math.max(0, totalFee - Number(formData.amountPaid || 0));
+    // Strictly TWO Official Academy Fees
+    const [selectedFees, setSelectedFees] = useState({
+        registration: true, // One-Time Annual Registration Fee (₹5,000)
+        monthly: true       // Monthly Training Fee (₹4,700)
+    });
+
+    const regFee = selectedFees.registration ? 5000 : 0;
+    const monthlyFee = selectedFees.monthly ? 4700 : 0;
+    const totalFee = regFee + monthlyFee;
+    const paidAmt = Number(formData.amountPaid !== undefined && formData.amountPaid !== '' ? formData.amountPaid : totalFee);
+    const dueAmount = Math.max(0, totalFee - paidAmt);
+
+    const toggleFeeSelection = (feeType) => {
+        const next = { ...selectedFees, [feeType]: !selectedFees[feeType] };
+        // At least one fee must remain active
+        if (!next.registration && !next.monthly) return;
+
+        setSelectedFees(next);
+
+        const newTotal = (next.registration ? 5000 : 0) + (next.monthly ? 4700 : 0);
+        const planKey = (next.registration && next.monthly) ? 'Combo' : (next.registration ? 'Registration' : 'Monthly');
+        const planLabel = (next.registration && next.monthly)
+            ? 'Annual Reg (₹5,000) + Monthly Training (₹4,700)'
+            : next.registration
+            ? 'One-Time Annual Registration Fee (₹5,000)'
+            : 'Monthly Training Fee (₹4,700/mo)';
+
+        setFormData(prev => ({
+            ...prev,
+            planType: planKey,
+            membership: `${prev.sport} - ${planLabel}`,
+            amountPaid: newTotal
+        }));
+    };
 
     const handleSportChange = (sportName) => {
         const selected = sportsOptions.find(s => s.name === sportName) || sportsOptions[0];
         setFormData({
             ...formData,
             sport: selected.name,
-            coach: selected.coach
+            coach: selected.coach,
+            membership: `${selected.name} - ${selectedPlan.name}`
         });
     };
 
@@ -89,12 +124,17 @@ const AthleteEnroll = () => {
             return;
         }
 
+        if (formData.paymentMode === 'Online' && !formData.utrNumber.trim()) {
+            alert('Please enter your 12-digit UTR Number / Transaction ID for Online Payment.');
+            return;
+        }
+
         const newId = `ATH-${Math.floor(100 + Math.random() * 900)}`;
         const newAthlete = {
             id: newId,
             name: formData.name.trim(),
             phone: formData.phone.trim(),
-            email: formData.email.trim() || `${formData.name.toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+            email: `${formData.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
             age: Number(formData.age),
             gender: formData.gender,
             sport: formData.sport,
@@ -103,8 +143,11 @@ const AthleteEnroll = () => {
             planType: formData.planType,
             membership: `${formData.sport} ${formData.planType} Pass`,
             feeAmount: totalFee,
+            amountPaid: paidAmt,
             dueAmount: dueAmount,
             paymentStatus: dueAmount === 0 ? 'Paid' : dueAmount === totalFee ? 'Due' : 'Partial',
+            paymentMode: formData.paymentMode,
+            utrNumber: formData.paymentMode === 'Online' ? formData.utrNumber.trim() : '',
             joinDate: new Date().toISOString().split('T')[0],
             emergencyContact: formData.emergencyContact || formData.phone,
             bloodGroup: formData.bloodGroup,
@@ -122,7 +165,7 @@ const AthleteEnroll = () => {
             axios.post(`${API_BASE}athletes`, newAthlete).catch(e => console.warn(e));
 
             // If amount was paid, also create payment record
-            if (formData.amountPaid > 0) {
+            if (paidAmt > 0) {
                 const existingPay = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
                 const newPay = {
                     id: `PAY-${Math.floor(100 + Math.random() * 900)}`,
@@ -130,10 +173,12 @@ const AthleteEnroll = () => {
                     athleteName: newAthlete.name,
                     sport: newAthlete.sport,
                     plan: newAthlete.membership,
-                    amount: Number(formData.amountPaid),
+                    amount: paidAmt,
+                    paymentMode: formData.paymentMode,
+                    utrNumber: formData.paymentMode === 'Online' ? formData.utrNumber.trim() : '',
                     date: new Date().toISOString().split('T')[0],
                     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    method: 'Online UPI / QR Payment',
+                    method: formData.paymentMode === 'Online' ? `Online UPI (UTR: ${formData.utrNumber.trim()})` : 'Reception Cash Desk',
                     status: 'Completed',
                     receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`
                 };
@@ -168,7 +213,7 @@ const AthleteEnroll = () => {
         if (!passQrDataUrl) return;
         const link = document.createElement('a');
         link.href = passQrDataUrl;
-        link.download = `PlayPeak_Pass_${(enrolledPass?.name || 'Athlete').replace(/\s+/g, '_')}.png`;
+        link.download = `Pioneer_Shooter_Pass_${(enrolledPass?.name || 'Shooter').replace(/\s+/g, '_')}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -185,14 +230,14 @@ const AthleteEnroll = () => {
             doc.setFillColor(255, 106, 26);
             doc.rect(0, 48, 210, 3, 'F');
 
-            doc.setFontSize(22);
+            doc.setFontSize(20);
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.text("PLAYPEAK SPORTS ACADEMY", 105, 22, { align: "center" });
+            doc.text("PIONEER RIFLE SHOOTING ACADEMY", 105, 22, { align: "center" });
 
             doc.setFontSize(10);
             doc.setTextColor(255, 106, 26);
-            doc.text("OFFICIAL ATHLETE ADMISSION & GATE PASS", 105, 32, { align: "center" });
+            doc.text("OFFICIAL SHOOTER ADMISSION & RANGE PASS", 105, 32, { align: "center" });
 
             // Pass Card Box
             doc.setDrawColor(226, 232, 240);
@@ -214,14 +259,13 @@ const AthleteEnroll = () => {
             }
 
             // Athlete Details
-            let yPos = 182;
             const details = [
                 { label: "Sport Discipline", val: enrolledPass.sport },
-                { label: "Membership Tier", val: `${enrolledPass.planType} Subscription` },
+                { label: "Admission Plan", val: enrolledPass.membership || enrolledPass.planType },
                 { label: "Training Schedule", val: enrolledPass.batchTime },
                 { label: "Assigned Head Coach", val: enrolledPass.coach },
                 { label: "Contact / Phone", val: enrolledPass.phone },
-                { label: "Payment Status", val: `${enrolledPass.paymentStatus} (₹${enrolledPass.feeAmount})` }
+                { label: "Fee Settlement", val: `${enrolledPass.paymentStatus} (Paid: ₹${(enrolledPass.amountPaid !== undefined ? enrolledPass.amountPaid : enrolledPass.feeAmount).toLocaleString()} of ₹${Number(enrolledPass.feeAmount).toLocaleString()})` }
             ];
 
             doc.setFontSize(9);
@@ -245,9 +289,9 @@ const AthleteEnroll = () => {
             doc.rect(0, 275, 210, 22, 'F');
             doc.setFontSize(8);
             doc.setTextColor(203, 213, 225);
-            doc.text("PlayPeak Sports Arena, Olympic Complex Road | Helpline: +91 98765 43210", 105, 287, { align: "center" });
+            doc.text("Sector R Mahalaxmi Nagar, Near Pioneer Convent School, Indore | Helpline: +91 9893270807 / 9294771208", 105, 287, { align: "center" });
 
-            doc.save(`PlayPeak_Admission_Pass_${enrolledPass.name.replace(/\s+/g, '_')}.pdf`);
+            doc.save(`Pioneer_Admission_Pass_${enrolledPass.name.replace(/\s+/g, '_')}.pdf`);
         } catch (e) {
             console.error(e);
         }
@@ -263,32 +307,54 @@ const AthleteEnroll = () => {
             <div className="max-w-2xl w-full relative z-10">
                 
                 {/* Brand Header */}
-                <div className="text-center space-y-2 mb-8">
-                    <Link to="/" className="inline-flex items-center gap-2 group">
-                        <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 100 100" className="w-10 h-10">
-                                <circle cx="50" cy="22" r="12" fill="#FF6A1A" />
-                                <path d="M48 38 L30 54 L38 68 L48 56 L62 78 L78 74 L60 48 L62 38 Z" fill="#FF6A1A" />
-                                <path d="M30 40 L18 52 L26 60 L36 48 Z" fill="#3B82F6" />
-                                <path d="M62 48 L76 34 L84 42 L68 56 Z" fill="#3B82F6" />
-                            </svg>
-                        </div>
-                        <div className="text-left leading-tight">
-                            <span className="font-display font-black text-2xl text-white tracking-tight">
-                                Play<span className="text-[#FF6A1A]">Peak</span>
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">
-                                SPORTS ACADEMY
-                            </span>
-                        </div>
+                <div className="text-center space-y-2 mb-6">
+                    <Link to="/" className="inline-block group">
+                        <PioneerLogoBrand isDark={true} showTagline={true} />
                     </Link>
 
                     <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-white">
-                        Athlete Self-Registration
+                        Student & Athlete Registration
                     </h1>
                     <p className="text-xs sm:text-sm text-slate-400">
-                        Scan QR & Enroll directly into our training cohorts and international sports arenas.
+                        Official Pioneer Rifle Shooting Academy Admission & Gate Pass Enrollment Portal
                     </p>
+                </div>
+
+                {/* Prominent Official Fee Structure Banner */}
+                <div className="bg-slate-850/90 bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 backdrop-blur-md mb-6 shadow-xl text-left">
+                    <div className="flex items-center justify-between mb-3 border-b border-slate-700/60 pb-2.5">
+                        <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#FF6A1A] animate-pulse" />
+                            <h3 className="font-display font-bold text-xs sm:text-sm uppercase tracking-wider text-white">
+                                Pioneer Academy Official Fee Policy
+                            </h3>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#FF6A1A]/20 text-[#FF6A1A] text-[10px] font-bold uppercase tracking-wider">
+                            Official Rates
+                        </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-slate-900/85 p-3.5 rounded-xl border border-slate-700/70">
+                            <div className="flex justify-between items-center mb-1.5">
+                                <span className="text-white font-bold text-xs">1. One-Time Annual Registration Fee</span>
+                                <span className="font-display font-black text-sm text-[#FF6A1A]">₹5,000</span>
+                            </div>
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                                Mandatory 1-year registration fee. Includes official shooter accreditation, Shooter ID card, digital QR gate pass, locker room access, weapon inspection & state/district trials affiliation.
+                            </p>
+                        </div>
+
+                        <div className="bg-slate-900/85 p-3.5 rounded-xl border border-slate-700/70">
+                            <div className="flex justify-between items-center mb-1.5">
+                                <span className="text-white font-bold text-xs">2. Monthly Training Fee</span>
+                                <span className="font-display font-black text-sm text-emerald-400">₹4,700 <span className="text-[10px] font-normal text-slate-400">/ mo</span></span>
+                            </div>
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                                Covers daily 1 to 1.5 hr training sessions (Open 8:00 AM - 8:00 PM), match air rifles & pistols access, high-precision pellet boxes, target papers, and certified coach guidance included.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* SUCCESS PASS CARD */}
@@ -306,7 +372,7 @@ const AthleteEnroll = () => {
                                 Enrollment Successful!
                             </h2>
                             <p className="text-xs text-slate-500">
-                                Welcome to PlayPeak Sports Academy! Your digital athlete pass is active.
+                                Welcome to Pioneer Rifle Shooting Academy! Your digital shooter pass is active.
                             </p>
                         </div>
 
@@ -328,8 +394,8 @@ const AthleteEnroll = () => {
                                     <strong className="text-white font-bold">{enrolledPass.sport}</strong>
                                 </div>
                                 <div>
-                                    <span className="text-slate-400 text-[11px] block">Plan Duration</span>
-                                    <strong className="text-emerald-400 font-bold">{enrolledPass.planType} Plan</strong>
+                                    <span className="text-slate-400 text-[11px] block">Admission Plan</span>
+                                    <strong className="text-emerald-400 font-bold">{enrolledPass.membership || `${enrolledPass.planType} Plan`}</strong>
                                 </div>
                                 <div>
                                     <span className="text-slate-400 text-[11px] block">Batch Schedule</span>
@@ -421,7 +487,7 @@ const AthleteEnroll = () => {
                                     <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp / Phone *</label>
                                     <input
                                         type="tel"
-                                        placeholder="+91 98765 43210"
+                                        placeholder="+91 98932 70807"
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
@@ -429,12 +495,12 @@ const AthleteEnroll = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                                    <label className="block text-xs font-bold text-slate-700 mb-1">Emergency / Guardian Contact</label>
                                     <input
-                                        type="email"
-                                        placeholder="aarav@gmail.com"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        type="tel"
+                                        placeholder="+91 92947 71208"
+                                        value={formData.emergencyContact}
+                                        onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
                                         className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
                                     />
                                 </div>
@@ -475,6 +541,8 @@ const AthleteEnroll = () => {
                                         <option value="O+">O+</option>
                                         <option value="AB+">AB+</option>
                                         <option value="O-">O-</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B-">B-</option>
                                     </select>
                                 </div>
                             </div>
@@ -489,104 +557,339 @@ const AthleteEnroll = () => {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Select Sport *</label>
-                                    <select
-                                        value={formData.sport}
-                                        onChange={(e) => handleSportChange(e.target.value)}
-                                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
-                                    >
-                                        {sportsOptions.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
-                                    </select>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label className="block text-xs font-bold text-slate-700">Sport Discipline *</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const next = !isCustomSport;
+                                                setIsCustomSport(next);
+                                                if (!next && !formData.sport) {
+                                                    setFormData({ ...formData, sport: '10M Rifle Shooting', coach: 'Coach Rajesh Sharma (ISSF / NRAI)' });
+                                                }
+                                            }}
+                                            className="text-[11px] text-[#FF6A1A] font-bold hover:underline"
+                                        >
+                                            {isCustomSport ? "← Choose from List" : "+ Enter Manually"}
+                                        </button>
+                                    </div>
+                                    {isCustomSport ? (
+                                        <input
+                                            type="text"
+                                            value={formData.sport}
+                                            onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
+                                            placeholder="Type custom discipline / sport..."
+                                            className="w-full px-3.5 py-3 bg-slate-50 border border-[#FF6A1A] rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#FF6A1A]"
+                                            required
+                                        />
+                                    ) : (
+                                        <select
+                                            value={formData.sport}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'custom_manual') {
+                                                    setIsCustomSport(true);
+                                                    setFormData({ ...formData, sport: '' });
+                                                } else {
+                                                    handleSportChange(e.target.value);
+                                                }
+                                            }}
+                                            className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            {sportsOptions.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                            <option value="custom_manual">✎ Enter Manually (Custom Discipline)...</option>
+                                        </select>
+                                    )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Batch Timing</label>
-                                    <select
-                                        value={formData.batchTime}
-                                        onChange={(e) => setFormData({ ...formData, batchTime: e.target.value })}
-                                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                                    >
-                                        <option value="Morning Dawn (06:00 AM - 08:00 AM)">Morning Dawn (06:00 AM - 08:00 AM)</option>
-                                        <option value="Evening Prime (05:00 PM - 07:00 PM)">Evening Prime (05:00 PM - 07:00 PM)</option>
-                                        <option value="Night Floodlights (07:30 PM - 09:30 PM)">Night Floodlights (07:30 PM - 09:30 PM)</option>
-                                    </select>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label className="block text-xs font-bold text-slate-700">Batch Timing & Shift *</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const next = !isCustomTiming;
+                                                setIsCustomTiming(next);
+                                                if (!next && !formData.batchTime) {
+                                                    setFormData({ ...formData, batchTime: 'Evening Prime Shift (04:00 PM - 07:00 PM)' });
+                                                }
+                                            }}
+                                            className="text-[11px] text-[#FF6A1A] font-bold hover:underline"
+                                        >
+                                            {isCustomTiming ? "← Choose from List" : "+ Enter Manually"}
+                                        </button>
+                                    </div>
+                                    {isCustomTiming ? (
+                                        <input
+                                            type="text"
+                                            value={formData.batchTime}
+                                            onChange={(e) => setFormData({ ...formData, batchTime: e.target.value })}
+                                            placeholder="e.g. 05:00 PM - 06:30 PM (Daily Shift)..."
+                                            className="w-full px-3.5 py-3 bg-slate-50 border border-[#FF6A1A] rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#FF6A1A]"
+                                            required
+                                        />
+                                    ) : (
+                                        <select
+                                            value={formData.batchTime}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'custom_manual_time') {
+                                                    setIsCustomTiming(true);
+                                                    setFormData({ ...formData, batchTime: '' });
+                                                } else {
+                                                    setFormData({ ...formData, batchTime: e.target.value });
+                                                }
+                                            }}
+                                            className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            {timingShifts.map(t => <option key={t} value={t}>{t}</option>)}
+                                            <option value="custom_manual_time">✎ Enter Manually (Custom Timing & Shift)...</option>
+                                        </select>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Plan Duration Selector (Monthly vs Yearly vs Quarterly) */}
+                            {/* Fee Structure: ONLY TWO OFFICIAL FEES */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2">
-                                    Choose Membership Billing Cycle
-                                </label>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-xs font-bold text-slate-700">
+                                        Academy Fee Structure (Select Fees to Include) *
+                                    </label>
+                                    <span className="text-[10px] text-slate-400 font-semibold">
+                                        Default: Both Fees (New Admission)
+                                    </span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 mb-3">
+                                    The academy operates on strictly two official fees. For new admissions, both fees are accounted together (₹9,700). You may toggle either fee as needed:
+                                </p>
                                 
-                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, planType: 'Monthly' })}
-                                        className={`p-3.5 rounded-2xl border text-center transition-all ${
-                                            formData.planType === 'Monthly'
-                                                ? 'bg-orange-50 border-[#FF6A1A] text-slate-900 shadow-sm ring-2 ring-[#FF6A1A]/30'
-                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    {/* Fee 1: One-Time Annual Registration Fee */}
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => toggleFeeSelection('registration')}
+                                        className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                                            selectedFees.registration
+                                                ? 'bg-blue-50/70 border-blue-500 text-slate-900 shadow-md ring-2 ring-blue-500/20'
+                                                : 'bg-slate-50/70 border-slate-200 text-slate-500 hover:bg-slate-100'
                                         }`}
                                     >
-                                        <span className="text-[10px] font-bold uppercase tracking-wider block text-[#FF6A1A]">Monthly</span>
-                                        <div className="font-display font-black text-sm sm:text-base text-slate-900">
-                                            ₹{currentSportConfig.monthly}
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="px-2 py-0.5 rounded-full text-white font-bold text-[9px] uppercase tracking-wide bg-blue-600">
+                                                Official Fee #1 (Annual)
+                                            </span>
+                                            <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                                selectedFees.registration ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'
+                                            }`}>
+                                                {selectedFees.registration ? '✓' : ''}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] text-slate-500">Per Month</span>
-                                    </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, planType: 'Quarterly' })}
-                                        className={`p-3.5 rounded-2xl border text-center transition-all ${
-                                            formData.planType === 'Quarterly'
-                                                ? 'bg-orange-50 border-[#FF6A1A] text-slate-900 shadow-sm ring-2 ring-[#FF6A1A]/30'
-                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                                        }`}
-                                    >
-                                        <span className="text-[10px] font-bold uppercase tracking-wider block text-blue-600">Quarterly</span>
-                                        <div className="font-display font-black text-sm sm:text-base text-slate-900">
-                                            ₹{currentSportConfig.quarterly}
+                                        <div className="space-y-0.5">
+                                            <h4 className="font-display font-bold text-sm text-slate-900">
+                                                One-Time Annual Registration Fee
+                                            </h4>
+                                            <p className="text-[11px] font-semibold text-blue-600">
+                                                Mandatory Shooter Accreditation
+                                            </p>
                                         </div>
-                                        <span className="text-[10px] text-slate-500">3 Months</span>
-                                    </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, planType: 'Yearly' })}
-                                        className={`p-3.5 rounded-2xl border text-center relative transition-all ${
-                                            formData.planType === 'Yearly'
-                                                ? 'bg-orange-50 border-[#FF6A1A] text-slate-900 shadow-sm ring-2 ring-[#FF6A1A]/30'
-                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                        <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-baseline justify-between">
+                                            <div>
+                                                <span className="font-display font-black text-xl text-slate-900">
+                                                    ₹5,000
+                                                </span>
+                                                <span className="text-[10px] text-slate-500 ml-1">
+                                                    / Valid 1 Year
+                                                </span>
+                                            </div>
+                                            <span className={`text-[10px] font-bold ${selectedFees.registration ? 'text-blue-700' : 'text-slate-400'}`}>
+                                                {selectedFees.registration ? 'Included in Total' : 'Click to Include'}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                                            Official Pioneer Shooter ID card, digital QR gate pass, locker room access, weapon safety check, and state/district trials affiliation.
+                                        </p>
+                                    </div>
+
+                                    {/* Fee 2: Monthly Training Fee */}
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => toggleFeeSelection('monthly')}
+                                        className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                                            selectedFees.monthly
+                                                ? 'bg-orange-50/70 border-[#FF6A1A] text-slate-900 shadow-md ring-2 ring-[#FF6A1A]/30'
+                                                : 'bg-slate-50/70 border-slate-200 text-slate-500 hover:bg-slate-100'
                                         }`}
                                     >
-                                        <span className="absolute -top-2.5 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-bold text-[8px] uppercase">
-                                            Save 17%
-                                        </span>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider block text-emerald-600">Yearly</span>
-                                        <div className="font-display font-black text-sm sm:text-base text-slate-900">
-                                            ₹{currentSportConfig.yearly}
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="px-2 py-0.5 rounded-full text-white font-bold text-[9px] uppercase tracking-wide bg-[#FF6A1A]">
+                                                Official Fee #2 (Monthly)
+                                            </span>
+                                            <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                                selectedFees.monthly ? 'bg-[#FF6A1A] border-[#FF6A1A] text-white' : 'border-slate-300 bg-white'
+                                            }`}>
+                                                {selectedFees.monthly ? '✓' : ''}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] text-slate-500">Annual Pass</span>
-                                    </button>
+
+                                        <div className="space-y-0.5">
+                                            <h4 className="font-display font-bold text-sm text-slate-900">
+                                                Monthly Training Fee
+                                            </h4>
+                                            <p className="text-[11px] font-semibold text-[#FF6A1A]">
+                                                Regular Practice & Coaching
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-baseline justify-between">
+                                            <div>
+                                                <span className="font-display font-black text-xl text-slate-900">
+                                                    ₹4,700
+                                                </span>
+                                                <span className="text-[10px] text-slate-500 ml-1">
+                                                    / Per Month
+                                                </span>
+                                            </div>
+                                            <span className={`text-[10px] font-bold ${selectedFees.monthly ? 'text-orange-600' : 'text-slate-400'}`}>
+                                                {selectedFees.monthly ? 'Included in Total' : 'Click to Include'}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                                            Daily 1 to 1.5 hr training sessions (Open 8 AM - 8 PM), match weapons, pellet boxes, target papers & coach guidance included.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Fee Calculation Summary Box */}
-                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2">
-                                <div className="flex justify-between text-slate-600">
-                                    <span>Selected Sport & Mentor:</span>
-                                    <strong className="text-slate-900">{formData.sport} ({formData.coach})</strong>
+                            {/* Fee Calculation Summary Box with Transparent Itemization */}
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2.5">
+                                <div className="flex justify-between items-center text-slate-600 border-b border-slate-200/60 pb-2">
+                                    <span>Selected Discipline & Coach:</span>
+                                    <strong className="text-slate-900 font-bold">{formData.sport} ({formData.coach})</strong>
                                 </div>
-                                <div className="flex justify-between text-slate-600">
-                                    <span>Total {formData.planType} Academy Fee:</span>
-                                    <strong className="text-[#FF6A1A] font-bold text-sm">₹{totalFee.toLocaleString()}</strong>
+
+                                {selectedFees.registration && (
+                                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                                        <span>• One-Time Annual Registration Fee (1 Year):</span>
+                                        <span className="font-bold text-slate-900">₹5,000</span>
+                                    </div>
+                                )}
+
+                                {selectedFees.monthly && (
+                                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                                        <span>• Monthly Training Fee (Per Month):</span>
+                                        <span className="font-bold text-slate-900">₹4,700</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-slate-800">
+                                    <span className="font-bold text-slate-900">
+                                        {selectedFees.registration && selectedFees.monthly
+                                            ? 'Total Admission Fee (Dono Ka Hisab Ek Sath):'
+                                            : 'Total Payable Fee:'}
+                                    </span>
+                                    <strong className="text-[#FF6A1A] font-extrabold text-base">₹{totalFee.toLocaleString()}</strong>
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-2">
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                            Amount Paying Now (₹):
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={formData.amountPaid}
+                                            onChange={(e) => setFormData({ ...formData, amountPaid: e.target.value === '' ? '' : Number(e.target.value) })}
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-emerald-600 focus:outline-none focus:border-[#FF6A1A]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                            Due / Pending Balance (₹):
+                                        </label>
+                                        <div className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-red-600">
+                                            ₹{dueAmount.toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <p className="text-[11px] text-slate-400 pt-1">
-                                    * Fees can be paid now via UPI or upon arrival at academy entrance.
+                                    * Fees can be paid now via UPI or upon arrival at the academy reception desk.
                                 </p>
                             </div>
+                        </div>
+
+                        {/* Section 3: Payment Mode & Fee Settlement */}
+                        <div className="space-y-4 pt-2">
+                            <h3 className="font-display font-bold text-base text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
+                                <span>3. Payment Mode & Verification</span>
+                            </h3>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-2">
+                                    Select Payment Mode *
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, paymentMode: 'Cash' })}
+                                        className={`p-3 rounded-2xl border text-center transition-all ${
+                                            formData.paymentMode === 'Cash'
+                                                ? 'bg-white border-[#FF6A1A] shadow-md ring-2 ring-[#FF6A1A]/20 text-slate-900'
+                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        <div className="font-bold text-xs">Cash at Reception</div>
+                                        <span className="text-[10px] text-slate-500">Pay directly at range counter</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, paymentMode: 'Online' })}
+                                        className={`p-3 rounded-2xl border text-center transition-all ${
+                                            formData.paymentMode === 'Online'
+                                                ? 'bg-white border-[#FF6A1A] shadow-md ring-2 ring-[#FF6A1A]/20 text-slate-900'
+                                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        <div className="font-bold text-xs text-emerald-600">Online (UPI / QR / Bank)</div>
+                                        <span className="text-[10px] text-slate-500">Instant transfer with UTR</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* If Online is selected, show UPI details and require UTR number */}
+                            {formData.paymentMode === 'Online' && (
+                                <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 text-xs space-y-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-2">
+                                        <span className="font-bold text-emerald-900">Official Pioneer Academy UPI ID:</span>
+                                        <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-emerald-300">
+                                            9893270807@upi
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-emerald-800">
+                                        Please scan range UPI QR or transfer ₹{totalFee.toLocaleString()} to <strong className="font-mono">9893270807@upi</strong> and enter the 12-digit UTR number below.
+                                    </p>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-800 mb-1">
+                                            UTR Number / Transaction Reference ID <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="e.g. 429812903421 (12-digit UPI / IMPS UTR)"
+                                            value={formData.utrNumber}
+                                            onChange={(e) => setFormData({ ...formData, utrNumber: e.target.value })}
+                                            className="w-full px-3.5 py-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Submit Button */}

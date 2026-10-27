@@ -1,4 +1,4 @@
-// pages/AdminDashboard.jsx - PlayPeak Sports Academy Full-Featured Responsive PWA Admin Center
+// pages/AdminDashboard.jsx - Pioneer Rifle Shooting Academy Full-Featured Responsive PWA Admin Center
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
@@ -131,15 +131,12 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
 
     const sportsList = [
-        { name: 'Football', coach: 'Coach Rajesh Sharma (AFC Pro)', monthly: 3999, yearly: 39990, quarterly: 10499 },
-        { name: 'Cricket', coach: 'Coach Vikram Singh (BCCI)', monthly: 3499, yearly: 34990, quarterly: 9499 },
-        { name: 'Basketball', coach: 'Coach Rahul Nair (FIBA)', monthly: 3799, yearly: 37990, quarterly: 9999 },
-        { name: 'Badminton', coach: 'Coach Ananya Sen (National)', monthly: 2499, yearly: 24990, quarterly: 6999 },
-        { name: 'Swimming', coach: 'Coach Vikram Joshi', monthly: 3200, yearly: 32000, quarterly: 8600 },
-        { name: 'Tennis', coach: 'Coach Elena Rostova', monthly: 3400, yearly: 34000, quarterly: 9200 },
-        { name: 'Combat / MMA', coach: 'Coach Devendra Patil', monthly: 2999, yearly: 29990, quarterly: 7999 },
-        { name: 'Strength & Conditioning', coach: 'Coach Elena Rostova', monthly: 2499, yearly: 24990, quarterly: 6999 },
-        { name: 'Pro Esports', coach: 'Coach Tyler Ray', monthly: 2200, yearly: 22000, quarterly: 5999 }
+        { name: '10M Rifle Shooting', coach: 'Coach Rajesh Sharma (ISSF / NRAI)', monthly: 4700, registration: 5000, combo: 9700 },
+        { name: '10M Pistol Shooting', coach: 'Coach Vikram Singh (National Medalist)', monthly: 4700, registration: 5000, combo: 9700 },
+        { name: 'Beginner Training Course', coach: 'Coach Ananya Sen (Shooting Lead)', monthly: 4700, registration: 5000, combo: 9700 },
+        { name: 'Competitive Match Prep', coach: 'Master Coach & NRAI Mentors', monthly: 4700, registration: 5000, combo: 9700 },
+        { name: 'Target Biomechanics & Stance', coach: 'Coach Rahul Nair (Biomechanics)', monthly: 4700, registration: 5000, combo: 9700 },
+        { name: 'Daily Practice (1 - 1.5 Hrs)', coach: 'Range Coaching Staff', monthly: 4700, registration: 5000, combo: 9700 }
     ];
 
     // Listen for PWA BeforeInstallPrompt Event
@@ -169,7 +166,7 @@ const AdminDashboard = () => {
             promptEvent.prompt();
             promptEvent.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    showToast('🎉 PlayPeak App added to Home Screen as mobile app!');
+                    showToast('🎉 Pioneer Academy Admin App added to Home Screen as mobile app!');
                 }
                 window.deferredPWAInstallPrompt = null;
                 setDeferredPrompt(null);
@@ -196,15 +193,15 @@ const AdminDashboard = () => {
                 id: 'ATH-101',
                 name: 'Aarav Sharma',
                 phone: '+91 98261 55678',
-                email: 'aarav.football@gmail.com',
+                email: 'aarav.shooting@gmail.com',
                 age: 15,
                 gender: 'Male',
-                sport: 'Football',
-                batchTime: 'Evening Prime (05:00 PM - 07:00 PM)',
-                coach: 'Coach Rajesh Sharma (AFC Pro)',
+                sport: '10M Rifle Shooting',
+                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
+                coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
                 planType: 'Monthly',
-                membership: 'Pro Academy Monthly',
-                feeAmount: 3999,
+                membership: 'Monthly Training Membership',
+                feeAmount: 4700,
                 dueAmount: 0,
                 paymentStatus: 'Paid',
                 joinDate: '2026-08-01',
@@ -216,17 +213,17 @@ const AdminDashboard = () => {
                 id: 'ATH-102',
                 name: 'Rohan Mehra',
                 phone: '+91 97554 22331',
-                email: 'rohan.cricket@gmail.com',
+                email: 'rohan.pistol@gmail.com',
                 age: 17,
                 gender: 'Male',
-                sport: 'Cricket',
-                batchTime: 'Morning Dawn (06:00 AM - 08:30 AM)',
-                coach: 'Coach Vikram Singh (BCCI)',
-                planType: 'Yearly',
-                membership: 'Ranji Elite Annual',
-                feeAmount: 34990,
-                dueAmount: 12000,
-                paymentStatus: 'Due',
+                sport: '10M Pistol Shooting',
+                batchTime: 'Morning (08:00 AM - 12:00 PM)',
+                coach: 'Coach Vikram Singh (National Medalist)',
+                planType: 'Registration',
+                membership: 'One-Time Annual Registration',
+                feeAmount: 5000,
+                dueAmount: 0,
+                paymentStatus: 'Paid',
                 joinDate: '2026-07-15',
                 emergencyContact: '+91 97554 22300 (Mother)',
                 bloodGroup: 'O+',
@@ -236,15 +233,15 @@ const AdminDashboard = () => {
                 id: 'ATH-103',
                 name: 'Ananya Verma',
                 phone: '+91 94071 88992',
-                email: 'ananya.badminton@gmail.com',
+                email: 'ananya.shooting@gmail.com',
                 age: 14,
                 gender: 'Female',
-                sport: 'Badminton',
-                batchTime: 'Evening Prime (04:30 PM - 06:30 PM)',
-                coach: 'Coach Ananya Sen (National)',
+                sport: 'Beginner Training Course',
+                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
+                coach: 'Coach Ananya Sen (Shooting Lead)',
                 planType: 'Monthly',
-                membership: 'Junior Shuttler Pass',
-                feeAmount: 2499,
+                membership: 'Monthly Training Membership',
+                feeAmount: 4700,
                 dueAmount: 0,
                 paymentStatus: 'Paid',
                 joinDate: '2026-08-10',
@@ -256,60 +253,20 @@ const AdminDashboard = () => {
                 id: 'ATH-104',
                 name: 'Kabir Patel',
                 phone: '+91 99812 44332',
-                email: 'kabir.basketball@gmail.com',
+                email: 'kabir.pistol@gmail.com',
                 age: 16,
                 gender: 'Male',
-                sport: 'Basketball',
-                batchTime: 'Evening Prime (05:30 PM - 07:30 PM)',
-                coach: 'Coach Rahul Nair (FIBA)',
+                sport: '10M Pistol Shooting',
+                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
+                coach: 'Coach Vikram Singh (National Medalist)',
                 planType: 'Monthly',
-                membership: 'Pro Academy Monthly',
-                feeAmount: 3799,
-                dueAmount: 3799,
-                paymentStatus: 'Overdue',
-                joinDate: '2026-06-20',
-                emergencyContact: '+91 99812 44300',
-                bloodGroup: 'AB+',
-                status: 'Active'
-            },
-            {
-                id: 'ATH-105',
-                name: 'Sneha Kulkarni',
-                phone: '+91 98765 11223',
-                email: 'sneha.swim@gmail.com',
-                age: 13,
-                gender: 'Female',
-                sport: 'Swimming',
-                batchTime: 'Morning Dawn (06:00 AM - 07:30 AM)',
-                coach: 'Coach Vikram Joshi',
-                planType: 'Yearly',
-                membership: 'Aquatics Pro Annual',
-                feeAmount: 32000,
+                membership: 'Monthly Training Membership',
+                feeAmount: 4700,
                 dueAmount: 0,
                 paymentStatus: 'Paid',
                 joinDate: '2026-08-05',
-                emergencyContact: '+91 98765 11200',
-                bloodGroup: 'O+',
-                status: 'Active'
-            },
-            {
-                id: 'ATH-106',
-                name: 'Devendra Singh',
-                phone: '+91 91234 56789',
-                email: 'dev.combat@gmail.com',
-                age: 19,
-                gender: 'Male',
-                sport: 'Combat / MMA',
-                batchTime: 'Night Lights (07:30 PM - 09:30 PM)',
-                coach: 'Coach Devendra Patil',
-                planType: 'Monthly',
-                membership: 'MMA Striker Monthly',
-                feeAmount: 2999,
-                dueAmount: 2999,
-                paymentStatus: 'Overdue',
-                joinDate: '2026-05-12',
-                emergencyContact: '+91 91234 56700',
-                bloodGroup: 'B-',
+                emergencyContact: '+91 99812 44300',
+                bloodGroup: 'B+',
                 status: 'Active'
             }
         ];
@@ -321,11 +278,10 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'PAY-901', athleteId: 'ATH-101', athleteName: 'Aarav Sharma', sport: 'Football', plan: 'Pro Academy Monthly', amount: 3999, date: '2026-09-01', dueDate: '2026-10-01', method: 'UPI (GPay)', status: 'Completed', receiptNo: 'RCP-2026-0891' },
-            { id: 'PAY-902', athleteId: 'ATH-102', athleteName: 'Rohan Mehra', sport: 'Cricket', plan: 'Ranji Elite Annual', amount: 22990, date: '2026-08-15', dueDate: '2026-09-15', method: 'Debit Card', status: 'Completed', receiptNo: 'RCP-2026-0892' },
-            { id: 'PAY-903', athleteId: 'ATH-103', athleteName: 'Ananya Verma', sport: 'Badminton', plan: 'Junior Shuttler Monthly', amount: 2499, date: '2026-09-05', dueDate: '2026-10-05', method: 'Cash Offline', status: 'Completed', receiptNo: 'RCP-2026-0893' },
-            { id: 'PAY-904', athleteId: 'ATH-105', athleteName: 'Sneha Kulkarni', sport: 'Swimming', plan: 'Aquatics Pro Annual', amount: 32000, date: '2026-09-08', dueDate: '2026-10-08', method: 'UPI (PhonePe)', status: 'Completed', receiptNo: 'RCP-2026-0894' },
-            { id: 'PAY-905', athleteId: 'ATH-104', athleteName: 'Kabir Patel', sport: 'Basketball', plan: 'Pro Academy Monthly', amount: 3799, date: '2026-08-01', dueDate: '2026-09-01', method: 'Netbanking', status: 'Completed', receiptNo: 'RCP-2026-0895' }
+            { id: 'PAY-901', athleteId: 'ATH-101', athleteName: 'Aarav Sharma', sport: '10M Rifle Shooting', plan: 'Monthly Training Membership', amount: 4700, date: '2026-09-01', dueDate: '2026-10-01', method: 'UPI (GPay)', status: 'Completed', receiptNo: 'RCP-2026-0891' },
+            { id: 'PAY-902', athleteId: 'ATH-102', athleteName: 'Rohan Mehra', sport: '10M Pistol Shooting', plan: 'One-Time Annual Registration Fee', amount: 5000, date: '2026-08-15', dueDate: '2026-09-15', method: 'Debit Card', status: 'Completed', receiptNo: 'RCP-2026-0892' },
+            { id: 'PAY-903', athleteId: 'ATH-103', athleteName: 'Ananya Verma', sport: 'Beginner Training Course', plan: 'Monthly Training Membership', amount: 4700, date: '2026-09-05', dueDate: '2026-10-05', method: 'Cash Offline', status: 'Completed', receiptNo: 'RCP-2026-0893' },
+            { id: 'PAY-904', athleteId: 'ATH-104', athleteName: 'Kabir Patel', sport: '10M Pistol Shooting', plan: 'Monthly Training Membership', amount: 4700, date: '2026-08-01', dueDate: '2026-09-01', method: 'Netbanking', status: 'Completed', receiptNo: 'RCP-2026-0894' }
         ];
     });
 
@@ -335,11 +291,10 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'COA-01', name: 'Rajesh Sharma', sport: 'Football', certification: 'AFC Pro License & UEFA-A', phone: '+91 98261 11223', email: 'rajesh.football@playpeaksports.com', experience: 12, trainees: 48, monthlySalary: '₹75,000', rating: 4.9, status: 'Active' },
-            { id: 'COA-02', name: 'Vikram Singh', sport: 'Cricket', certification: 'BCCI Level-3 Certified Coach', phone: '+91 97554 33445', email: 'vikram.cricket@playpeaksports.com', experience: 15, trainees: 54, monthlySalary: '₹85,000', rating: 4.9, status: 'Active' },
-            { id: 'COA-03', name: 'Ananya Sen', sport: 'Badminton', certification: 'BWF Certified & Ex-National Champ', phone: '+91 94071 55667', email: 'ananya.badminton@playpeaksports.com', experience: 9, trainees: 36, monthlySalary: '₹65,000', rating: 4.8, status: 'Active' },
-            { id: 'COA-04', name: 'Rahul Nair', sport: 'Basketball', certification: 'FIBA Level-2 International Coach', phone: '+91 99812 77889', email: 'rahul.hoops@playpeaksports.com', experience: 10, trainees: 40, monthlySalary: '₹70,000', rating: 4.8, status: 'Active' },
-            { id: 'COA-05', name: 'Elena Rostova', sport: 'Strength & Conditioning', certification: 'CSCS & Olympic Biomechanics', phone: '+91 98765 99001', email: 'elena.strength@playpeaksports.com', experience: 11, trainees: 65, monthlySalary: '₹90,000', rating: 4.9, status: 'Active' }
+            { id: 'COA-01', name: 'Rajesh Sharma', sport: '10M Rifle Shooting', certification: 'ISSF / NRAI Certified Head Coach', phone: '+91 98261 11223', email: 'rajesh.shooting@pioneershooting.com', experience: 14, trainees: 48, monthlySalary: '₹75,000', rating: 4.9, status: 'Active' },
+            { id: 'COA-02', name: 'Vikram Singh', sport: '10M Pistol Shooting', certification: 'National Shooting Medalist & Pistol Coach', phone: '+91 97554 33445', email: 'vikram.pistol@pioneershooting.com', experience: 15, trainees: 54, monthlySalary: '₹85,000', rating: 4.9, status: 'Active' },
+            { id: 'COA-03', name: 'Ananya Sen', sport: 'Beginner Training Course', certification: 'NRAI Certified Shooting Foundation Lead', phone: '+91 94071 55667', email: 'ananya.foundation@pioneershooting.com', experience: 9, trainees: 36, monthlySalary: '₹65,000', rating: 4.8, status: 'Active' },
+            { id: 'COA-04', name: 'Rahul Nair', sport: 'Target Biomechanics & Stance', certification: 'Sports Psychology & Biomechanics Specialist', phone: '+91 99812 77889', email: 'rahul.biomechanics@pioneershooting.com', experience: 10, trainees: 40, monthlySalary: '₹70,000', rating: 4.8, status: 'Active' }
         ];
     });
 
@@ -349,12 +304,12 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'EQP-101', name: 'FIFA Pro Match Footballs (Size 5)', sport: 'Football', category: 'Balls & Turf Gear', totalQty: 45, availableQty: 38, damagedQty: 7, location: 'Turf Shed Rack A', minThreshold: 15, unitCost: '₹2,400' },
-            { id: 'EQP-102', name: 'Merlin Automated Bowling Machine Balls', sport: 'Cricket', category: 'Bowling Gear', totalQty: 80, availableQty: 72, damagedQty: 8, location: 'Cricket Pavilion Box 2', minThreshold: 30, unitCost: '₹850' },
-            { id: 'EQP-103', name: 'Yonex Aerosensa 50 Feather Shuttles', sport: 'Badminton', category: 'Shuttles & Mats', totalQty: 120, availableQty: 95, damagedQty: 25, location: 'Court Hub Cabinet 4', minThreshold: 40, unitCost: '₹280' },
-            { id: 'EQP-104', name: 'Molten FIBA BG4500 Basketballs (Size 7)', sport: 'Basketball', category: 'Balls & Hoops', totalQty: 30, availableQty: 26, damagedQty: 4, location: 'Indoor Arena Locker 1', minThreshold: 10, unitCost: '₹3,200' },
-            { id: 'EQP-105', name: 'Eleiko Olympic Weight Plates (20kg Bumper)', sport: 'Strength & Conditioning', category: 'Gym & Lifting', totalQty: 24, availableQty: 24, damagedQty: 0, location: 'Strength Lab Platform 3', minThreshold: 8, unitCost: '₹8,500' },
-            { id: 'EQP-106', name: 'Speed Agility Cones & Slalom Poles', sport: 'Football', category: 'Training Gear', totalQty: 150, availableQty: 140, damagedQty: 10, location: 'Ground Equipment Bin', minThreshold: 50, unitCost: '₹120' }
+            { id: 'EQP-101', name: '0.177 Cal Match Air Rifles', sport: '10M Rifle Shooting', category: 'Match Weapons', totalQty: 18, availableQty: 16, damagedQty: 2, location: 'Armory Safe Rack A', minThreshold: 5, unitCost: '₹85,000' },
+            { id: 'EQP-102', name: '0.177 Cal Match Air Pistols', sport: '10M Pistol Shooting', category: 'Match Weapons', totalQty: 22, availableQty: 20, damagedQty: 2, location: 'Armory Safe Rack B', minThreshold: 6, unitCost: '₹72,000' },
+            { id: 'EQP-103', name: 'Match-Grade Flat Pellet Tins (500 Pcs)', sport: 'Ammunition & Pellets', category: 'Consumables', totalQty: 200, availableQty: 175, damagedQty: 0, location: 'Supply Counter', minThreshold: 50, unitCost: '₹650' },
+            { id: 'EQP-104', name: 'Official 10M Target Paper Sheets', sport: 'Target Paper Sheets', category: 'Consumables', totalQty: 2500, availableQty: 2200, damagedQty: 0, location: 'Range Shelf 1', minThreshold: 500, unitCost: '₹8' },
+            { id: 'EQP-105', name: 'SCATT MX-02 Laser Optical Sensors', sport: 'Sighting Biomechanics', category: 'Tech Diagnostics', totalQty: 6, availableQty: 6, damagedQty: 0, location: 'Biomechanics Lab', minThreshold: 2, unitCost: '₹95,000' },
+            { id: 'EQP-106', name: '300-Bar High Pressure Compressed Air Cylinders', sport: 'Range Equipment', category: 'Gas Systems', totalQty: 8, availableQty: 8, damagedQty: 0, location: 'Compressor Bay', minThreshold: 2, unitCost: '₹35,000' }
         ];
     });
 
@@ -364,10 +319,8 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'PLN-01', name: 'Pro Academy Monthly', sport: 'Football / Basketball / Cricket', duration: '1 Month (3x Weekly)', price: 3999, activeAthletes: 74, features: ['3 Pro Coaching Sessions/Wk', 'Turf & Floodlight Access', 'Performance GPS Logging', 'Official Academy Jersey'], badge: 'Most Popular' },
-            { id: 'PLN-02', name: 'Junior Grassroots Quarter', sport: 'All Sports (Ages 6-14)', duration: '3 Months', price: 8999, activeAthletes: 52, features: ['Fundamental Skills Drills', 'Weekend Match Leagues', 'Parent Progress Reports', 'Free Equipment Rental'], badge: 'Youth Value' },
-            { id: 'PLN-03', name: 'Elite High-Performance Annual', sport: 'Multi-Sport All-Access', duration: '12 Months', price: 29999, activeAthletes: 28, features: ['Unlimited Arena Access', '1-on-1 Biomechanics Review', 'Physio & Ice-Bath Access', 'State & National Trials Prep'], badge: 'Champion Tier' },
-            { id: 'PLN-04', name: 'Single Sport Weekend Pass', sport: 'Badminton / Swimming / Tennis', duration: '1 Month (Sat & Sun)', price: 1999, activeAthletes: 41, features: ['Weekend Morning Batches', 'Court Reservation Rights', 'Locker & Shower Access'], badge: 'Weekend' }
+            { id: 'PLN-01', name: 'Monthly Training Membership', sport: '10M Rifle & Pistol Shooting', duration: '1 Month (Open All Days)', price: 4700, activeAthletes: 95, features: ['Daily 1 - 1.5 Hour Sessions', 'Pellet Boxes Included', 'Target Papers Provided', 'Match Weapons & Equipment Access', 'Certified Coach Guidance'], badge: 'Official Monthly Fee' },
+            { id: 'PLN-02', name: 'One-Time Annual Registration', sport: 'Shooter Accreditation', duration: '1 Year', price: 5000, activeAthletes: 120, features: ['Official Pioneer Shooter ID', 'Locker & Range Gate Access', 'District & State Trials Affiliation', 'Safety Audit & Weapon Fitting'], badge: 'Official Annual Fee' }
         ];
     });
 
@@ -378,22 +331,22 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'TRN-01', title: 'Indore Inter-Academy Football Championship', sport: 'Football', ageCategory: 'U-17 Boys', startDate: '2026-10-10', endDate: '2026-10-14', teamsCount: 16, prizePool: '₹1,50,000', venue: 'FIFA Pro Turf Arena', status: 'Upcoming' },
-            { id: 'TRN-02', title: 'Ranji Junior Cricket Premier Cup', sport: 'Cricket', ageCategory: 'U-19 Open', startDate: '2026-10-20', endDate: '2026-10-25', teamsCount: 12, prizePool: '₹2,00,000', venue: 'PlayPeak Cricket Pavilion', status: 'Upcoming' },
-            { id: 'TRN-03', title: 'State Ranking Badminton Smash Masters', sport: 'Badminton', ageCategory: 'Singles & Doubles', startDate: '2026-09-28', endDate: '2026-09-30', teamsCount: 48, prizePool: '₹75,000', venue: 'BWF 6-Court Complex', status: 'In Progress' }
+            { id: 'TRN-01', title: '1st Golden Light Rifle Shooting Championship', sport: '10M Rifle & Pistol', ageCategory: 'Junior & Senior', startDate: '2026-10-10', endDate: '2026-10-14', teamsCount: 32, prizePool: 'Trophies & Medals', venue: 'Pioneer Shooting Range Arena', status: 'Completed' },
+            { id: 'TRN-02', title: 'MP State 10M Shooting Selection Trials', sport: '10M Rifle & Pistol', ageCategory: 'Open Category', startDate: '2026-11-05', endDate: '2026-11-08', teamsCount: 45, prizePool: 'State Qualification', venue: 'Indore Shooting Complex', status: 'Upcoming' },
+            { id: 'TRN-03', title: 'Indore District Inter-School Precision Shootout', sport: '10M Air Rifle', ageCategory: 'U-14 & U-17', startDate: '2026-11-20', endDate: '2026-11-22', teamsCount: 24, prizePool: '₹50,000 & Cups', venue: 'Pioneer Range Lanes 1-12', status: 'Upcoming' }
         ];
     });
 
-    // Physio & Injury Recovery Seed State
+    // Physio & Focus Recovery Seed State
     const [physioLogs, setPhysioLogs] = useState(() => {
         const saved = localStorage.getItem('playpeak_physio');
         if (saved) {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'PHY-01', athleteName: 'Kabir Patel', sport: 'Basketball', injuryType: 'Right Ankle Inversion (Grade 1)', injuryDate: '2026-09-18', recoveryStatus: 'In Rehab', therapist: 'Dr. Neha Saxena (PT)', expectedReturn: '2026-10-02', treatment: 'Cryotherapy & Proprioception Drills' },
-            { id: 'PHY-02', athleteName: 'Rohan Mehra', sport: 'Cricket', injuryType: 'Lumbar Spine Muscle Tightness', injuryDate: '2026-09-15', recoveryStatus: 'Light Training', therapist: 'Dr. Sameer Khan', expectedReturn: '2026-09-26', treatment: 'Dry Needling & Core Stability' },
-            { id: 'PHY-03', athleteName: 'Devendra Singh', sport: 'Combat / MMA', injuryType: 'Left Knee Meniscus Soreness', injuryDate: '2026-09-10', recoveryStatus: 'Match Fit', therapist: 'Dr. Neha Saxena (PT)', expectedReturn: '2026-09-23', treatment: 'Contrast Ice-Bath & Foam Rolling' }
+            { id: 'PHY-01', athleteName: 'Aarav Sharma', sport: '10M Rifle Shooting', injuryType: 'Left Shoulder Isometric Hold Fatigue', injuryDate: '2026-09-18', recoveryStatus: 'In Rehab', therapist: 'Dr. Neha Saxena (Sports PT)', expectedReturn: '2026-10-02', treatment: 'Rotator Cuff Stability & Trigger Breathing' },
+            { id: 'PHY-02', athleteName: 'Rohan Mehra', sport: '10M Pistol Shooting', injuryType: 'Forearm Extensor Muscle Tension', injuryDate: '2026-09-15', recoveryStatus: 'Light Training', therapist: 'Dr. Sameer Khan', expectedReturn: '2026-09-26', treatment: 'Grip Pressure Adjustment & Cryotherapy' },
+            { id: 'PHY-03', athleteName: 'Ananya Verma', sport: 'Beginner Training', injuryType: 'Eye Fatigue & Cervical Neck Strain', injuryDate: '2026-09-10', recoveryStatus: 'Match Fit', therapist: 'Dr. Neha Saxena (Sports PT)', expectedReturn: '2026-09-23', treatment: 'Optical Rest Drills & Neck Posture Realignment' }
         ];
     });
 
@@ -404,9 +357,9 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'ASM-01', athleteName: 'Aarav Sharma', sport: 'Football', sprint30m: '3.92s', verticalJump: '58 cm', vo2Max: '54.2 ml/kg', deadlift: '110 kg', testDate: '2026-09-12', rating: 'Elite Prospect' },
-            { id: 'ASM-02', athleteName: 'Sneha Kulkarni', sport: 'Swimming', sprint30m: '4.45s', verticalJump: '46 cm', vo2Max: '58.0 ml/kg', deadlift: '80 kg', testDate: '2026-09-14', rating: 'State Level' },
-            { id: 'ASM-03', athleteName: 'Rohan Mehra', sport: 'Cricket', sprint30m: '4.10s', verticalJump: '52 cm', vo2Max: '51.5 ml/kg', deadlift: '125 kg', testDate: '2026-09-10', rating: 'Ranji Track' }
+            { id: 'ASM-01', athleteName: 'Aarav Sharma', sport: '10M Rifle', sprint30m: 'Hold: 0.12mm', verticalJump: 'SCATT 96.4%', vo2Max: 'HR: 58 bpm', deadlift: 'Stability 9.8', testDate: '2026-09-12', rating: 'National Qualifying' },
+            { id: 'ASM-02', athleteName: 'Sneha Kulkarni', sport: '10M Pistol', sprint30m: 'Hold: 0.15mm', verticalJump: 'SCATT 94.8%', vo2Max: 'HR: 62 bpm', deadlift: 'Stability 9.5', testDate: '2026-09-14', rating: 'State Level' },
+            { id: 'ASM-03', athleteName: 'Rohan Mehra', sport: '10M Rifle', sprint30m: 'Hold: 0.10mm', verticalJump: 'SCATT 97.8%', vo2Max: 'HR: 54 bpm', deadlift: 'Stability 9.9', testDate: '2026-09-10', rating: 'ISSF Squad Track' }
         ];
     });
 
@@ -416,10 +369,10 @@ const AdminDashboard = () => {
             try { return JSON.parse(saved); } catch (e) { }
         }
         return [
-            { id: 'INQ-501', name: 'Manish Rawat', phone: '+91 98260 99887', email: 'manish.rawat@gmail.com', sport: 'Football', ageGroup: 'Under 14 (Son)', message: 'Looking for weekend football training batch with AFC licensed coaches.', date: '2026-09-22', status: 'New' },
-            { id: 'INQ-502', name: 'Deepika Sen', phone: '+91 97551 11224', email: 'deepika.sen@yahoo.com', sport: 'Swimming', ageGroup: 'Under 12 (Daughter)', message: 'Need information regarding heated pool safety and beginner lap batches.', date: '2026-09-21', status: 'Trial Scheduled' },
-            { id: 'INQ-503', name: 'Kunal Joshi', phone: '+91 94073 44556', email: 'kunal.cricket@gmail.com', sport: 'Cricket', ageGroup: 'Ages 16-19', message: 'Interested in automated bowling machine nets and pace bowling biomechanics analysis.', date: '2026-09-19', status: 'Contacted' },
-            { id: 'INQ-504', name: 'Sanjay Patidar', phone: '+91 99814 77880', email: 'sanjay.patidar@gmail.com', sport: 'Badminton', ageGroup: 'Adult Evening', message: 'Want hourly court booking subscription for 4 players with floodlights.', date: '2026-09-18', status: 'Enrolled' }
+            { id: 'INQ-501', name: 'Manish Rawat', phone: '+91 98260 99887', email: 'manish.rawat@gmail.com', sport: '10M Rifle', ageGroup: 'Under 14 (Son)', message: 'Looking for 10M Olympic rifle coaching batch with ISSF certified coach and Feinwerkbau kit.', date: '2026-09-22', status: 'New' },
+            { id: 'INQ-502', name: 'Deepika Sen', phone: '+91 97551 11224', email: 'deepika.sen@yahoo.com', sport: '10M Pistol', ageGroup: 'Under 12 (Daughter)', message: 'Need information regarding beginner safety course, air pistol trials, and monthly equipment rental.', date: '2026-09-21', status: 'Trial Scheduled' },
+            { id: 'INQ-503', name: 'Kunal Joshi', phone: '+91 94073 44556', email: 'kunal.shooting@gmail.com', sport: '10M Rifle', ageGroup: 'Ages 16-19', message: 'Interested in electronic target lanes (SIUS) and SCATT infrared trace stability coaching.', date: '2026-09-19', status: 'Contacted' },
+            { id: 'INQ-504', name: 'Sanjay Patidar', phone: '+91 99814 77880', email: 'sanjay.patidar@gmail.com', sport: '10M Pistol', ageGroup: 'Adult Evening', message: 'Want daily evening 10M pistol lane slot (6:30 PM - 8:00 PM) with match pellets included.', date: '2026-09-18', status: 'Enrolled' }
         ];
     });
 
@@ -471,7 +424,7 @@ const AdminDashboard = () => {
             });
 
             socket.on('connect', () => {
-                console.log('⚡ Connected to PlayPeak Live Real-Time Socket');
+                console.log('⚡ Connected to Pioneer Academy Live Real-Time Socket');
             });
 
             socket.on('athlete_created', (newAth) => {
@@ -544,8 +497,21 @@ const AdminDashboard = () => {
             }
         };
 
+        const handleInquirySync = (e) => {
+            fetchMongoData();
+            if (e && e.detail) {
+                const inq = e.detail;
+                setInquiries((prev) => {
+                    if (prev.some(i => i.id === inq.id || (i._id && i._id === inq._id))) return prev;
+                    return [inq, ...prev];
+                });
+                showToast(`📩 Real-Time Inquiry: New query from "${inq.name}" (${inq.sport})`, 'info');
+            }
+        };
+
         window.addEventListener('storage', handleSync);
         window.addEventListener('playpeak_athlete_enrolled', handleSync);
+        window.addEventListener('pioneer_inquiry_received', handleInquirySync);
 
         // BroadcastChannel listener for multi-tab zero-reload updates
         let channel = null;
@@ -560,6 +526,14 @@ const AdminDashboard = () => {
                     });
                     showToast(`⚡ Real-Time Alert: New athlete "${newAth.name}" (${newAth.sport}) just enrolled via QR code!`, 'success');
                     fetchMongoData();
+                } else if (event.data && event.data.type === 'INQUIRY_RECEIVED') {
+                    const newInq = event.data.inquiry;
+                    setInquiries((prev) => {
+                        if (prev.some(i => i.id === newInq.id || (i._id && i._id === newInq._id))) return prev;
+                        return [newInq, ...prev];
+                    });
+                    showToast(`📩 Real-Time Inquiry: New query from "${newInq.name}" (${newInq.sport})`, 'info');
+                    fetchMongoData();
                 }
             };
         } catch (e) {}
@@ -567,6 +541,7 @@ const AdminDashboard = () => {
         return () => {
             window.removeEventListener('storage', handleSync);
             window.removeEventListener('playpeak_athlete_enrolled', handleSync);
+            window.removeEventListener('pioneer_inquiry_received', handleInquirySync);
             if (channel) {
                 channel.close();
             }
@@ -600,7 +575,7 @@ const AdminDashboard = () => {
     // ==========================================
     // QR CODE DOWNLOAD & PDF GENERATION UTILITIES
     // ==========================================
-    const downloadQrImage = (dataUrl, fileName = 'PlayPeak_QR_Code.png') => {
+    const downloadQrImage = (dataUrl, fileName = 'Pioneer_QR_Code.png') => {
         if (!dataUrl) {
             showToast('QR code not ready yet, please wait.', 'error');
             return;
@@ -614,7 +589,7 @@ const AdminDashboard = () => {
         showToast(`QR Code image (${fileName}) downloaded!`);
     };
 
-    const downloadQrPdf = ({ title, subtitle, qrDataUrl, instructions, fileName = 'PlayPeak_QR_Poster.pdf', metaData }) => {
+    const downloadQrPdf = ({ title, subtitle, qrDataUrl, instructions, fileName = 'Pioneer_QR_Poster.pdf', metaData }) => {
         try {
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
             
@@ -627,18 +602,18 @@ const AdminDashboard = () => {
             doc.rect(0, 48, 210, 3, 'F');
 
             // Title & Branding
-            doc.setFontSize(22);
+            doc.setFontSize(20);
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.text("PLAYPEAK SPORTS ACADEMY", 105, 22, { align: "center" });
+            doc.text("PIONEER RIFLE SHOOTING ACADEMY", 105, 22, { align: "center" });
 
             doc.setFontSize(10);
             doc.setTextColor(255, 106, 26);
-            doc.text("OLYMPIC STANDARD TRAINING & ATHLETE EXCELLENCE", 105, 32, { align: "center" });
+            doc.text("10M AIR RIFLE & PISTOL SHOOTING CENTER • ISSF STANDARDS", 105, 32, { align: "center" });
 
             doc.setFontSize(9);
             doc.setTextColor(203, 213, 225);
-            doc.text("Indore Olympic Sports Complex | www.playpeaksports.com", 105, 40, { align: "center" });
+            doc.text("Pioneer Shooting Academy, Indore | Contact: +91 98260 00000", 105, 40, { align: "center" });
 
             // Section Box
             doc.setDrawColor(226, 232, 240);
@@ -686,7 +661,7 @@ const AdminDashboard = () => {
             doc.rect(0, 275, 210, 22, 'F');
             doc.setFontSize(8);
             doc.setTextColor(203, 213, 225);
-            doc.text("PlayPeak Sports Arena, Olympic Complex Road | Helpline: +91 98765 43210 | info@playpeaksports.com", 105, 287, { align: "center" });
+            doc.text("Pioneer Rifle Shooting Academy | Sector R Mahalaxmi Nagar, Near Pioneer Convent School, Indore | Ph: +91 9893270807 / 9294771208", 105, 287, { align: "center" });
 
             doc.save(fileName);
             showToast(`Printable PDF Poster (${fileName}) downloaded!`);
@@ -710,18 +685,18 @@ const AdminDashboard = () => {
             doc.rect(0, 44, 210, 3, 'F');
 
             // Header titles
-            doc.setFontSize(22);
+            doc.setFontSize(20);
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.text("PLAYPEAK SPORTS ACADEMY", 105, 20, { align: "center" });
+            doc.text("PIONEER RIFLE SHOOTING ACADEMY", 105, 20, { align: "center" });
 
             doc.setFontSize(9);
             doc.setTextColor(255, 106, 26);
-            doc.text("OFFICIAL FEE PAYMENT RECEIPT & TAX INVOICE", 105, 29, { align: "center" });
+            doc.text("AIM • FOCUS • DISCIPLINE • EXCELLENCE", 105, 29, { align: "center" });
 
             doc.setFontSize(8);
             doc.setTextColor(203, 213, 225);
-            doc.text("Indore Olympic Sports Complex | Helpline: +91 98765 43210 | info@playpeaksports.com", 105, 36, { align: "center" });
+            doc.text("Sector R Mahalaxmi Nagar, Near Pioneer Convent School, Indore | Ph: +91 9893270807 / 9294771208", 105, 36, { align: "center" });
 
             // Main Details Container
             doc.setDrawColor(226, 232, 240);
@@ -783,16 +758,16 @@ const AdminDashboard = () => {
             doc.setFontSize(8);
             doc.setTextColor(100, 116, 139);
             doc.setFont('helvetica', 'italic');
-            doc.text("This is an electronically generated official receipt issued by PlayPeak Sports Academy.", 105, 230, { align: "center" });
+            doc.text("This is an electronically generated official receipt issued by Pioneer Rifle Shooting Academy.", 105, 230, { align: "center" });
 
             // Footer
             doc.setFillColor(15, 23, 42);
             doc.rect(0, 275, 210, 22, 'F');
             doc.setFontSize(8);
             doc.setTextColor(203, 213, 225);
-            doc.text("PlayPeak Sports Arena, Olympic Complex Road | Helpline: +91 98765 43210", 105, 287, { align: "center" });
+            doc.text("Sector R Mahalaxmi Nagar, Near Pioneer Convent School, Indore | Ph: +91 9893270807 / 9294771208", 105, 287, { align: "center" });
 
-            doc.save(`PlayPeak_Receipt_${pay.receiptNo || pay.id}.pdf`);
+            doc.save(`Pioneer_Receipt_${pay.receiptNo || pay.id}.pdf`);
             showToast(`Receipt PDF (${pay.receiptNo || pay.id}) downloaded!`);
         } catch (err) {
             console.error("Receipt PDF generation error:", err);
@@ -800,8 +775,8 @@ const AdminDashboard = () => {
         }
     };
 
-    // Base URL for PlayPeak Production QR Codes & Links
-    const PLAYPEAK_BASE_URL = 'https://playpeak.vercel.app';
+    // Base URL for Pioneer Shooting Production QR Codes & Links
+    const PLAYPEAK_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://pioneershooting.in';
 
     // Generate QR Code for Self-Enrollment
     const handleOpenQrModal = () => {
@@ -842,41 +817,115 @@ const AdminDashboard = () => {
     // ==========================================
     // ATHLETES CRUD OPERATIONS (WITH MONTHLY / YEARLY PRICING)
     // ==========================================
+    const [isCustomSportAdmin, setIsCustomSportAdmin] = useState(false);
+    const [isCustomTimingAdmin, setIsCustomTimingAdmin] = useState(false);
+
+    const adminTimingShifts = [
+        'Morning Shift (06:00 AM - 09:00 AM)',
+        'Forenoon Shift (09:00 AM - 12:00 PM)',
+        'Afternoon Shift (12:00 PM - 04:00 PM)',
+        'Evening Prime Shift (04:00 PM - 07:00 PM)',
+        'Night Training Shift (07:00 PM - 09:30 PM)',
+        'Flexible Open Slot'
+    ];
+
     const [athleteForm, setAthleteForm] = useState({
         name: '',
         phone: '',
-        email: '',
         age: 15,
         gender: 'Male',
-        sport: 'Football',
-        batchTime: 'Evening Prime (05:00 PM - 07:00 PM)',
-        coach: 'Coach Rajesh Sharma (AFC Pro)',
+        sport: '10M Rifle Shooting',
+        batchTime: 'Evening Prime Shift (04:00 PM - 07:00 PM)',
+        coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
         planType: 'Monthly',
-        membership: 'Pro Academy Monthly',
-        feeAmount: 3999,
-        amountPaid: 3999,
+        membership: '10M Rifle Shooting Monthly Pass',
+        feeAmount: 4700,
+        amountPaid: 4700,
         dueAmount: 0,
         paymentStatus: 'Paid',
+        paymentMode: 'Cash',
+        utrNumber: '',
         emergencyContact: '',
         bloodGroup: 'B+'
     });
 
+    const handleOpenAddAthlete = () => {
+        setEditingAthlete(null);
+        setIsCustomSportAdmin(false);
+        setIsCustomTimingAdmin(false);
+        setAthleteForm({
+            name: '',
+            phone: '',
+            age: 15,
+            gender: 'Male',
+            sport: '10M Rifle Shooting',
+            batchTime: 'Evening Prime Shift (04:00 PM - 07:00 PM)',
+            coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
+            planType: 'Combo',
+            membership: 'New Admission (Annual Reg ₹5,000 + 1st Month ₹4,700)',
+            feeAmount: 9700,
+            amountPaid: 9700,
+            dueAmount: 0,
+            paymentStatus: 'Paid',
+            paymentMode: 'Cash',
+            utrNumber: '',
+            emergencyContact: '',
+            bloodGroup: 'B+'
+        });
+        setShowAddAthleteModal(true);
+    };
+
     const updateAthleteFormSportOrPlan = (sportName, planType) => {
-        const sportConfig = sportsList.find(s => s.name === sportName) || sportsList[0];
-        const fee = planType === 'Yearly' ? sportConfig.yearly : sportConfig.monthly;
-        const paid = Number(athleteForm.amountPaid || 0);
+        const sportConfig = sportsList.find(s => s.name === sportName) || {
+            name: sportName,
+            coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
+            monthly: 4700,
+            registration: 5000,
+            combo: 9700
+        };
+
+        const fee = planType === 'Combo' ? 9700
+                  : planType === 'Registration' ? 5000
+                  : (sportConfig.monthly || 4700);
+
+        const planLabel = planType === 'Combo' ? 'New Admission (Annual Reg ₹5,000 + 1st Month ₹4,700)'
+                        : planType === 'Registration' ? 'One-Time Annual Registration (₹5,000)'
+                        : 'Monthly Training Membership (₹4,700/mo)';
+
+        const paid = Number(athleteForm.amountPaid !== undefined && athleteForm.amountPaid !== '' ? athleteForm.amountPaid : fee);
         const due = Math.max(0, fee - paid);
 
         setAthleteForm({
             ...athleteForm,
-            sport: sportConfig.name,
-            coach: sportConfig.coach,
+            sport: sportName,
+            coach: sportConfig.coach || 'Coach Rajesh Sharma (ISSF / NRAI)',
             planType: planType,
-            membership: `${sportConfig.name} ${planType} Pass`,
+            membership: `${sportName} - ${planLabel}`,
             feeAmount: fee,
-            dueAmount: due,
-            paymentStatus: due === 0 ? 'Paid' : due === fee ? 'Due' : 'Partial'
+            amountPaid: fee,
+            dueAmount: 0,
+            paymentStatus: 'Paid'
         });
+    };
+
+    const toggleAdminAthleteFee = (feeType) => {
+        const isRegCurrent = athleteForm.planType === 'Combo' || athleteForm.planType === 'Registration';
+        const isMonthlyCurrent = athleteForm.planType === 'Combo' || athleteForm.planType === 'Monthly';
+
+        let nextReg = isRegCurrent;
+        let nextMonthly = isMonthlyCurrent;
+
+        if (feeType === 'registration') {
+            nextReg = !isRegCurrent;
+        } else if (feeType === 'monthly') {
+            nextMonthly = !isMonthlyCurrent;
+        }
+
+        // At least one fee must remain active
+        if (!nextReg && !nextMonthly) return;
+
+        const nextPlanType = (nextReg && nextMonthly) ? 'Combo' : (nextReg ? 'Registration' : 'Monthly');
+        updateAthleteFormSportOrPlan(athleteForm.sport, nextPlanType);
     };
 
     const handleSaveAthlete = (e) => {
@@ -886,11 +935,22 @@ const AdminDashboard = () => {
             return;
         }
 
+        if (athleteForm.paymentMode === 'Online' && Number(athleteForm.amountPaid || 0) > 0 && !athleteForm.utrNumber?.trim()) {
+            showToast('Please enter 12-digit UTR Number / Transaction ID for Online Payment.', 'error');
+            return;
+        }
+
         const calculatedDue = Math.max(0, Number(athleteForm.feeAmount) - Number(athleteForm.amountPaid || 0));
         const finalStatus = calculatedDue === 0 ? 'Paid' : calculatedDue === Number(athleteForm.feeAmount) ? 'Due' : 'Partial';
 
         if (editingAthlete) {
-            const updatedAth = { ...editingAthlete, ...athleteForm, dueAmount: calculatedDue, paymentStatus: finalStatus };
+            const updatedAth = {
+                ...editingAthlete,
+                ...athleteForm,
+                email: editingAthlete.email || `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
+                dueAmount: calculatedDue,
+                paymentStatus: finalStatus
+            };
             setAthletes(athletes.map(a => a.id === editingAthlete.id ? updatedAth : a));
             axios.put(`${API_BASE}athletes/${editingAthlete.id}`, updatedAth).catch(err => console.warn(err));
             showToast(`Athlete profile for "${athleteForm.name}" updated!`);
@@ -898,6 +958,7 @@ const AdminDashboard = () => {
             const newAthlete = {
                 id: `ATH-${Math.floor(100 + Math.random() * 900)}`,
                 ...athleteForm,
+                email: `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
                 dueAmount: calculatedDue,
                 paymentStatus: finalStatus,
                 joinDate: new Date().toISOString().split('T')[0],
@@ -915,9 +976,11 @@ const AdminDashboard = () => {
                     sport: newAthlete.sport,
                     plan: newAthlete.membership,
                     amount: Number(athleteForm.amountPaid),
+                    paymentMode: athleteForm.paymentMode || 'Cash',
+                    utrNumber: athleteForm.paymentMode === 'Online' ? (athleteForm.utrNumber || '') : '',
                     date: new Date().toISOString().split('T')[0],
                     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    method: 'Reception Payment',
+                    method: athleteForm.paymentMode === 'Online' ? `Online UPI (UTR: ${athleteForm.utrNumber})` : 'Reception Cash Desk',
                     status: 'Completed',
                     receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`
                 };
@@ -945,60 +1008,82 @@ const AdminDashboard = () => {
     // ==========================================
     const [paymentForm, setPaymentForm] = useState({
         athleteName: '',
-        sport: 'Football',
-        plan: 'Pro Academy Monthly',
-        amount: 3999,
-        method: 'UPI (GPay)',
+        sport: '10M Rifle Shooting',
+        plan: 'Monthly Training Membership',
+        amount: 4700,
+        paymentMode: 'Cash', // 'Cash' | 'Online'
+        utrNumber: '',
+        method: 'Reception Cash Desk',
         status: 'Completed',
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     });
 
-    const handleSavePayment = (e) => {
+    const handleSavePayment = async (e) => {
         e.preventDefault();
         if (!paymentForm.athleteName || !paymentForm.amount) {
             showToast('Please fill all payment fields.', 'error');
             return;
         }
 
+        if (paymentForm.paymentMode === 'Online' && !paymentForm.utrNumber.trim()) {
+            showToast('Please enter UTR Number / Transaction ID for online payment.', 'error');
+            return;
+        }
+
+        const methodLabel = paymentForm.paymentMode === 'Online'
+            ? `Online UPI / Bank (UTR: ${paymentForm.utrNumber.trim()})`
+            : 'Reception Cash Desk';
+
         if (editingPayment) {
-            const updatedPay = { ...editingPayment, ...paymentForm };
-            setPayments(payments.map(p => p.id === editingPayment.id ? updatedPay : p));
-            axios.put(`${API_BASE}payments/${editingPayment.id}`, updatedPay).catch(err => console.warn(err));
-            showToast(`Payment transaction updated.`);
+            const updatedPay = {
+                ...editingPayment,
+                ...paymentForm,
+                method: methodLabel
+            };
+            setPayments(payments.map(p => (p.id === editingPayment.id || (p._id && p._id === editingPayment._id)) ? updatedPay : p));
+            axios.put(`${API_BASE}payments/${editingPayment._id || editingPayment.id}`, updatedPay).catch(err => console.warn(err));
+            showToast(`Payment transaction record updated.`);
         } else {
             const newPay = {
-                id: `PAY-${Math.floor(100 + Math.random() * 900)}`,
+                id: `PAY-${Date.now().toString().slice(-6)}`,
                 athleteId: `ATH-${Math.floor(100 + Math.random() * 900)}`,
                 ...paymentForm,
+                method: methodLabel,
                 date: new Date().toISOString().split('T')[0],
                 receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`
             };
             setPayments([newPay, ...payments]);
             axios.post(`${API_BASE}payments`, newPay).catch(err => console.warn(err));
 
-            // Update athlete due amount if exists
-            setAthletes(athletes.map(a => {
-                if (a.name.toLowerCase() === paymentForm.athleteName.toLowerCase()) {
-                    const newDue = Math.max(0, a.dueAmount - paymentForm.amount);
-                    const updatedAth = { ...a, dueAmount: newDue, paymentStatus: newDue === 0 ? 'Paid' : 'Partial' };
-                    axios.put(`${API_BASE}athletes/${a.id}`, updatedAth).catch(e => console.warn(e));
-                    return updatedAth;
-                }
-                return a;
-            }));
+            // Update matched athlete due amount in MongoDB if exists
+            const matchedAthlete = athletes.find(a => a.name.toLowerCase() === paymentForm.athleteName.toLowerCase());
+            if (matchedAthlete) {
+                const newDue = Math.max(0, Number(matchedAthlete.dueAmount || 0) - Number(paymentForm.amount));
+                const updatedAth = {
+                    ...matchedAthlete,
+                    dueAmount: newDue,
+                    paymentStatus: newDue === 0 ? 'Paid' : 'Partial',
+                    amountPaid: (Number(matchedAthlete.amountPaid) || 0) + Number(paymentForm.amount),
+                    paymentMode: paymentForm.paymentMode,
+                    utrNumber: paymentForm.utrNumber
+                };
+                axios.put(`${API_BASE}athletes/${matchedAthlete._id || matchedAthlete.id}`, updatedAth).catch(e => console.warn(e));
+                setAthletes(athletes.map(a => (a.id === matchedAthlete.id || (a._id && a._id === matchedAthlete._id)) ? updatedAth : a));
+            }
 
-            showToast(`Fee payment of ₹${paymentForm.amount} recorded for ${paymentForm.athleteName}!`);
+            showToast(`Recorded manual payment of ₹${Number(paymentForm.amount).toLocaleString()} (${paymentForm.paymentMode})!`, 'success');
         }
 
         setShowAddPaymentModal(false);
         setEditingPayment(null);
     };
 
-    const handleDeletePayment = (id) => {
-        if (window.confirm('Delete this payment transaction record?')) {
-            setPayments(payments.filter(p => p.id !== id));
-            axios.delete(`${API_BASE}payments/${id}`).catch(err => console.warn(err));
-            showToast('Transaction deleted.', 'info');
+    const handleDeletePayment = async (pay) => {
+        const targetId = pay._id || pay.id;
+        if (window.confirm(`Delete payment record (${pay.receiptNo || targetId}) for ₹${pay.amount}?`)) {
+            setPayments(payments.filter(p => !(p.id === pay.id || (p._id && p._id === pay._id))));
+            axios.delete(`${API_BASE}payments/${targetId}`).catch(err => console.warn(err));
+            showToast('Transaction record deleted.', 'info');
         }
     };
 
@@ -1007,14 +1092,14 @@ const AdminDashboard = () => {
     // ==========================================
     const [coachForm, setCoachForm] = useState({
         name: '',
-        sport: 'Football',
-        certification: 'AFC Pro License & UEFA-A',
+        sport: '10M Rifle',
+        certification: 'ISSF Coach License & National Medalist',
         phone: '',
         email: '',
-        experience: 5,
-        trainees: 20,
+        experience: 8,
+        trainees: 18,
         monthlySalary: '₹60,000',
-        rating: 4.8
+        rating: 4.9
     });
 
     const handleSaveCoach = (e) => {
@@ -1057,14 +1142,14 @@ const AdminDashboard = () => {
     // ==========================================
     const [inventoryForm, setInventoryForm] = useState({
         name: '',
-        sport: 'Football',
-        category: 'Balls & Turf Gear',
+        sport: '10M Rifle',
+        category: 'Match Weapons & Pellets',
         totalQty: 20,
         availableQty: 20,
         damagedQty: 0,
-        location: 'Ground Equipment Shed',
+        location: 'Certified Armory Vault',
         minThreshold: 5,
-        unitCost: '₹1,500'
+        unitCost: '₹85,000'
     });
 
     const handleSaveInventory = (e) => {
@@ -1106,11 +1191,11 @@ const AdminDashboard = () => {
     // ==========================================
     const [planForm, setPlanForm] = useState({
         name: '',
-        sport: 'Football',
+        sport: '10M Rifle',
         duration: '1 Month',
-        price: 3999,
+        price: 4700,
         badge: 'Popular',
-        featuresText: '3 Pro Coaching Sessions/Wk\nTurf Access\nJersey Provided'
+        featuresText: 'Daily 1.5 Hour Lane Slot\nCertified Match Rifle & Pellets\nISSF Certified Coaching'
     });
 
     const handleSavePlan = (e) => {
@@ -1168,13 +1253,13 @@ const AdminDashboard = () => {
     // ==========================================
     const [tournamentForm, setTournamentForm] = useState({
         title: '',
-        sport: 'Football',
-        ageCategory: 'U-17 Open',
+        sport: '10M Rifle',
+        ageCategory: 'Open National Trial',
         startDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         endDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         teamsCount: 16,
-        prizePool: '₹1,00,000',
-        venue: 'PlayPeak Main Arena',
+        prizePool: '₹50,000',
+        venue: 'Pioneer 10M Olympic Range',
         status: 'Upcoming'
     });
 
@@ -1217,13 +1302,13 @@ const AdminDashboard = () => {
     // ==========================================
     const [physioForm, setPhysioForm] = useState({
         athleteName: athletes[0]?.name || '',
-        sport: 'Football',
-        injuryType: 'Ankle Sprain',
+        sport: '10M Rifle',
+        injuryType: 'Shoulder & Neck Strain',
         injuryDate: new Date().toISOString().split('T')[0],
         recoveryStatus: 'In Rehab',
         therapist: 'Dr. Neha Saxena (PT)',
         expectedReturn: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        treatment: 'Ice Bath, Electrotherapy & Resistance Drills'
+        treatment: 'Postural Alignment, Dry Needling & Core Stability'
     });
 
     const handleSavePhysio = (e) => {
@@ -1265,11 +1350,11 @@ const AdminDashboard = () => {
     // ==========================================
     const [assessmentForm, setAssessmentForm] = useState({
         athleteName: athletes[0]?.name || '',
-        sport: 'Football',
-        sprint30m: '4.05s',
-        verticalJump: '54 cm',
-        vo2Max: '52.5 ml/kg',
-        deadlift: '100 kg',
+        sport: '10M Rifle',
+        sprint30m: 'Hold: 0.12mm',
+        verticalJump: 'SCATT 96%',
+        vo2Max: 'HR: 58 bpm',
+        deadlift: 'Stability 9.8',
         testDate: new Date().toISOString().split('T')[0],
         rating: 'Advanced Prospect'
     });
@@ -1311,11 +1396,12 @@ const AdminDashboard = () => {
     // ==========================================
     // INQUIRIES & TRIAL LEADS CRUD OPERATIONS
     // ==========================================
+    const [isCustomSportInquiry, setIsCustomSportInquiry] = useState(false);
     const [inquiryForm, setInquiryForm] = useState({
         name: '',
         phone: '',
         email: '',
-        sport: 'Football',
+        sport: '10M Rifle Shooting',
         ageGroup: 'Ages 10-15',
         message: 'Interested in trial session.'
     });
@@ -1348,18 +1434,44 @@ const AdminDashboard = () => {
         setEditingInquiry(null);
     };
 
-    const handleDeleteInquiry = (id) => {
-        if (window.confirm('Delete this inquiry record?')) {
-            setInquiries(inquiries.filter(i => i.id !== id));
-            axios.delete(`${API_BASE}inquiries/${id}`).catch(err => console.warn(err));
-            showToast('Inquiry removed.', 'info');
+    const handleDeleteInquiry = async (inq) => {
+        if (!inq) return;
+        const targetId = inq._id || inq.id;
+        const targetName = inq.name || 'Inquiry';
+        if (window.confirm(`Permanently delete inquiry from "${targetName}"?`)) {
+            try {
+                await axios.delete(`${API_BASE}inquiries/${targetId}`);
+            } catch (err) {
+                console.warn('Inquiry delete note:', err.message);
+            }
+            setInquiries(prev => prev.filter(i => !(i.id === targetId || (i._id && i._id === targetId))));
+            const localInqs = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
+            localStorage.setItem('pioneer_inquiries', JSON.stringify(localInqs.filter(i => !(i.id === targetId || (i._id && i._id === targetId)))));
+            const oldInqs = JSON.parse(localStorage.getItem('playpeak_inquiries') || '[]');
+            localStorage.setItem('playpeak_inquiries', JSON.stringify(oldInqs.filter(i => !(i.id === targetId || (i._id && i._id === targetId)))));
+            showToast(`Inquiry for "${targetName}" permanently deleted.`, 'info');
         }
     };
 
+    const handleAdvanceInquiry = async (inq) => {
+        if (!inq) return;
+        const targetId = inq._id || inq.id;
+        const next = inq.status === 'New' ? 'Contacted' : inq.status === 'Contacted' ? 'Trial Scheduled' : inq.status === 'Trial Scheduled' ? 'Enrolled' : 'Closed';
+        try {
+            await axios.put(`${API_BASE}inquiries/${targetId}`, { status: next });
+        } catch (err) {
+            console.warn('Inquiry status update note:', err.message);
+        }
+        setInquiries(prev => prev.map(i => (i.id === targetId || (i._id && i._id === targetId)) ? { ...i, status: next } : i));
+        const localInqs = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
+        localStorage.setItem('pioneer_inquiries', JSON.stringify(localInqs.map(i => (i.id === targetId || (i._id && i._id === targetId)) ? { ...i, status: next } : i)));
+        showToast(`Inquiry status updated to "${next}"`);
+    };
+
     // ==========================================
-    // BROADCAST AUTO PAYMENT DUE REMINDERS
+    // BROADCAST AUTO PAYMENT DUE REMINDERS & MARK PAID
     // ==========================================
-    const dueAthletes = athletes.filter(a => a.dueAmount > 0 || a.paymentStatus === 'Due' || a.paymentStatus === 'Overdue');
+    const dueAthletes = athletes.filter(a => Number(a.dueAmount || 0) > 0 || a.paymentStatus === 'Due' || a.paymentStatus === 'Overdue');
 
     const handleBroadcastDueReminders = () => {
         if (dueAthletes.length === 0) {
@@ -1375,12 +1487,139 @@ const AdminDashboard = () => {
     };
 
     const handleSendIndividualReminder = (athlete) => {
-        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from PlayPeak Sports Academy: Your ${athlete.sport} (${athlete.planType} Plan) fee balance of INR ${athlete.dueAmount} is pending. Please settle via UPI or reception. Thank you!`);
+        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from Pioneer Rifle Shooting Academy: Your ${athlete.sport} (${athlete.planType} Plan) fee balance of INR ${athlete.dueAmount} is pending. Please settle via UPI (9893270807@upi) or reception. Thank you!`);
         window.open(`https://wa.me/${athlete.phone.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
         showToast(`Opened WhatsApp reminder for ${athlete.name}`);
     };
 
+    // Mark fee due as permanently paid in MongoDB & log payment
+    const handleMarkPaid = async (athlete) => {
+        const athId = athlete._id || athlete.id;
+        const paidAmount = Number(athlete.dueAmount || 0) > 0 ? Number(athlete.dueAmount) : (Number(athlete.feeAmount) || 4700);
 
+        try {
+            // 1. Update athlete in MongoDB
+            await axios.put(`${API_BASE}athletes/${athId}`, {
+                dueAmount: 0,
+                paymentStatus: 'Paid',
+                amountPaid: (Number(athlete.amountPaid) || 0) + paidAmount
+            });
+
+            // 2. Insert payment record in MongoDB
+            const newPay = {
+                id: `PAY-${Date.now().toString().slice(-6)}`,
+                athleteId: athlete.id || athId,
+                athleteName: athlete.name,
+                sport: athlete.sport || '10M Rifle Shooting',
+                plan: athlete.membership || athlete.planType || 'Monthly Training Fee',
+                amount: paidAmount,
+                paymentMode: 'Cash',
+                method: 'Reception Cash Desk',
+                date: new Date().toISOString().split('T')[0],
+                status: 'Completed',
+                receiptNo: `RCP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+                note: 'Fee due marked as paid from Admin Reminders tab'
+            };
+            await axios.post(`${API_BASE}payments`, newPay).catch(e => console.warn(e));
+
+            // 3. Update local states
+            setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
+            setPayments(prev => [newPay, ...prev]);
+
+            // 4. Update localStorage
+            const localAths = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
+            localStorage.setItem('playpeak_athletes', JSON.stringify(localAths.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a)));
+            const localPays = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
+            localStorage.setItem('playpeak_payments', JSON.stringify([newPay, ...localPays]));
+
+            showToast(`Marked ${athlete.name}'s balance (₹${paidAmount.toLocaleString()}) as Fully Paid!`, 'success');
+        } catch (err) {
+            console.error('Error marking athlete as paid:', err);
+            setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
+            showToast(`Marked ${athlete.name} fee balance as paid.`, 'info');
+        }
+    };
+
+    // ==========================================
+    // EXCEL / CSV EXPORT UTILITY
+    // ==========================================
+    const exportToExcel = (data, fileName, columns) => {
+        if (!data || !data.length) {
+            showToast('No records available to export', 'error');
+            return;
+        }
+        const headers = columns.map(c => `"${c.label.replace(/"/g, '""')}"`).join(',');
+        const rows = data.map(item => {
+            return columns.map(c => {
+                const val = c.accessor ? c.accessor(item) : (item[c.key] !== undefined && item[c.key] !== null ? item[c.key] : '');
+                return `"${String(val).replace(/"/g, '""')}"`;
+            }).join(',');
+        });
+        const csvContent = '\uFEFF' + [headers, ...rows].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast(`Exported ${data.length} records to Excel (${fileName}.csv)!`, 'success');
+    };
+
+    const exportAthletesToExcel = () => {
+        const columns = [
+            { key: 'id', label: 'Athlete ID' },
+            { key: 'name', label: 'Full Name' },
+            { key: 'phone', label: 'Phone / WhatsApp' },
+            { key: 'email', label: 'Email' },
+            { key: 'sport', label: 'Discipline' },
+            { key: 'coach', label: 'Coach' },
+            { key: 'batchTime', label: 'Batch Timing' },
+            { key: 'planType', label: 'Plan Type' },
+            { key: 'feeAmount', label: 'Total Fee (₹)' },
+            { key: 'amountPaid', label: 'Amount Paid (₹)' },
+            { key: 'dueAmount', label: 'Due Balance (₹)' },
+            { key: 'paymentStatus', label: 'Payment Status' },
+            { key: 'paymentMode', label: 'Payment Mode' },
+            { key: 'utrNumber', label: 'UTR Number' },
+            { key: 'joinDate', label: 'Join Date' },
+            { key: 'status', label: 'Profile Status' }
+        ];
+        exportToExcel(filteredAthletes, 'Pioneer_Athletes_Roster', columns);
+    };
+
+    const exportFeeDuesToExcel = () => {
+        const columns = [
+            { key: 'id', label: 'Athlete ID' },
+            { key: 'name', label: 'Athlete Name' },
+            { key: 'phone', label: 'Phone' },
+            { key: 'sport', label: 'Sport Discipline' },
+            { key: 'planType', label: 'Billing Cycle' },
+            { key: 'feeAmount', label: 'Total Fee (₹)' },
+            { key: 'dueAmount', label: 'Due Amount (₹)' },
+            { key: 'paymentStatus', label: 'Payment Status' },
+            { key: 'emergencyContact', label: 'Emergency Contact' }
+        ];
+        exportToExcel(filteredDueAthletes, 'Pioneer_Fee_Due_Reminders', columns);
+    };
+
+    const exportPaymentsToExcel = () => {
+        const columns = [
+            { key: 'receiptNo', label: 'Receipt No' },
+            { key: 'date', label: 'Payment Date' },
+            { key: 'athleteName', label: 'Athlete Name' },
+            { key: 'sport', label: 'Sport' },
+            { key: 'plan', label: 'Plan / Membership' },
+            { key: 'amount', label: 'Amount (₹)' },
+            { key: 'paymentMode', label: 'Payment Mode' },
+            { key: 'utrNumber', label: 'UTR / Transaction Ref' },
+            { key: 'method', label: 'Payment Method' },
+            { key: 'status', label: 'Status' }
+        ];
+        exportToExcel(filteredPayments, 'Pioneer_Payments_Ledger', columns);
+    };
 
     // Calculate Summary Stats
     const totalAthletesCount = athletes.length;
@@ -1391,12 +1630,38 @@ const AdminDashboard = () => {
 
     // Filter athletes
     const filteredAthletes = athletes.filter(a => {
-        const matchesSearch = a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              a.phone.includes(searchTerm) ||
-                              a.sport.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (a.phone || '').includes(searchTerm) ||
+                              (a.sport || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSport = filterSport === 'All' || a.sport === filterSport;
         const matchesStatus = filterStatus === 'All' || a.paymentStatus === filterStatus || a.status === filterStatus || a.planType === filterStatus;
         return matchesSearch && matchesSport && matchesStatus;
+    });
+
+    // Fee Due Reminders Filter State
+    const [reminderSearch, setReminderSearch] = useState('');
+    const [reminderSportFilter, setReminderSportFilter] = useState('All');
+
+    const filteredDueAthletes = dueAthletes.filter(a => {
+        const matchesSearch = (a.name || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
+                              (a.phone || '').includes(reminderSearch);
+        const matchesSport = reminderSportFilter === 'All' || a.sport === reminderSportFilter;
+        return matchesSearch && matchesSport;
+    });
+
+    // Payments Hub Filter State
+    const [paymentSearch, setPaymentSearch] = useState('');
+    const [paymentModeFilter, setPaymentModeFilter] = useState('All');
+
+    const filteredPayments = payments.filter(p => {
+        const matchesSearch = (p.athleteName || '').toLowerCase().includes(paymentSearch.toLowerCase()) ||
+                              (p.receiptNo || '').toLowerCase().includes(paymentSearch.toLowerCase()) ||
+                              (p.utrNumber || '').toLowerCase().includes(paymentSearch.toLowerCase()) ||
+                              (p.transactionRef || '').toLowerCase().includes(paymentSearch.toLowerCase());
+        const matchesMode = paymentModeFilter === 'All' ||
+                            (paymentModeFilter === 'Cash' && (p.paymentMode === 'Cash' || (p.method || '').toLowerCase().includes('cash'))) ||
+                            (paymentModeFilter === 'Online' && (p.paymentMode === 'Online' || (p.method || '').toLowerCase().includes('upi') || (p.method || '').toLowerCase().includes('online') || p.utrNumber));
+        return matchesSearch && matchesMode;
     });
 
     return (
@@ -1447,7 +1712,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="leading-tight">
                             <span className="font-display font-extrabold text-lg text-white tracking-tight">
-                                Play<span className="text-[#FF6A1A]">Peak</span>
+                                Pioneer <span className="text-[#FF6A1A]">Academy</span>
                             </span>
                             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block -mt-0.5">
                                 ADMIN PWA CENTER
@@ -1511,17 +1776,11 @@ const AdminDashboard = () => {
                     </div>
 
                     {[
-                        { id: 'overview', name: 'Dashboard Overview', icon: <FiGrid /> },
+                        { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                         { id: 'athletes', name: 'Athletes & Students', icon: <FiUsers />, badge: athletes.length },
-                        { id: 'payments', name: 'Payments & Billing', icon: <FiDollarSign />, badge: payments.length },
+                        { id: 'payments', name: 'Payments Hub', icon: <FiDollarSign />, badge: payments.length },
                         { id: 'reminders', name: 'Fee Due Reminders', icon: <FiBell />, alertBadge: dueAthletes.length },
-                        { id: 'coaches', name: 'Coaches & Mentors', icon: <GiWhistle />, badge: coaches.length },
-                        { id: 'tournaments', name: 'Leagues & Tournaments', icon: <FaTrophy />, badge: tournaments.length },
-                        { id: 'physio', name: 'Physio & Recovery Lab', icon: <GiHealing />, badge: physioLogs.length },
-                        { id: 'assessments', name: 'Fitness & Biomechanics', icon: <GiStopwatch />, badge: assessments.length },
-                        { id: 'inventory', name: 'Gear & Inventory', icon: <FiBox />, badge: inventory.length },
-                        { id: 'memberships', name: 'Membership Plans', icon: <FiAward /> },
-                        { id: 'inquiries', name: 'Contact & Trial Leads', icon: <FiMessageSquare />, badge: inquiries.length }
+                        { id: 'inquiries', name: 'Contact Us Queries', icon: <FiMessageSquare />, badge: inquiries.length }
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -1577,7 +1836,7 @@ const AdminDashboard = () => {
                             >
                                 <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                                     <span className="font-display font-black text-lg text-white">
-                                        Play<span className="text-[#FF6A1A]">Peak</span> Admin
+                                        Pioneer <span className="text-[#FF6A1A]">Academy</span> Admin
                                     </span>
                                     <button onClick={() => setMobileDrawerOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-white">
                                         <FiX className="text-xl" />
@@ -1585,17 +1844,11 @@ const AdminDashboard = () => {
                                 </div>
 
                                 {[
-                                    { id: 'overview', name: 'Dashboard Overview', icon: <FiGrid /> },
+                                    { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                                     { id: 'athletes', name: 'Athletes & Students', icon: <FiUsers /> },
-                                    { id: 'payments', name: 'Payments & Billing', icon: <FiDollarSign /> },
+                                    { id: 'payments', name: 'Payments Hub', icon: <FiDollarSign /> },
                                     { id: 'reminders', name: 'Fee Due Reminders', icon: <FiBell /> },
-                                    { id: 'coaches', name: 'Coaches & Mentors', icon: <GiWhistle /> },
-                                    { id: 'tournaments', name: 'Leagues & Tournaments', icon: <FaTrophy /> },
-                                    { id: 'physio', name: 'Physio & Recovery Lab', icon: <GiHealing /> },
-                                    { id: 'assessments', name: 'Fitness & Biomechanics', icon: <GiStopwatch /> },
-                                    { id: 'inventory', name: 'Gear & Inventory', icon: <FiBox /> },
-                                    { id: 'memberships', name: 'Membership Plans', icon: <FiAward /> },
-                                    { id: 'inquiries', name: 'Contact & Trial Leads', icon: <FiMessageSquare /> }
+                                    { id: 'inquiries', name: 'Contact Us Queries', icon: <FiMessageSquare /> }
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
@@ -1643,11 +1896,7 @@ const AdminDashboard = () => {
                                         <FaQrcode /> Self-Registration QR
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            setEditingAthlete(null);
-                                            updateAthleteFormSportOrPlan('Football', 'Monthly');
-                                            setShowAddAthleteModal(true);
-                                        }}
+                                        onClick={handleOpenAddAthlete}
                                         className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5 transition-transform active:scale-98"
                                     >
                                         <FiPlus /> Add Athlete
@@ -1738,7 +1987,7 @@ const AdminDashboard = () => {
                                     </h3>
 
                                     <div className="space-y-3 pt-2">
-                                        {['Football', 'Cricket', 'Badminton', 'Basketball', 'Swimming', 'Combat / MMA'].map((sport) => {
+                                        {['10M Rifle', '10M Pistol', 'Beginner Training', 'Competitive Prep', 'Target Biomechanics'].map((sport) => {
                                             const count = athletes.filter(a => a.sport === sport).length;
                                             const percentage = athletes.length > 0 ? Math.round((count / athletes.length) * 100) : 0;
                                             return (
@@ -1766,10 +2015,10 @@ const AdminDashboard = () => {
                                             Recent Transactions
                                         </h3>
                                         <button
-                                            onClick={() => setActiveTab('payments')}
+                                            onClick={() => setActiveTab('athletes')}
                                             className="text-xs font-bold text-[#FF6A1A] hover:underline"
                                         >
-                                            View All
+                                            View Athletes & Fees
                                         </button>
                                     </div>
 
@@ -1820,11 +2069,7 @@ const AdminDashboard = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => {
-                                            setEditingAthlete(null);
-                                            updateAthleteFormSportOrPlan('Football', 'Monthly');
-                                            setShowAddAthleteModal(true);
-                                        }}
+                                        onClick={handleOpenAddAthlete}
                                         className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5 self-start sm:self-auto"
                                     >
                                         <FiPlus /> Enroll New Athlete
@@ -1868,6 +2113,15 @@ const AdminDashboard = () => {
                                         <option value="Due">Due Fees</option>
                                         <option value="Overdue">Overdue</option>
                                     </select>
+
+                                    <button
+                                        onClick={exportAthletesToExcel}
+                                        className="py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                                        title="Export Athlete Roster to Excel"
+                                    >
+                                        <FiDownload />
+                                        <span>Export Excel</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -1944,7 +2198,27 @@ const AdminDashboard = () => {
                                                             <button
                                                                 onClick={() => {
                                                                     setEditingAthlete(athlete);
-                                                                    setAthleteForm(athlete);
+                                                                    setAthleteForm({
+                                                                        name: athlete.name || '',
+                                                                        phone: athlete.phone || '',
+                                                                        age: athlete.age || 15,
+                                                                        gender: athlete.gender || 'Male',
+                                                                        sport: athlete.sport || '10M Rifle Shooting',
+                                                                        batchTime: athlete.batchTime || 'Evening Prime Shift (04:00 PM - 07:00 PM)',
+                                                                        coach: athlete.coach || 'Coach Rajesh Sharma (ISSF / NRAI)',
+                                                                        planType: athlete.planType || 'Monthly',
+                                                                        membership: athlete.membership || `${athlete.sport} Monthly Pass`,
+                                                                        feeAmount: athlete.feeAmount || 4700,
+                                                                        amountPaid: athlete.amountPaid || 4700,
+                                                                        dueAmount: athlete.dueAmount || 0,
+                                                                        paymentStatus: athlete.paymentStatus || 'Paid',
+                                                                        paymentMode: athlete.paymentMode || 'Cash',
+                                                                        utrNumber: athlete.utrNumber || '',
+                                                                        emergencyContact: athlete.emergencyContact || '',
+                                                                        bloodGroup: athlete.bloodGroup || 'B+'
+                                                                    });
+                                                                    setIsCustomSportAdmin(!sportsList.some(s => s.name === athlete.sport));
+                                                                    setIsCustomTimingAdmin(!adminTimingShifts.includes(athlete.batchTime));
                                                                     setShowAddAthleteModal(true);
                                                                 }}
                                                                 title="Edit Profile"
@@ -1967,45 +2241,134 @@ const AdminDashboard = () => {
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
+                                  </div>
 
                         </div>
                     )}
 
                     {/* ========================================================================= */}
-                    {/* TAB 3: PAYMENTS & BILLING CRUD */}
+                    {/* TAB: PAYMENTS HUB & TRANSACTION LEDGER */}
                     {/* ========================================================================= */}
                     {activeTab === 'payments' && (
                         <div className="space-y-6">
-                            
+                            {/* Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
                                     <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Payments & Fee Records
+                                        Payments Hub & Transaction Ledger
                                     </h1>
                                     <p className="text-xs sm:text-sm text-slate-500">
-                                        Track fee collections, membership dues, issue PDF receipts, and edit payment logs.
+                                        Record manual reception payments, track UPI / bank transfers with UTR numbers, and export collection reports.
                                     </p>
                                 </div>
 
-                                <button
-                                    onClick={() => {
-                                        setEditingPayment(null);
-                                        setPaymentForm({
-                                            athleteName: athletes[0]?.name || '',
-                                            sport: athletes[0]?.sport || 'Football',
-                                            plan: 'Pro Academy Monthly',
-                                            amount: 3999,
-                                            method: 'UPI (GPay)',
-                                            status: 'Completed',
-                                            dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                                        });
-                                        setShowAddPaymentModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Record Fee Payment
-                                </button>
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                    <button
+                                        onClick={exportPaymentsToExcel}
+                                        className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+                                    >
+                                        <FiDownload /> Export Payments (Excel)
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setEditingPayment(null);
+                                            setPaymentForm({
+                                                athleteName: '',
+                                                sport: '10M Rifle Shooting',
+                                                plan: 'Monthly Training Membership',
+                                                amount: 4700,
+                                                paymentMode: 'Cash',
+                                                utrNumber: '',
+                                                method: 'Reception Cash Desk',
+                                                status: 'Completed',
+                                                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                                            });
+                                            setShowAddPaymentModal(true);
+                                        }}
+                                        className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
+                                    >
+                                        <FiPlus /> Record Manual Payment
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Metric Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Revenue Collected</span>
+                                    <div className="font-display font-black text-2xl text-slate-900">
+                                        ₹{payments.reduce((acc, p) => acc + Number(p.amount || 0), 0).toLocaleString()}
+                                    </div>
+                                    <p className="text-[11px] text-slate-500">{payments.length} verified transactions</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cash Collections</span>
+                                    <div className="font-display font-black text-2xl text-slate-800">
+                                        ₹{payments.filter(p => p.paymentMode === 'Cash' || (p.method || '').toLowerCase().includes('cash')).reduce((acc, p) => acc + Number(p.amount || 0), 0).toLocaleString()}
+                                    </div>
+                                    <p className="text-[11px] text-slate-500">Collected at reception desk</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Online & UPI (UTR Verified)</span>
+                                    <div className="font-display font-black text-2xl text-emerald-600">
+                                        ₹{payments.filter(p => p.paymentMode === 'Online' || (p.method || '').toLowerCase().includes('upi') || (p.method || '').toLowerCase().includes('online') || p.utrNumber).reduce((acc, p) => acc + Number(p.amount || 0), 0).toLocaleString()}
+                                    </div>
+                                    <p className="text-[11px] text-emerald-700/80">Bank transfers & UPI transactions</p>
+                                </div>
+
+                                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-1">
+                                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">Pending Dues Balance</span>
+                                    <div className="font-display font-black text-2xl text-red-600">
+                                        ₹{totalPendingDues.toLocaleString()}
+                                    </div>
+                                    <p className="text-[11px] text-slate-500">{dueAthletes.length} students pending</p>
+                                </div>
+                            </div>
+
+                            {/* Search & Filter Bar */}
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                                <div className="relative w-full md:w-80">
+                                    <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search by student name, receipt #, or UTR..."
+                                        value={paymentSearch}
+                                        onChange={(e) => setPaymentSearch(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                    />
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                    <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                        <button
+                                            onClick={() => setPaymentModeFilter('All')}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                                paymentModeFilter === 'All' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            All Modes
+                                        </button>
+                                        <button
+                                            onClick={() => setPaymentModeFilter('Cash')}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                                paymentModeFilter === 'Cash' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            Cash Only
+                                        </button>
+                                        <button
+                                            onClick={() => setPaymentModeFilter('Online')}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                                paymentModeFilter === 'Online' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            Online (UTR)
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Payments Table */}
@@ -2014,81 +2377,95 @@ const AdminDashboard = () => {
                                     <table className="w-full text-left text-xs text-slate-600">
                                         <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                                             <tr>
-                                                <th className="px-5 py-4">Receipt / ID</th>
-                                                <th className="px-5 py-4">Athlete & Sport</th>
-                                                <th className="px-5 py-4">Plan & Amount</th>
-                                                <th className="px-5 py-4">Date & Method</th>
+                                                <th className="px-5 py-4">Receipt & Date</th>
+                                                <th className="px-5 py-4">Student Name</th>
+                                                <th className="px-5 py-4">Plan / Purpose</th>
+                                                <th className="px-5 py-4">Amount</th>
+                                                <th className="px-5 py-4">Payment Mode & UTR</th>
                                                 <th className="px-5 py-4">Status</th>
                                                 <th className="px-5 py-4 text-right">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
-                                            {payments.map((pay) => (
-                                                <tr key={pay.id} className="hover:bg-slate-50/70 transition-colors">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-mono font-bold text-slate-900">{pay.receiptNo || pay.id}</div>
-                                                        <div className="text-[11px] text-slate-400">{pay.id}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900">{pay.athleteName}</div>
-                                                        <div className="text-[11px] text-[#FF6A1A] font-semibold">{pay.sport}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-emerald-600 text-sm">₹{pay.amount?.toLocaleString()}</div>
-                                                        <div className="text-[11px] text-slate-400">{pay.plan}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-800">{pay.date}</div>
-                                                        <div className="text-[11px] text-slate-400">{pay.method}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700">
-                                                            {pay.status}
-                                                        </span>
-                                                    </td>
-
-                                                    <td className="px-5 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <button
-                                                                onClick={() => handleDownloadReceiptPDF(pay)}
-                                                                title="Download PDF Receipt"
-                                                                className="p-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6A1A] transition-colors"
-                                                            >
-                                                                <FiDownload className="text-xs" />
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingPayment(pay);
-                                                                    setPaymentForm(pay);
-                                                                    setShowAddPaymentModal(true);
-                                                                }}
-                                                                title="Edit Payment"
-                                                                className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
-                                                            >
-                                                                <FiEdit2 className="text-xs" />
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => handleDeletePayment(pay.id)}
-                                                                title="Delete Transaction"
-                                                                className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
-                                                            >
-                                                                <FiTrash2 className="text-xs" />
-                                                            </button>
-                                                        </div>
+                                            {filteredPayments.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={7} className="px-5 py-8 text-center text-slate-400">
+                                                        No payment transactions match the filter criteria.
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            ) : (
+                                                filteredPayments.map((pay) => {
+                                                    const isOnline = pay.paymentMode === 'Online' || (pay.method || '').toLowerCase().includes('upi') || (pay.method || '').toLowerCase().includes('online') || pay.utrNumber;
+                                                    return (
+                                                        <tr key={pay.id || pay._id} className="hover:bg-slate-50/70 transition-colors">
+                                                            <td className="px-5 py-4">
+                                                                <div className="font-mono font-bold text-slate-900">{pay.receiptNo || pay.id}</div>
+                                                                <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                                                                    <FiCalendar className="text-[10px]" />
+                                                                    <span>{pay.date || 'Recent'}</span>
+                                                                </div>
+                                                            </td>
+
+                                                            <td className="px-5 py-4">
+                                                                <div className="font-bold text-slate-900">{pay.athleteName}</div>
+                                                                <div className="text-[11px] text-slate-400">{pay.sport || '10M Shooting'}</div>
+                                                            </td>
+
+                                                            <td className="px-5 py-4">
+                                                                <div className="font-semibold text-slate-800">{pay.plan || 'Monthly Training Fee'}</div>
+                                                                {pay.note && <div className="text-[10px] text-slate-400 italic truncate max-w-xs">{pay.note}</div>}
+                                                            </td>
+
+                                                            <td className="px-5 py-4">
+                                                                <div className="font-display font-black text-emerald-600 text-sm">
+                                                                    ₹{Number(pay.amount || 0).toLocaleString()}
+                                                                </div>
+                                                            </td>
+
+                                                            <td className="px-5 py-4">
+                                                                {isOnline ? (
+                                                                    <div className="space-y-1">
+                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+                                                                            Online (UPI)
+                                                                        </span>
+                                                                        {(pay.utrNumber || pay.transactionRef) && (
+                                                                            <div className="font-mono text-[11px] text-slate-700 font-bold bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                                                                                UTR: {pay.utrNumber || pay.transactionRef}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-800">
+                                                                        Cash Desk
+                                                                    </span>
+                                                                )}
+                                                            </td>
+
+                                                            <td className="px-5 py-4">
+                                                                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-700">
+                                                                    {pay.status || 'Completed'}
+                                                                </span>
+                                                            </td>
+
+                                                            <td className="px-5 py-4 text-right">
+                                                                <div className="flex items-center justify-end gap-1.5">
+                                                                    <button
+                                                                        onClick={() => handleDeletePayment(pay)}
+                                                                        className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                                        title="Delete Transaction"
+                                                                    >
+                                                                        <FiTrash2 />
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-
                         </div>
                     )}
 
@@ -2108,14 +2485,23 @@ const AdminDashboard = () => {
                                     </p>
                                 </div>
 
-                                <button
-                                    onClick={handleBroadcastDueReminders}
-                                    disabled={broadcastingNotice}
-                                    className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-500/20 flex items-center gap-2 transition-transform active:scale-95"
-                                >
-                                    <FaWhatsapp className="text-base" />
-                                    <span>{broadcastingNotice ? 'Dispatching...' : 'Broadcast Auto Reminder to All'}</span>
-                                </button>
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                    <button
+                                        onClick={exportFeeDuesToExcel}
+                                        className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+                                    >
+                                        <FiDownload /> Export Dues (Excel)
+                                    </button>
+
+                                    <button
+                                        onClick={handleBroadcastDueReminders}
+                                        disabled={broadcastingNotice}
+                                        className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-500/20 flex items-center gap-2 transition-transform active:scale-95"
+                                    >
+                                        <FaWhatsapp className="text-base" />
+                                        <span>{broadcastingNotice ? 'Dispatching...' : 'Broadcast Auto Reminder to All'}</span>
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Summary Card */}
@@ -2134,6 +2520,31 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
 
+                            {/* Search & Filter Toolbar for Dues */}
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                                <div className="relative w-full md:w-80">
+                                    <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search dues by student name or phone..."
+                                        value={reminderSearch}
+                                        onChange={(e) => setReminderSearch(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                    />
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                    <select
+                                        value={reminderSportFilter}
+                                        onChange={(e) => setReminderSportFilter(e.target.value)}
+                                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                    >
+                                        <option value="All">All Sports</option>
+                                        {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
                             {/* Dues Roster */}
                             <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
@@ -2148,53 +2559,58 @@ const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
-                                            {dueAthletes.map((athlete) => (
-                                                <tr key={athlete.id} className="hover:bg-slate-50/70 transition-colors">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900">{athlete.name}</div>
-                                                        <div className="text-[11px] text-slate-400">{athlete.phone} • {athlete.id}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-800">{athlete.sport}</div>
-                                                        <div className="text-[11px] text-slate-400">{athlete.planType || 'Monthly'} Plan • {athlete.membership}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-red-600 text-sm">₹{athlete.dueAmount?.toLocaleString()}</div>
-                                                        <div className="text-[10px] text-slate-400">Total: ₹{athlete.feeAmount?.toLocaleString()}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-700">
-                                                            {athlete.paymentStatus}
-                                                        </span>
-                                                    </td>
-
-                                                    <td className="px-5 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <button
-                                                                onClick={() => handleSendIndividualReminder(athlete)}
-                                                                className="py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
-                                                            >
-                                                                <FaWhatsapp />
-                                                                <span>WhatsApp</span>
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => {
-                                                                    setAthletes(athletes.map(a => a.id === athlete.id ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
-                                                                    showToast(`Marked ${athlete.name} fee balance as fully paid!`);
-                                                                }}
-                                                                className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1"
-                                                            >
-                                                                <FiCheck />
-                                                                <span>Mark Paid</span>
-                                                            </button>
-                                                        </div>
+                                            {filteredDueAthletes.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="px-5 py-8 text-center text-slate-400">
+                                                        No athletes currently have pending fee dues!
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            ) : (
+                                                filteredDueAthletes.map((athlete) => (
+                                                    <tr key={athlete.id || athlete._id} className="hover:bg-slate-50/70 transition-colors">
+                                                        <td className="px-5 py-4">
+                                                            <div className="font-bold text-slate-900">{athlete.name}</div>
+                                                            <div className="text-[11px] text-slate-400">{athlete.phone} • {athlete.id}</div>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <div className="font-semibold text-slate-800">{athlete.sport}</div>
+                                                            <div className="text-[11px] text-slate-400">{athlete.planType || 'Monthly'} Plan • {athlete.membership}</div>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <div className="font-bold text-red-600 text-sm">₹{athlete.dueAmount?.toLocaleString()}</div>
+                                                            <div className="text-[10px] text-slate-400">Total: ₹{athlete.feeAmount?.toLocaleString()}</div>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-700">
+                                                                {athlete.paymentStatus}
+                                                            </span>
+                                                        </td>
+
+                                                        <td className="px-5 py-4 text-right">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <button
+                                                                    onClick={() => handleSendIndividualReminder(athlete)}
+                                                                    className="py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
+                                                                >
+                                                                    <FaWhatsapp />
+                                                                    <span>WhatsApp</span>
+                                                                </button>
+
+                                                                <button
+                                                                    onClick={() => handleMarkPaid(athlete)}
+                                                                    className="py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+                                                                >
+                                                                    <FiCheck />
+                                                                    <span>Mark Paid</span>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -2203,644 +2619,17 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    {/* ========================================================================= */}
-                    {/* TAB 5: COACHES & TECHNICAL STAFF (FULL CRUD) */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'coaches' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Coaches & Mentors Management
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Certified head coaches, training batch assignments, and compensation records.
-                                    </p>
-                                </div>
 
-                                <button
-                                    onClick={() => {
-                                        setEditingCoach(null);
-                                        setCoachForm({
-                                            name: '',
-                                            sport: 'Football',
-                                            certification: 'AFC Pro License & UEFA-A',
-                                            phone: '',
-                                            email: '',
-                                            experience: 5,
-                                            trainees: 20,
-                                            monthlySalary: '₹60,000',
-                                            rating: 4.8
-                                        });
-                                        setShowAddCoachModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Add New Coach
-                                </button>
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {coaches.map((coach) => (
-                                    <div key={coach.id} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4 flex flex-col justify-between">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <span className="px-2.5 py-1 rounded-full bg-orange-50 text-[#FF6A1A] font-bold text-[10px] uppercase">
-                                                    {coach.sport}
-                                                </span>
-                                                <span className="text-xs font-bold text-amber-500">★ {coach.rating}</span>
-                                            </div>
 
-                                            <h3 className="font-display font-bold text-lg text-slate-900">{coach.name}</h3>
-                                            <p className="text-xs text-slate-500 font-semibold">{coach.certification}</p>
-                                        </div>
 
-                                        <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1.5">
-                                            <div className="flex justify-between">
-                                                <span>Experience:</span>
-                                                <strong className="text-slate-800">{coach.experience} Years</strong>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Active Trainees:</span>
-                                                <strong className="text-[#FF6A1A]">{coach.trainees} Athletes</strong>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Phone:</span>
-                                                <strong className="text-slate-800">{coach.phone}</strong>
-                                            </div>
-                                        </div>
 
-                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                                            <span className="text-xs font-bold text-slate-700">{coach.monthlySalary} / mo</span>
-                                            <div className="flex gap-1.5">
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingCoach(coach);
-                                                        setCoachForm(coach);
-                                                        setShowAddCoachModal(true);
-                                                    }}
-                                                    className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold"
-                                                >
-                                                    <FiEdit2 />
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (window.confirm(`Remove coach ${coach.name}?`)) {
-                                                            setCoaches(coaches.filter(c => c.id !== coach.id));
-                                                            showToast(`Coach ${coach.name} removed.`, 'info');
-                                                        }
-                                                    }}
-                                                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold"
-                                                >
-                                                    <FiTrash2 />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
 
-                        </div>
-                    )}
 
-                    {/* ========================================================================= */}
-                    {/* TAB 6: TOURNAMENTS & LEAGUE EVENTS (NEW TAB WITH FULL CRUD) */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'tournaments' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Leagues & Tournaments Management
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Organize inter-academy tournaments, match fixtures, prize pools, and team registrations.
-                                    </p>
-                                </div>
 
-                                <button
-                                    onClick={() => {
-                                        setEditingTournament(null);
-                                        setShowAddTournamentModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Host New Tournament
-                                </button>
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {tournaments.map((trn) => (
-                                    <div key={trn.id} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4 flex flex-col justify-between">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <span className="px-2.5 py-1 rounded-full bg-orange-50 text-[#FF6A1A] font-bold text-[10px] uppercase">
-                                                    {trn.sport}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] uppercase ${
-                                                    trn.status === 'In Progress' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-                                                }`}>
-                                                    {trn.status}
-                                                </span>
-                                            </div>
 
-                                            <h3 className="font-display font-bold text-base text-slate-900 leading-snug">
-                                                {trn.title}
-                                            </h3>
-                                            <p className="text-xs text-slate-400">{trn.ageCategory} • {trn.venue}</p>
-                                        </div>
 
-                                        <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1.5">
-                                            <div className="flex justify-between">
-                                                <span>Dates:</span>
-                                                <strong className="text-slate-800">{trn.startDate} to {trn.endDate}</strong>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Registered Teams:</span>
-                                                <strong className="text-slate-800">{trn.teamsCount} Teams</strong>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Prize Pool:</span>
-                                                <strong className="text-[#FF6A1A] font-bold">{trn.prizePool}</strong>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                                            <button
-                                                onClick={() => {
-                                                    setEditingTournament(trn);
-                                                    setTournamentForm(trn);
-                                                    setShowAddTournamentModal(true);
-                                                }}
-                                                className="py-1.5 px-3 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    if (window.confirm(`Delete tournament "${trn.title}"?`)) {
-                                                        setTournaments(tournaments.filter(t => t.id !== trn.id));
-                                                        showToast(`Tournament removed.`, 'info');
-                                                    }
-                                                }}
-                                                className="py-1.5 px-3 rounded-xl bg-red-50 text-red-600 text-xs font-bold"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                        </div>
-                    )}
-
-                    {/* ========================================================================= */}
-                    {/* TAB 7: PHYSIO & INJURY RECOVERY LAB (NEW TAB WITH FULL CRUD) */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'physio' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Sports Physio & Injury Recovery Lab
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Track athlete rehabilitation logs, ice bath sessions, and match-fitness clearances.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => {
-                                        setEditingPhysio(null);
-                                        setShowAddPhysioModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Log Injury / Rehab Session
-                                </button>
-                            </div>
-
-                            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-xs text-slate-600">
-                                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
-                                            <tr>
-                                                <th className="px-5 py-4">Athlete & Sport</th>
-                                                <th className="px-5 py-4">Injury Diagnosis</th>
-                                                <th className="px-5 py-4">Physiotherapist & Therapy</th>
-                                                <th className="px-5 py-4">Expected Return</th>
-                                                <th className="px-5 py-4">Status</th>
-                                                <th className="px-5 py-4 text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {physioLogs.map((phy) => (
-                                                <tr key={phy.id} className="hover:bg-slate-50/70">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900 text-sm">{phy.athleteName}</div>
-                                                        <div className="text-[11px] text-[#FF6A1A] font-semibold">{phy.sport}</div>
-                                                    </td>
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-800">{phy.injuryType}</div>
-                                                        <div className="text-[10px] text-slate-400">Date: {phy.injuryDate}</div>
-                                                    </td>
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-700">{phy.therapist}</div>
-                                                        <div className="text-[11px] text-slate-500">{phy.treatment}</div>
-                                                    </td>
-                                                    <td className="px-5 py-4 font-mono font-bold text-slate-800">{phy.expectedReturn}</td>
-                                                    <td className="px-5 py-4">
-                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                                            phy.recoveryStatus === 'Match Fit'
-                                                                ? 'bg-emerald-100 text-emerald-700'
-                                                                : phy.recoveryStatus === 'Light Training'
-                                                                ? 'bg-blue-100 text-blue-700'
-                                                                : 'bg-amber-100 text-amber-700'
-                                                        }`}>
-                                                            {phy.recoveryStatus}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-5 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingPhysio(phy);
-                                                                    setPhysioForm(phy);
-                                                                    setShowAddPhysioModal(true);
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600"
-                                                            >
-                                                                <FiEdit2 />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (window.confirm('Delete this physio record?')) {
-                                                                        setPhysioLogs(physioLogs.filter(p => p.id !== phy.id));
-                                                                        showToast('Physio log removed.', 'info');
-                                                                    }
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-red-50 text-red-600"
-                                                            >
-                                                                <FiTrash2 />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                    )}
-
-                    {/* ========================================================================= */}
-                    {/* TAB 8: FITNESS & BIOMECHANICS ASSESSMENTS (NEW TAB WITH FULL CRUD) */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'assessments' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Fitness & Biomechanics Lab Metrics
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Laser sprint timings, vertical jump, VO2 Max, and scouting prospects.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => {
-                                        setEditingAssessment(null);
-                                        setShowAddAssessmentModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Record Test Score
-                                </button>
-                            </div>
-
-                            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-xs text-slate-600">
-                                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
-                                            <tr>
-                                                <th className="px-5 py-4">Athlete & Sport</th>
-                                                <th className="px-5 py-4">30m Speed Gate</th>
-                                                <th className="px-5 py-4">Vertical Leap</th>
-                                                <th className="px-5 py-4">VO2 Max</th>
-                                                <th className="px-5 py-4">Max Deadlift</th>
-                                                <th className="px-5 py-4">Scout Rating</th>
-                                                <th className="px-5 py-4 text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {assessments.map((asm) => (
-                                                <tr key={asm.id} className="hover:bg-slate-50/70">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900 text-sm">{asm.athleteName}</div>
-                                                        <div className="text-[11px] text-[#FF6A1A] font-semibold">{asm.sport}</div>
-                                                    </td>
-                                                    <td className="px-5 py-4 font-mono font-bold text-slate-900">{asm.sprint30m}</td>
-                                                    <td className="px-5 py-4 font-mono font-bold text-slate-900">{asm.verticalJump}</td>
-                                                    <td className="px-5 py-4 font-mono font-bold text-slate-900">{asm.vo2Max}</td>
-                                                    <td className="px-5 py-4 font-mono font-bold text-slate-900">{asm.deadlift}</td>
-                                                    <td className="px-5 py-4">
-                                                        <span className="px-2.5 py-1 rounded-full bg-orange-100 text-[#FF6A1A] font-bold text-[10px] uppercase">
-                                                            {asm.rating}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-5 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingAssessment(asm);
-                                                                    setAssessmentForm(asm);
-                                                                    setShowAddAssessmentModal(true);
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600"
-                                                            >
-                                                                <FiEdit2 />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (window.confirm('Delete this assessment record?')) {
-                                                                        setAssessments(assessments.filter(a => a.id !== asm.id));
-                                                                        showToast('Assessment score removed.', 'info');
-                                                                    }
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-red-50 text-red-600"
-                                                            >
-                                                                <FiTrash2 />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                    )}
-
-                    {/* ========================================================================= */}
-                    {/* TAB 9: SPORTS EQUIPMENT & INVENTORY */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'inventory' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Sports Equipment & Facility Gear
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Monitor balls, training gear, racquets, safety equipment, and threshold reorders.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => {
-                                        setEditingInventory(null);
-                                        setInventoryForm({
-                                            name: '',
-                                            sport: 'Football',
-                                            category: 'Balls & Turf Gear',
-                                            totalQty: 20,
-                                            availableQty: 20,
-                                            damagedQty: 0,
-                                            location: 'Ground Equipment Shed',
-                                            minThreshold: 5,
-                                            unitCost: '₹1,500'
-                                        });
-                                        setShowAddInventoryModal(true);
-                                    }}
-                                    className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                >
-                                    <FiPlus /> Add Equipment Item
-                                </button>
-                            </div>
-
-                            {/* Inventory Table */}
-                            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-xs text-slate-600">
-                                        <thead className="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
-                                            <tr>
-                                                <th className="px-5 py-4">Item & Sport</th>
-                                                <th className="px-5 py-4">Category & Location</th>
-                                                <th className="px-5 py-4">Stock Status</th>
-                                                <th className="px-5 py-4">Unit Value</th>
-                                                <th className="px-5 py-4 text-right">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {inventory.map((item) => (
-                                                <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900 text-sm">{item.name}</div>
-                                                        <div className="text-[11px] text-[#FF6A1A] font-semibold">{item.sport} • {item.id}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-800">{item.category}</div>
-                                                        <div className="text-[11px] text-slate-400">{item.location}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <strong className="text-slate-900 text-sm">{item.availableQty}</strong>
-                                                            <span className="text-slate-400">/ {item.totalQty} Total</span>
-                                                        </div>
-                                                        <span className={`text-[10px] font-bold uppercase ${
-                                                            item.availableQty <= item.minThreshold
-                                                                ? 'text-red-500'
-                                                                : 'text-emerald-600'
-                                                        }`}>
-                                                            {item.availableQty <= item.minThreshold ? 'Low Stock Alert' : 'Stock Optimal'}
-                                                        </span>
-                                                    </td>
-
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-800">{item.unitCost}</div>
-                                                    </td>
-
-                                                    <td className="px-5 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-1.5">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setInventory(inventory.map(i => i.id === item.id ? { ...i, availableQty: i.availableQty + 5, totalQty: i.totalQty + 5 } : i));
-                                                                    showToast(`Added +5 stock to ${item.name}`);
-                                                                }}
-                                                                className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs"
-                                                            >
-                                                                +5
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingInventory(item);
-                                                                    setInventoryForm(item);
-                                                                    setShowAddInventoryModal(true);
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs"
-                                                            >
-                                                                <FiEdit2 />
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (window.confirm(`Delete ${item.name}?`)) {
-                                                                        setInventory(inventory.filter(i => i.id !== item.id));
-                                                                        showToast(`${item.name} removed from inventory.`, 'info');
-                                                                    }
-                                                                }}
-                                                                className="p-1.5 rounded-lg bg-red-50 text-red-600 text-xs"
-                                                            >
-                                                                <FiTrash2 />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                    )}
-
-                    {/* ========================================================================= */}
-                    {/* TAB 10: MEMBERSHIP PLANS MANAGEMENT */}
-                    {/* ========================================================================= */}
-                    {activeTab === 'memberships' && (
-                        <div className="space-y-6">
-                            
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                                        Academy Membership Plans
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-slate-500">
-                                        Configure subscription packages, cohort fees, and athlete perks.
-                                    </p>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={handleOpenQrModal}
-                                        className="py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5"
-                                    >
-                                        <FaQrcode /> Membership QR Posters
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setEditingPlan(null);
-                                            setPlanForm({
-                                                name: '',
-                                                sport: 'Football',
-                                                duration: '1 Month',
-                                                price: 3999,
-                                                badge: 'Popular',
-                                                featuresText: '3 Pro Coaching Sessions/Wk\nTurf Access\nJersey Provided'
-                                            });
-                                            setShowAddPlanModal(true);
-                                        }}
-                                        className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 flex items-center gap-1.5"
-                                    >
-                                        <FiPlus /> Create New Plan
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {memberships.map((plan) => (
-                                    <div key={plan.id} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider bg-orange-50 px-2.5 py-0.5 rounded-full">
-                                                    {plan.badge}
-                                                </span>
-                                                <span className="text-xs text-slate-400 font-semibold">{plan.activeAthletes || 0} Enrolled</span>
-                                            </div>
-
-                                            <h3 className="font-display font-bold text-lg text-slate-900 leading-tight">
-                                                {plan.name}
-                                            </h3>
-
-                                            <div className="font-display font-black text-2xl text-slate-900">
-                                                ₹{plan.price.toLocaleString()}
-                                                <span className="text-xs font-normal text-slate-400"> / {plan.duration}</span>
-                                            </div>
-
-                                            <div className="pt-2 border-t border-slate-100 space-y-2">
-                                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Features Included:</span>
-                                                <ul className="space-y-1.5 text-xs text-slate-600">
-                                                    {plan.features.map((f, idx) => (
-                                                        <li key={idx} className="flex items-center gap-2">
-                                                            <FiCheck className="text-emerald-500 shrink-0 text-xs" />
-                                                            <span>{f}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <button
-                                                onClick={() => handleOpenMembershipPlanQr(plan)}
-                                                className="w-full py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6A1A] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
-                                                title="Get QR code for this membership plan"
-                                            >
-                                                <FaQrcode /> Plan QR (PNG / PDF)
-                                            </button>
-
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingPlan(plan);
-                                                        setPlanForm({
-                                                            name: plan.name,
-                                                            sport: plan.sport,
-                                                            duration: plan.duration,
-                                                            price: plan.price,
-                                                            badge: plan.badge,
-                                                            featuresText: plan.features.join('\n')
-                                                        });
-                                                        setShowAddPlanModal(true);
-                                                    }}
-                                                    className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold hover:bg-blue-100 transition-colors"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (window.confirm(`Delete membership plan "${plan.name}"?`)) {
-                                                            setMemberships(memberships.filter(m => m.id !== plan.id));
-                                                            showToast(`Plan ${plan.name} removed.`, 'info');
-                                                        }
-                                                    }}
-                                                    className="py-2 px-3 rounded-xl bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition-colors"
-                                                >
-                                                    <FiTrash2 />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                        </div>
-                    )}
 
                     {/* ========================================================================= */}
                     {/* TAB 11: CONTACT INQUIRIES & TRIAL LEADS */}
@@ -2861,11 +2650,12 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => {
                                         setEditingInquiry(null);
+                                        setIsCustomSportInquiry(false);
                                         setInquiryForm({
                                             name: '',
                                             phone: '',
                                             email: '',
-                                            sport: 'Football',
+                                            sport: '10M Rifle Shooting',
                                             ageGroup: 'Ages 10-15',
                                             message: 'Interested in trial session.'
                                         });
@@ -2877,64 +2667,78 @@ const AdminDashboard = () => {
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                {inquiries.map((inq) => (
-                                    <div key={inq.id} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider">
-                                                    {inq.sport} • {inq.ageGroup}
-                                                </span>
-                                                <h3 className="font-display font-bold text-lg text-slate-900">{inq.name}</h3>
-                                                <p className="text-xs text-slate-400">{inq.phone} • {inq.email}</p>
-                                            </div>
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                                inq.status === 'New' ? 'bg-orange-100 text-[#FF6A1A]' : 'bg-emerald-100 text-emerald-700'
-                                            }`}>
-                                                {inq.status}
-                                            </span>
-                                        </div>
-
-                                        <p className="text-xs text-slate-600 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 leading-relaxed">
-                                            "{inq.message}"
-                                        </p>
-
-                                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                                            <span className="text-slate-400">{inq.date}</span>
-                                            
-                                            <div className="flex gap-2">
-                                                <a
-                                                    href={`tel:${inq.phone}`}
-                                                    className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center gap-1"
-                                                >
-                                                    <FiPhone className="text-xs" /> Call
-                                                </a>
-                                                <button
-                                                    onClick={() => {
-                                                        const next = inq.status === 'New' ? 'Trial Scheduled' : inq.status === 'Trial Scheduled' ? 'Enrolled' : 'Closed';
-                                                        setInquiries(inquiries.map(i => i.id === inq.id ? { ...i, status: next } : i));
-                                                        showToast(`Updated status to "${next}"`);
-                                                    }}
-                                                    className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold"
-                                                >
-                                                    Advance Status
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (window.confirm(`Delete inquiry for ${inq.name}?`)) {
-                                                            setInquiries(inquiries.filter(i => i.id !== inq.id));
-                                                            showToast(`Inquiry deleted.`, 'info');
-                                                        }
-                                                    }}
-                                                    className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100"
-                                                >
-                                                    <FiTrash2 />
-                                                </button>
-                                            </div>
-                                        </div>
+                            {inquiries.length === 0 ? (
+                                <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/90 shadow-sm max-w-lg mx-auto space-y-3">
+                                    <div className="w-16 h-16 rounded-full bg-orange-50 text-[#FF6A1A] flex items-center justify-center mx-auto text-2xl shadow-sm">
+                                        <FiMessageSquare />
                                     </div>
-                                ))}
-                            </div>
+                                    <h3 className="font-display font-bold text-xl text-slate-900">No Inquiries Yet</h3>
+                                    <p className="text-xs text-slate-500 leading-relaxed">
+                                        All contact queries submitted through the Contact Us page and Membership enrollment will appear here in real time.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                    {inquiries.map((inq, inqIdx) => (
+                                        <div key={inq.id || inq._id || inqIdx} className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
+                                            <div className="flex items-start justify-between">
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider">
+                                                        {inq.sport || 'Shooting'} {inq.planInterested ? `• ${inq.planInterested}` : ''}
+                                                    </span>
+                                                    <h3 className="font-display font-bold text-lg text-slate-900">{inq.name}</h3>
+                                                    <p className="text-xs text-slate-500 font-medium">{inq.phone} • {inq.email}</p>
+                                                </div>
+                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                                                    inq.status === 'New' ? 'bg-orange-100 text-[#FF6A1A]' : 'bg-emerald-100 text-emerald-700'
+                                                }`}>
+                                                    {inq.status}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 leading-relaxed font-medium">
+                                                "{inq.message || inq.query || 'Inquiry regarding shooting classes.'}"
+                                            </p>
+
+                                            <div className="flex flex-wrap items-center justify-between pt-2 border-t border-slate-100 text-xs gap-2">
+                                                <span className="text-slate-400 text-[11px] font-semibold">{inq.date || 'Recent'}</span>
+                                                
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <a
+                                                        href={`tel:${inq.phone}`}
+                                                        className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center gap-1 transition-all"
+                                                    >
+                                                        <FiPhone className="text-xs text-[#FF6A1A]" /> Call
+                                                    </a>
+
+                                                    <a
+                                                        href={`https://wa.me/${inq.phone ? inq.phone.replace(/[^0-9]/g, '') : '919893270807'}?text=${encodeURIComponent(`Hello ${inq.name}, thank you for contacting Pioneer Rifle Shooting Academy regarding ${inq.sport || 'shooting courses'}. How can we assist you today?`)}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="py-1.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold flex items-center gap-1 shadow-sm transition-all"
+                                                    >
+                                                        <FaWhatsapp className="text-xs" /> WhatsApp
+                                                    </a>
+
+                                                    <button
+                                                        onClick={() => handleAdvanceInquiry(inq)}
+                                                        className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-bold transition-all"
+                                                    >
+                                                        Advance
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteInquiry(inq)}
+                                                        className="p-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                        title="Delete Inquiry Permanently"
+                                                    >
+                                                        <FiTrash2 />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                         </div>
                     )}
@@ -2950,7 +2754,8 @@ const AdminDashboard = () => {
                     { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                     { id: 'athletes', name: 'Athletes', icon: <FiUsers /> },
                     { id: 'payments', name: 'Payments', icon: <FiDollarSign /> },
-                    { id: 'reminders', name: 'Dues', icon: <FiBell /> }
+                    { id: 'reminders', name: 'Fee Dues', icon: <FiBell /> },
+                    { id: 'inquiries', name: 'Queries', icon: <FiMessageSquare /> }
                 ].map((item) => (
                     <button
                         key={item.id}
@@ -2965,14 +2770,6 @@ const AdminDashboard = () => {
                         <span className="text-[10px]">{item.name}</span>
                     </button>
                 ))}
-
-                <button
-                    onClick={() => setMobileDrawerOpen(true)}
-                    className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-400 hover:text-white"
-                >
-                    <span className="text-lg"><FiMenu /></span>
-                    <span className="text-[10px]">More Tabs</span>
-                </button>
             </nav>
 
             {/* ========================================================================= */}
@@ -2997,6 +2794,19 @@ const AdminDashboard = () => {
                             </div>
 
                             <form onSubmit={handleSaveAthlete} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                                <div className="bg-orange-50/90 border border-orange-200/90 rounded-2xl p-3 text-xs flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-[#FF6A1A] shrink-0" />
+                                        <span className="text-slate-800 font-bold">Official Fee Structure:</span>
+                                        <span className="text-slate-600">
+                                            One-Time Annual Reg: <strong className="text-slate-900 font-bold">₹5,000</strong> • Monthly Training: <strong className="text-[#FF6A1A] font-bold">₹4,700/mo</strong>
+                                        </span>
+                                    </div>
+                                    <span className="px-2 py-0.5 rounded-full bg-[#FF6A1A] text-white text-[10px] font-bold shrink-0">
+                                        Official
+                                    </span>
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
                                     <input
@@ -3009,9 +2819,9 @@ const AdminDashboard = () => {
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number *</label>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp / Phone *</label>
                                         <input
                                             type="tel"
                                             value={athleteForm.phone}
@@ -3022,65 +2832,225 @@ const AdminDashboard = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Age & Gender</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                value={athleteForm.age}
-                                                onChange={(e) => setAthleteForm({ ...athleteForm, age: Number(e.target.value) })}
-                                                className="w-20 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                                            />
-                                            <select
-                                                value={athleteForm.gender}
-                                                onChange={(e) => setAthleteForm({ ...athleteForm, gender: e.target.value })}
-                                                className="w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                                            >
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                            </select>
-                                        </div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Emergency / Guardian Contact</label>
+                                        <input
+                                            type="tel"
+                                            value={athleteForm.emergencyContact || ''}
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, emergencyContact: e.target.value })}
+                                            placeholder="+91 92947 71208"
+                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Sport Discipline</label>
-                                        <select
-                                            value={athleteForm.sport}
-                                            onChange={(e) => updateAthleteFormSportOrPlan(e.target.value, athleteForm.planType || 'Monthly')}
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Age</label>
+                                        <input
+                                            type="number"
+                                            value={athleteForm.age}
+                                            min="5"
+                                            max="60"
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, age: Number(e.target.value) })}
                                             className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Gender</label>
+                                        <select
+                                            value={athleteForm.gender}
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, gender: e.target.value })}
+                                            className="w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                                         >
-                                            {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Blood Group</label>
+                                        <select
+                                            value={athleteForm.bloodGroup || 'B+'}
+                                            onChange={(e) => setAthleteForm({ ...athleteForm, bloodGroup: e.target.value })}
+                                            className="w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                                        >
+                                            <option value="A+">A+</option>
+                                            <option value="B+">B+</option>
+                                            <option value="O+">O+</option>
+                                            <option value="AB+">AB+</option>
+                                            <option value="O-">O-</option>
+                                            <option value="A-">A-</option>
+                                            <option value="B-">B-</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <label className="text-xs font-bold text-slate-700">Sport Discipline *</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const next = !isCustomSportAdmin;
+                                                    setIsCustomSportAdmin(next);
+                                                    if (!next && !athleteForm.sport) {
+                                                        updateAthleteFormSportOrPlan('10M Rifle Shooting', athleteForm.planType || 'Monthly');
+                                                    }
+                                                }}
+                                                className="text-[10px] font-semibold text-[#FF6A1A] hover:underline"
+                                            >
+                                                {isCustomSportAdmin ? '← Choose from list' : '+ Enter manually'}
+                                            </button>
+                                        </div>
+                                        {isCustomSportAdmin ? (
+                                            <input
+                                                type="text"
+                                                value={athleteForm.sport}
+                                                onChange={(e) => setAthleteForm({ ...athleteForm, sport: e.target.value, membership: `${e.target.value} ${athleteForm.planType || 'Monthly'} Pass` })}
+                                                placeholder="e.g. 50M 3-Position Rifle, Rapid Fire..."
+                                                className="w-full px-3 py-2.5 bg-slate-50 border border-[#FF6A1A] rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                                required
+                                            />
+                                        ) : (
+                                            <select
+                                                value={athleteForm.sport}
+                                                onChange={(e) => {
+                                                    if (e.target.value === 'custom') {
+                                                        setIsCustomSportAdmin(true);
+                                                        setAthleteForm({ ...athleteForm, sport: '' });
+                                                    } else {
+                                                        updateAthleteFormSportOrPlan(e.target.value, athleteForm.planType || 'Monthly');
+                                                    }
+                                                }}
+                                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                                            >
+                                                {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                                <option value="custom">✏️ Enter custom discipline name manually...</option>
+                                            </select>
+                                        )}
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Membership Duration</label>
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <label className="text-xs font-bold text-slate-700">Batch Timing & Shift *</label>
                                             <button
                                                 type="button"
-                                                onClick={() => updateAthleteFormSportOrPlan(athleteForm.sport, 'Monthly')}
-                                                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-                                                    (athleteForm.planType || 'Monthly') === 'Monthly'
-                                                        ? 'bg-[#FF6A1A] text-white'
-                                                        : 'bg-slate-100 text-slate-700'
-                                                }`}
+                                                onClick={() => {
+                                                    const next = !isCustomTimingAdmin;
+                                                    setIsCustomTimingAdmin(next);
+                                                    if (!next && !athleteForm.batchTime) {
+                                                        setAthleteForm({ ...athleteForm, batchTime: 'Evening Prime Shift (04:00 PM - 07:00 PM)' });
+                                                    }
+                                                }}
+                                                className="text-[10px] font-semibold text-[#FF6A1A] hover:underline"
                                             >
-                                                Monthly
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => updateAthleteFormSportOrPlan(athleteForm.sport, 'Yearly')}
-                                                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-                                                    athleteForm.planType === 'Yearly'
-                                                        ? 'bg-[#FF6A1A] text-white'
-                                                        : 'bg-slate-100 text-slate-700'
-                                                }`}
-                                            >
-                                                Yearly
+                                                {isCustomTimingAdmin ? '← Choose from list' : '+ Enter manually'}
                                             </button>
                                         </div>
+                                        {isCustomTimingAdmin ? (
+                                            <input
+                                                type="text"
+                                                value={athleteForm.batchTime || ''}
+                                                onChange={(e) => setAthleteForm({ ...athleteForm, batchTime: e.target.value })}
+                                                placeholder="e.g. 05:00 PM - 06:30 PM (Daily Shift)..."
+                                                className="w-full px-3 py-2.5 bg-slate-50 border border-[#FF6A1A] rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                                required
+                                            />
+                                        ) : (
+                                            <select
+                                                value={athleteForm.batchTime || 'Evening Prime Shift (04:00 PM - 07:00 PM)'}
+                                                onChange={(e) => {
+                                                    if (e.target.value === 'custom_time') {
+                                                        setIsCustomTimingAdmin(true);
+                                                        setAthleteForm({ ...athleteForm, batchTime: '' });
+                                                    } else {
+                                                        setAthleteForm({ ...athleteForm, batchTime: e.target.value });
+                                                    }
+                                                }}
+                                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                                            >
+                                                {adminTimingShifts.map(t => <option key={t} value={t}>{t}</option>)}
+                                                <option value="custom_time">✏️ Enter custom timing manually...</option>
+                                            </select>
+                                        )}
                                     </div>
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="block text-xs font-bold text-slate-700">Official Academy Fees *</label>
+                                        <span className="text-[10px] text-slate-400 font-semibold">Select One or Both (Default: Both)</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2.5">
+                                        {/* Fee 1: One-Time Annual Registration */}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleAdminAthleteFee('registration')}
+                                            className={`p-3 rounded-xl text-left border transition-all ${
+                                                (athleteForm.planType === 'Combo' || athleteForm.planType === 'Registration')
+                                                    ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 shadow-sm'
+                                                    : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-[10px] font-bold text-blue-600 uppercase">Fee #1 (Annual)</span>
+                                                <span className={`w-4 h-4 rounded-full border text-[10px] flex items-center justify-center font-bold ${
+                                                    (athleteForm.planType === 'Combo' || athleteForm.planType === 'Registration')
+                                                        ? 'bg-blue-600 text-white border-blue-600'
+                                                        : 'border-slate-300 bg-white'
+                                                }`}>
+                                                    {(athleteForm.planType === 'Combo' || athleteForm.planType === 'Registration') ? '✓' : ''}
+                                                </span>
+                                            </div>
+                                            <div className="font-bold text-xs text-slate-900 leading-tight">One-Time Annual Registration</div>
+                                            <div className="text-[12px] font-black text-slate-900 mt-1">₹5,000 <span className="font-normal text-[10px] text-slate-500">/ 1 Year</span></div>
+                                        </button>
+
+                                        {/* Fee 2: Monthly Training Fee */}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleAdminAthleteFee('monthly')}
+                                            className={`p-3 rounded-xl text-left border transition-all ${
+                                                (athleteForm.planType === 'Combo' || athleteForm.planType === 'Monthly')
+                                                    ? 'bg-orange-50 border-[#FF6A1A] ring-1 ring-[#FF6A1A] shadow-sm'
+                                                    : 'bg-slate-50 border-slate-200 opacity-60 hover:opacity-100'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-[10px] font-bold text-[#FF6A1A] uppercase">Fee #2 (Monthly)</span>
+                                                <span className={`w-4 h-4 rounded-full border text-[10px] flex items-center justify-center font-bold ${
+                                                    (athleteForm.planType === 'Combo' || athleteForm.planType === 'Monthly')
+                                                        ? 'bg-[#FF6A1A] text-white border-[#FF6A1A]'
+                                                        : 'border-slate-300 bg-white'
+                                                }`}>
+                                                    {(athleteForm.planType === 'Combo' || athleteForm.planType === 'Monthly') ? '✓' : ''}
+                                                </span>
+                                            </div>
+                                            <div className="font-bold text-xs text-slate-900 leading-tight">Monthly Training Fee</div>
+                                            <div className="text-[12px] font-black text-[#FF6A1A] mt-1">₹4,700 <span className="font-normal text-[10px] text-slate-500">/ Month</span></div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Official 2-Fee Breakdown */}
+                                <div className="bg-orange-50/70 border border-[#FF6A1A]/30 rounded-xl p-3 text-xs space-y-1">
+                                    <div className="flex justify-between items-center text-slate-700 font-bold">
+                                        <span>Admission Fee Calculation:</span>
+                                        <span className="text-[#FF6A1A] font-extrabold text-sm">
+                                            {(athleteForm.planType || 'Combo') === 'Combo'
+                                                ? '₹5,000 (Reg) + ₹4,700 (1st Mo) = ₹9,700'
+                                                : athleteForm.planType === 'Registration'
+                                                ? '₹5,000 / 1 Year'
+                                                : '₹4,700 / Month'}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-500">
+                                        {(athleteForm.planType || 'Combo') === 'Combo'
+                                            ? 'Both fees accounted together: ₹5,000 Annual Registration + ₹4,700 First Month Training Fee.'
+                                            : athleteForm.planType === 'Registration'
+                                            ? 'Annual Registration Fee only: ₹5,000 (Shooter ID, accreditation & locker access).'
+                                            : 'Monthly Training Fee only: ₹4,700/mo (Daily 1-1.5 hr training, weapons, pellets & targets).'}
+                                    </p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
@@ -3111,6 +3081,54 @@ const AdminDashboard = () => {
                                         />
                                     </div>
                                 </div>
+
+                                {Number(athleteForm.amountPaid || 0) > 0 && (
+                                    <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
+                                        <div>
+                                            <label className="block font-bold text-slate-700 mb-1.5">Payment Mode *</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAthleteForm({ ...athleteForm, paymentMode: 'Cash' })}
+                                                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all ${
+                                                        (athleteForm.paymentMode || 'Cash') === 'Cash'
+                                                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    Reception Cash Desk
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAthleteForm({ ...athleteForm, paymentMode: 'Online' })}
+                                                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all ${
+                                                        athleteForm.paymentMode === 'Online'
+                                                            ? 'bg-[#FF6A1A] text-white border-[#FF6A1A] shadow-sm'
+                                                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    Online (UPI / NEFT)
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {athleteForm.paymentMode === 'Online' && (
+                                            <div>
+                                                <label className="block font-bold text-slate-700 mb-1">
+                                                    UTR Number / Transaction Reference ID <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="e.g. 429812903421 (12-digit UPI UTR)"
+                                                    value={athleteForm.utrNumber || ''}
+                                                    onChange={(e) => setAthleteForm({ ...athleteForm, utrNumber: e.target.value })}
+                                                    className="w-full px-3 py-2 bg-white border border-[#FF6A1A] rounded-xl text-xs font-bold text-slate-900 focus:outline-none"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between items-center bg-orange-50/70 p-3 rounded-xl border border-orange-200 text-xs">
                                     <span className="font-semibold text-slate-700">Calculated Due Amount:</span>
@@ -3163,7 +3181,10 @@ const AdminDashboard = () => {
                             </div>
 
                             <p className="text-xs text-slate-500 leading-relaxed">
-                                Students or parents can scan this QR code on their smartphone to fill out their details and register into PlayPeak academy in real-time!
+                                Students or parents can scan this QR code on their smartphone to self-enroll in real-time!
+                                <span className="block mt-1 text-[11px] font-bold text-[#FF6A1A]">
+                                    One-Time Annual Reg: ₹5,000 • Monthly Training: ₹4,700/mo
+                                </span>
                             </p>
 
                             <div className="bg-slate-950 p-4 rounded-3xl inline-block shadow-xl">
@@ -3179,17 +3200,17 @@ const AdminDashboard = () => {
                             <div className="space-y-2.5 pt-1">
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        onClick={() => downloadQrImage(qrCodeDataUrl, 'PlayPeak_Student_Enrollment_QR.png')}
+                                        onClick={() => downloadQrImage(qrCodeDataUrl, 'Pioneer_Student_Enrollment_QR.png')}
                                         className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
                                     >
                                         <FiDownload /> Download PNG
                                     </button>
                                     <button
                                         onClick={() => downloadQrPdf({
-                                            title: "STUDENT & ATHLETE REGISTRATION QR POSTER",
-                                            subtitle: "Scan with your smartphone camera to self-enroll in PlayPeak Sports Academy cohorts.",
+                                            title: "PIONEER SHOOTING ACADEMY - STUDENT REGISTRATION QR",
+                                            subtitle: "Official Fee Policy: One-Time Annual Reg ₹5,000 | Monthly Training Fee ₹4,700/mo. Scan with camera to register.",
                                             qrDataUrl: qrCodeDataUrl,
-                                            fileName: "PlayPeak_Registration_QR_Poster.pdf",
+                                            fileName: "Pioneer_Registration_QR_Poster.pdf",
                                             instructions: "1. Open Camera or Scanner App  2. Point at QR Code  3. Fill Athlete Details & Select Coaching Batch"
                                         })}
                                         className="py-2.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 transition-all"
@@ -3257,7 +3278,7 @@ const AdminDashboard = () => {
                                                         athleteName: selected.name,
                                                         sport: selected.sport,
                                                         plan: selected.membership || `${selected.sport} ${selected.planType || 'Monthly'} Pass`,
-                                                        amount: selected.dueAmount > 0 ? selected.dueAmount : selected.feeAmount || 3999
+                                                        amount: selected.dueAmount > 0 ? selected.dueAmount : selected.feeAmount || 4700
                                                     });
                                                 }
                                             }}
@@ -3312,26 +3333,61 @@ const AdminDashboard = () => {
                                             type="number"
                                             value={paymentForm.amount}
                                             onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                                            placeholder="3999"
+                                            placeholder="4700"
                                             className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-emerald-600 focus:outline-none focus:border-[#FF6A1A]"
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Payment Method</label>
-                                        <select
-                                            value={paymentForm.method}
-                                            onChange={(e) => setPaymentForm({ ...paymentForm, method: e.target.value })}
-                                            className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                                        >
-                                            <option value="UPI (GPay / PhonePe / Paytm)">UPI (GPay / PhonePe / Paytm)</option>
-                                            <option value="Reception Cash Desk">Reception Cash Desk</option>
-                                            <option value="Credit / Debit Card POS">Credit / Debit Card POS</option>
-                                            <option value="Net Banking / NEFT / IMPS">Net Banking / NEFT / IMPS</option>
-                                            <option value="Online QR Pass">Online QR Pass</option>
-                                        </select>
+                                        <label className="block text-xs font-bold text-slate-700 mb-1">Payment Mode *</label>
+                                        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => setPaymentForm({ ...paymentForm, paymentMode: 'Cash' })}
+                                                className={`py-2 px-2 rounded-xl border text-center font-bold text-xs transition-all ${
+                                                    (paymentForm.paymentMode || 'Cash') === 'Cash'
+                                                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                                                }`}
+                                            >
+                                                Cash Desk
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setPaymentForm({ ...paymentForm, paymentMode: 'Online' })}
+                                                className={`py-2 px-2 rounded-xl border text-center font-bold text-xs transition-all ${
+                                                    paymentForm.paymentMode === 'Online'
+                                                        ? 'bg-[#FF6A1A] text-white border-[#FF6A1A] shadow-sm'
+                                                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                                                }`}
+                                            >
+                                                Online (UPI)
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+
+                                {paymentForm.paymentMode === 'Online' && (
+                                    <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200 space-y-2 text-xs">
+                                        <div className="flex justify-between items-center text-[11px] text-emerald-800">
+                                            <span>Academy UPI: <strong className="font-mono">9893270807@upi</strong></span>
+                                            <span className="font-bold text-emerald-900">Online Verification</span>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-800 mb-1">
+                                                Bank UTR Number / Transaction ID <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="Enter 12-digit UPI / IMPS UTR number"
+                                                value={paymentForm.utrNumber || ''}
+                                                onChange={(e) => setPaymentForm({ ...paymentForm, utrNumber: e.target.value })}
+                                                className="w-full px-3.5 py-2.5 bg-white border border-emerald-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
@@ -3737,7 +3793,7 @@ const AdminDashboard = () => {
                                             type="number"
                                             value={planForm.price}
                                             onChange={(e) => setPlanForm({ ...planForm, price: Number(e.target.value) })}
-                                            placeholder="3999"
+                                            placeholder="4700"
                                             className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
                                             required
                                         />
@@ -3853,14 +3909,42 @@ const AdminDashboard = () => {
 
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Sport Interested</label>
-                                        <select
-                                            value={inquiryForm.sport}
-                                            onChange={(e) => setInquiryForm({ ...inquiryForm, sport: e.target.value })}
-                                            className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                                        >
-                                            {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
-                                        </select>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <label className="text-xs font-bold text-slate-700">Sport Interested *</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsCustomSportInquiry(!isCustomSportInquiry)}
+                                                className="text-[10px] font-semibold text-[#FF6A1A] hover:underline"
+                                            >
+                                                {isCustomSportInquiry ? 'Choose from list' : '+ Enter manually'}
+                                            </button>
+                                        </div>
+                                        {isCustomSportInquiry ? (
+                                            <input
+                                                type="text"
+                                                value={inquiryForm.sport}
+                                                onChange={(e) => setInquiryForm({ ...inquiryForm, sport: e.target.value })}
+                                                placeholder="e.g. 50M 3-Position, Trap..."
+                                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                                required
+                                            />
+                                        ) : (
+                                            <select
+                                                value={inquiryForm.sport}
+                                                onChange={(e) => {
+                                                    if (e.target.value === 'custom') {
+                                                        setIsCustomSportInquiry(true);
+                                                        setInquiryForm({ ...inquiryForm, sport: '' });
+                                                    } else {
+                                                        setInquiryForm({ ...inquiryForm, sport: e.target.value });
+                                                    }
+                                                }}
+                                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
+                                            >
+                                                {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                                <option value="custom">✏️ Enter custom discipline name manually...</option>
+                                            </select>
+                                        )}
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-slate-700 mb-1">Age Group</label>
@@ -4247,7 +4331,7 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-2 gap-2 pt-1">
                                 <button
-                                    onClick={() => downloadQrImage(athletePassQrDataUrl || qrCodeDataUrl, `PlayPeak_Pass_${viewingAthleteCard.name.replace(/\s+/g, '_')}.png`)}
+                                    onClick={() => downloadQrImage(athletePassQrDataUrl || qrCodeDataUrl, `Pioneer_Pass_${viewingAthleteCard.name.replace(/\s+/g, '_')}.png`)}
                                     className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-1.5"
                                 >
                                     <FiDownload /> Download PNG
@@ -4255,10 +4339,10 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => downloadQrPdf({
                                         title: `OFFICIAL ATHLETE PASS: ${viewingAthleteCard.name}`,
-                                        subtitle: `PlayPeak Verified Member Pass • ${viewingAthleteCard.sport} Arena`,
+                                        subtitle: `Pioneer Verified Member Pass • ${viewingAthleteCard.sport} Range`,
                                         qrDataUrl: athletePassQrDataUrl || qrCodeDataUrl,
-                                        fileName: `PlayPeak_Pass_${viewingAthleteCard.name.replace(/\s+/g, '_')}.pdf`,
-                                        instructions: "Present this digital / printed QR badge at arena security turnstiles for gate access.",
+                                        fileName: `Pioneer_Pass_${viewingAthleteCard.name.replace(/\s+/g, '_')}.pdf`,
+                                        instructions: "Present this digital / printed QR badge at academy range reception for lane entry.",
                                         metaData: [
                                             { label: "Athlete ID", value: viewingAthleteCard.id },
                                             { label: "Full Name", value: viewingAthleteCard.name },
@@ -4308,7 +4392,7 @@ const AdminDashboard = () => {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="font-display font-black text-lg text-white">PlayPeak Admin App</h3>
+                                        <h3 className="font-display font-black text-lg text-white">Pioneer Academy Admin App</h3>
                                         <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">PWA Mobile & Desktop Edition</span>
                                     </div>
                                 </div>
@@ -4318,7 +4402,7 @@ const AdminDashboard = () => {
                             </div>
 
                             <p className="text-xs text-slate-300 leading-relaxed">
-                                Install PlayPeak Command Center directly on your home screen or desktop taskbar for instant offline access, real-time sync, and native app performance.
+                                Install Pioneer Rifle Shooting Academy Command Center directly on your home screen or desktop taskbar for instant offline access, real-time sync, and native app performance.
                             </p>
 
                             <div className="space-y-3 text-xs">
@@ -4360,7 +4444,7 @@ const AdminDashboard = () => {
                                             deferredPrompt.prompt();
                                             deferredPrompt.userChoice.then((choice) => {
                                                 if (choice.outcome === 'accepted') {
-                                                    showToast('🎉 PlayPeak App installed successfully!');
+                                                    showToast('🎉 Pioneer Academy Admin App installed successfully!');
                                                 }
                                             });
                                         }
@@ -4424,7 +4508,7 @@ const AdminDashboard = () => {
                             <div className="space-y-2.5 pt-1">
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
-                                        onClick={() => downloadQrImage(membershipQrDataUrl, `PlayPeak_${selectedPlanQr.name.replace(/\s+/g, '_')}_QR.png`)}
+                                        onClick={() => downloadQrImage(membershipQrDataUrl, `Pioneer_${selectedPlanQr.name.replace(/\s+/g, '_')}_QR.png`)}
                                         className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
                                     >
                                         <FiDownload /> Download PNG
@@ -4434,7 +4518,7 @@ const AdminDashboard = () => {
                                             title: `MEMBERSHIP PASS: ${selectedPlanQr.name.toUpperCase()}`,
                                             subtitle: `Scan to enroll directly in ${selectedPlanQr.name} (${selectedPlanQr.duration} - ₹${selectedPlanQr.price?.toLocaleString()})`,
                                             qrDataUrl: membershipQrDataUrl,
-                                            fileName: `PlayPeak_${selectedPlanQr.name.replace(/\s+/g, '_')}_Poster.pdf`,
+                                            fileName: `Pioneer_${selectedPlanQr.name.replace(/\s+/g, '_')}_Poster.pdf`,
                                             instructions: "1. Open camera on phone  2. Scan QR code  3. Confirm membership plan and coaching timing.",
                                             metaData: [
                                                 { label: "Plan Name", value: selectedPlanQr.name },

@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { userinfo } from '../features/userinfo';
+import { PioneerLogoBrand } from '../components/PioneerLogo';
+import PioneerLoader from '../components/PioneerLoader';
 
 const url = import.meta.env.VITE_API_URL;
 
@@ -16,7 +18,7 @@ const Signup = () => {
         email: '',
         phone: '',
         password: '',
-        sport: 'Football'
+        sport: '10M Rifle Shooting'
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +70,16 @@ const Signup = () => {
         }
     };
 
+    if (isLoading) {
+        return (
+            <PioneerLoader 
+                message="Registering Pioneer Shooter..." 
+                subMessage="Setting Up 10M Target Lane & Credentials" 
+                fullScreen={true} 
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex items-center justify-center p-4 py-12">
             <motion.div
@@ -77,19 +89,11 @@ const Signup = () => {
             >
                 {/* Brand Logo */}
                 <div className="text-center mb-8">
-                    <Link to="/" className="inline-flex items-center gap-2 mb-3">
-                        <svg viewBox="0 0 100 100" className="w-10 h-10">
-                            <circle cx="50" cy="22" r="12" fill="#FF6A1A" />
-                            <path d="M48 38 L30 54 L38 68 L48 56 L62 78 L78 74 L60 48 L62 38 Z" fill="#FF6A1A" />
-                            <path d="M30 40 L18 52 L26 60 L36 48 Z" fill="#3B82F6" />
-                            <path d="M62 48 L76 34 L84 42 L68 56 Z" fill="#3B82F6" />
-                        </svg>
-                        <span className="font-display font-black text-2xl text-slate-900 tracking-tight">
-                            Play<span className="text-[#FF6A1A]">Peak</span>
-                        </span>
+                    <Link to="/" className="inline-block mb-3">
+                        <PioneerLogoBrand isDark={false} showTagline={true} />
                     </Link>
-                    <h2 className="font-display font-bold text-xl text-slate-900">Join the Academy</h2>
-                    <p className="text-xs text-slate-500 mt-1">Create your athlete profile and unlock access to all sports programs</p>
+                    <h2 className="font-display font-bold text-xl text-slate-900 mt-2">Join the Academy</h2>
+                    <p className="text-xs text-slate-500 mt-1">Create your shooter profile and enroll in training programs</p>
                 </div>
 
                 {error && (
@@ -140,25 +144,23 @@ const Signup = () => {
                                 required
                                 value={formData.phone}
                                 onChange={handleChange}
-                                placeholder="+91 98765 43210"
+                                placeholder="+91 98932 70807"
                                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
                             />
                         </div>
 
                         <div>
-                            <label className="text-slate-700 font-bold block mb-1">Primary Sport</label>
+                            <label className="text-slate-700 font-bold block mb-1">Primary Discipline</label>
                             <select
                                 name="sport"
                                 value={formData.sport}
                                 onChange={handleChange}
                                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:outline-none focus:border-[#FF6A1A]"
                             >
-                                <option value="Football">Football</option>
-                                <option value="Cricket">Cricket</option>
-                                <option value="Badminton">Badminton</option>
-                                <option value="Basketball">Basketball</option>
-                                <option value="Tennis">Tennis</option>
-                                <option value="Swimming">Swimming</option>
+                                <option value="10M Rifle Shooting">10M Rifle Shooting</option>
+                                <option value="10M Pistol Shooting">10M Pistol Shooting</option>
+                                <option value="Beginner Training Course">Beginner Training Course</option>
+                                <option value="Competitive Match Prep">Competitive Match Prep</option>
                             </select>
                         </div>
                     </div>

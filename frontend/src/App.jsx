@@ -25,6 +25,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { userinfo } from './features/userinfo';
 import { attendanceinfo } from './features/attendance';
+import PioneerLoader from './components/PioneerLoader';
 
 import { useLocation } from 'react-router-dom';
 
@@ -59,11 +60,6 @@ function AppContent({ user, ProtectedRoute }) {
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <UserDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/qr-checkin" element={
-              <ProtectedRoute>
-                <QRCheckIn />
               </ProtectedRoute>
             } />
             <Route path="/payments" element={
@@ -128,19 +124,6 @@ function App() {
     }
   }, [dispatch, url]);
 
-  const LoadingSpinner = () => (
-    <div className="flex flex-col justify-center items-center h-screen bg-[#070A0F] text-white">
-      <div className="relative flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full border-2 border-volt-500/20 border-t-volt-500 animate-spin"></div>
-        <div className="absolute w-8 h-8 rounded-full bg-volt-500/20 blur-md"></div>
-        <span className="absolute font-tech text-[10px] text-volt-400 font-bold">APEX</span>
-      </div>
-      <p className="mt-4 text-xs font-bold tracking-widest uppercase text-volt-400/90 animate-pulse">
-        Initializing APEX Arena...
-      </p>
-    </div>
-  );
-
   // Protected Route component with resilient session recovery
   const ProtectedRoute = ({ children, adminOnly = false }) => {
     let activeUser = user;
@@ -153,18 +136,18 @@ function App() {
 
     if (!activeUser) {
       return (
-        <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="glass-card p-8 rounded-2xl text-center max-w-md border border-volt-500/30 shadow-glow-volt">
-            <div className="w-14 h-14 bg-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-500/30">
-              <span className="text-2xl">🔒</span>
+        <div className="flex justify-center items-center min-h-[70vh] bg-slate-50 p-4">
+          <div className="bg-white p-8 rounded-3xl text-center max-w-md border border-slate-200 shadow-xl">
+            <div className="w-14 h-14 bg-orange-50 text-[#FF6A1A] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-orange-200">
+              <span className="text-2xl">🎯</span>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2 font-display">Athlete Gate Restricted</h2>
-            <p className="text-slate-400 mb-6 text-sm">Please authenticate with your Athlete or Coach credentials to access this arena sector.</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2 font-display">Pioneer Portal Restricted</h2>
+            <p className="text-slate-500 mb-6 text-sm">Please authenticate with your Athlete or Coach credentials to access this shooting academy sector.</p>
             <a
               href="/login"
-              className="inline-block px-6 py-2.5 bg-gradient-to-r from-volt-500 to-cyber-500 text-[#080C14] font-bold rounded-xl hover:shadow-glow-volt transition-all"
+              className="inline-block px-6 py-2.5 bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-bold rounded-xl shadow-md transition-all"
             >
-              Sign In To Arena
+              Sign In To Pioneer Portal
             </a>
           </div>
         </div>
@@ -173,18 +156,18 @@ function App() {
 
     if (adminOnly && activeUser.role !== 'admin') {
       return (
-        <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="glass-card p-8 rounded-2xl text-center max-w-md border border-amber-500/30 shadow-glow-amber">
-            <div className="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
+        <div className="flex justify-center items-center min-h-[70vh] bg-slate-50 p-4">
+          <div className="bg-white p-8 rounded-3xl text-center max-w-md border border-slate-200 shadow-xl">
+            <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-200">
               <span className="text-2xl">⚡</span>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2 font-display">Coach Command Required</h2>
-            <p className="text-slate-400 mb-6 text-sm">You need Head Coach or Academy Admin privileges to enter this console.</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2 font-display">Head Coach & Admin Required</h2>
+            <p className="text-slate-500 mb-6 text-sm">You need Pioneer Academy Administrator privileges to enter this management console.</p>
             <a
               href="/dashboard"
-              className="inline-block px-6 py-2.5 bg-slate-800 text-volt-400 border border-volt-500/30 font-bold rounded-xl hover:bg-slate-700 transition-all"
+              className="inline-block px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all"
             >
-              Go to Athlete Portal
+              Go to Athlete Dashboard
             </a>
           </div>
         </div>
@@ -198,12 +181,18 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 500);
+    }, 600);
     return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <PioneerLoader 
+        message="Calibrating 10M Target Range..." 
+        subMessage="Precision • Discipline • Focus" 
+        fullScreen={true} 
+      />
+    );
   }
 
   return (

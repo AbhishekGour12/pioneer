@@ -15,8 +15,8 @@ const Reviews = () => {
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [newReview, setNewReview] = useState({
     author: '',
-    role: 'Parent of U14 Football Player',
-    sport: 'Football',
+    role: 'Parent of 10M Rifle Shooter',
+    sport: '10M Rifle Shooting',
     rating: 5,
     title: '',
     comment: ''
@@ -25,64 +25,61 @@ const Reviews = () => {
 
   const filterCategories = [
     'All',
-    'Football',
-    'Cricket',
-    'Badminton',
-    'Basketball',
-    'Tennis',
-    'Swimming'
+    '10M Rifle Shooting',
+    '10M Pistol Shooting',
+    'Beginner Training'
   ];
 
   const [reviewsList, setReviewsList] = useState([
     {
       id: 1,
       author: 'Priya Sharma',
-      role: 'Parent of U14 Football Player',
-      sport: 'Football',
+      role: '10M Air Rifle Junior Shooter',
+      sport: '10M Rifle Shooting',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
       rating: 5,
       date: '2 days ago',
-      title: 'An amazing place for young athletes. Skills & confidence skyrocketed!',
-      comment: 'My son has been training at PlayPeak for 8 months. Coach Rajesh Sharma and the structured European drill methodology transformed his ball control and game awareness. The floodlit turf is world-class.',
+      title: 'Skills, stance & confidence skyrocketed at Pioneer!',
+      comment: 'I have been training at Pioneer Rifle Shooting Academy for 8 months. Coach Rajesh Sharma and the structured stance methodology transformed my accuracy and natural point of aim. The range lanes and equipment are top-notch.',
       helpfulCount: 42,
       isVerified: true
     },
     {
       id: 2,
       author: 'Rohan Mehta',
-      role: 'Student - Cricket Program',
-      sport: 'Cricket',
+      role: '10M Air Pistol Trainee',
+      sport: '10M Pistol Shooting',
       avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80',
       rating: 5,
       date: '1 week ago',
-      title: 'Great coaches, excellent practice nets and a motivating environment.',
-      comment: 'The batting mechanics sessions with Coach Vikram Singh helped me get selected for the district U-16 team. The speed bowling radar and turf wickets are top notch.',
+      title: 'Great coaches, match weapons and all equipment included.',
+      comment: 'Weapons, pellets, and target papers are all included in the ₹4,700 monthly fee. Flexible timings from 8:00 AM to 8:00 PM make it easy to practice 1.5 hours daily.',
       helpfulCount: 58,
       isVerified: true
     },
     {
       id: 3,
       author: 'Amit Verma',
-      role: 'Parent of U12 Basketball Player',
-      sport: 'Basketball',
+      role: 'Parent of Beginner Shooter',
+      sport: 'Beginner Training',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
       rating: 5,
       date: '2 weeks ago',
-      title: "PlayPeak is not just about sports, it's about building character.",
-      comment: 'The coaches focus not just on shooting drills, but on discipline, teamwork, respect, and mental resilience. Best investment in my child’s health and personality.',
+      title: "Transparent fee policy and world-class shooting coaches.",
+      comment: "The one-time annual registration fee of ₹5,000 gave my son official shooter accreditation and range pass, and the ₹4,700 monthly fee covers all match pellets, targets, and certified coaching. Best investment in his sports career.",
       helpfulCount: 35,
       isVerified: true
     },
     {
       id: 4,
       author: 'Sunita Deshmukh',
-      role: 'Parent of U10 Badminton Student',
-      sport: 'Badminton',
+      role: 'Parent of Youth Shooter',
+      sport: '10M Rifle Shooting',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
       rating: 5,
       date: '3 weeks ago',
-      title: 'International standard synthetic courts and attentive coaching!',
-      comment: 'Coach Ananya Sen pays attention to every child’s footwork and grip. The air-conditioned viewing area allows parents to comfortably observe training sessions.',
+      title: 'Safe, professional, and supportive range at Mahalaxmi Nagar!',
+      comment: 'Coach pays attention to every child’s breath rhythm and safety. The location near Pioneer Convent School in Sector R Mahalaxmi Nagar is safe and easily accessible.',
       helpfulCount: 29,
       isVerified: true
     }
@@ -113,8 +110,8 @@ const Reviews = () => {
     setSubmittedToast(true);
     setNewReview({
       author: '',
-      role: 'Parent of U14 Football Player',
-      sport: 'Football',
+      role: 'Parent of 10M Rifle Shooter',
+      sport: '10M Rifle Shooting',
       rating: 5,
       title: '',
       comment: ''
@@ -129,7 +126,7 @@ const Reviews = () => {
       <div className="relative bg-[#0A0E17] text-white py-20 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-35"
-          style={{ backgroundImage: `url('/images/playpeak/hero-football.jpg')` }}
+          style={{ backgroundImage: `url('/images/shooting/shooting-squad-steps.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#070A0F]/95 via-[#070A0F]/80 to-[#070A0F]/40" />
 
@@ -146,7 +143,7 @@ const Reviews = () => {
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Genuine stories of growth, skill advancement, and character development from the PlayPeak community.
+            Genuine stories of focus, discipline, and championship shooting from the Pioneer Rifle Shooting Academy community.
           </p>
         </div>
       </div>
@@ -187,9 +184,9 @@ const Reviews = () => {
             <div className="hidden sm:block h-16 w-[1px] bg-slate-200" />
 
             <div className="space-y-1.5 text-xs text-slate-600">
-              <p><strong className="text-[#FF6A1A]">99%</strong> Parents notice enhanced fitness & discipline</p>
-              <p><strong className="text-slate-900">96%</strong> Would recommend PlayPeak to friends & schoolmates</p>
-              <p><strong className="text-emerald-600">100%</strong> Certified national coaches on every court</p>
+              <p><strong className="text-[#FF6A1A]">99%</strong> Shooters notice enhanced focus & discipline</p>
+              <p><strong className="text-slate-900">96%</strong> Would recommend Pioneer Shooting Academy to friends</p>
+              <p><strong className="text-emerald-600">100%</strong> Certified national coaches on every lane</p>
             </div>
           </div>
 
@@ -311,18 +308,15 @@ const Reviews = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-700 font-bold block mb-1">Sport Program</label>
+                    <label className="text-slate-700 font-bold block mb-1">Shooting Program</label>
                     <select
                       value={newReview.sport}
                       onChange={(e) => setNewReview({ ...newReview, sport: e.target.value })}
                       className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
                     >
-                      <option value="Football">Football</option>
-                      <option value="Cricket">Cricket</option>
-                      <option value="Badminton">Badminton</option>
-                      <option value="Basketball">Basketball</option>
-                      <option value="Tennis">Tennis</option>
-                      <option value="Swimming">Swimming</option>
+                      <option value="10M Rifle Shooting">10M Rifle Shooting</option>
+                      <option value="10M Pistol Shooting">10M Pistol Shooting</option>
+                      <option value="Beginner Training">Beginner Training</option>
                     </select>
                   </div>
 

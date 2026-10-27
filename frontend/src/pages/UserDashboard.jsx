@@ -15,9 +15,10 @@ import {
     FiPhone,
     FiLayers,
     FiActivity,
-    FiAward
+    FiAward,
+    FiTarget
 } from 'react-icons/fi';
-import { FaFutbol, FaGamepad, FaBasketballBall, FaTrophy } from 'react-icons/fa';
+import { FaTrophy } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -177,27 +178,27 @@ const UserDashboard = () => {
                                 <div className="p-4 rounded-2xl bg-obsidian-900 border border-white/10 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2.5 rounded-xl bg-volt-500/10 text-volt-400">
-                                            <FaFutbol className="text-lg" />
+                                            <FiTarget className="text-lg" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-white text-sm">Striker First-Touch & Finishing Drill</p>
-                                            <p className="text-slate-400 mt-0.5">Synthetic Turf #1 • Coach Marcus Vance</p>
+                                            <p className="font-bold text-white text-sm">10M Precision Stance & Trigger Control</p>
+                                            <p className="text-slate-400 mt-0.5">Rifle Range Lane #4 • Coach Rajesh Sharma</p>
                                         </div>
                                     </div>
-                                    <span className="font-tech text-volt-400 font-bold">Tomorrow 06:30 AM</span>
+                                    <span className="font-tech text-volt-400 font-bold">Tomorrow 08:30 AM</span>
                                 </div>
 
                                 <div className="p-4 rounded-2xl bg-obsidian-900 border border-white/10 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2.5 rounded-xl bg-cyber-500/10 text-cyber-400">
-                                            <FaGamepad className="text-lg" />
+                                            <FiTarget className="text-lg" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-white text-sm">Tier-1 240Hz Team Scrimmage</p>
-                                            <p className="text-slate-400 mt-0.5">Scrim Lab Pod #4 • Tyler 'ApexK' Ray</p>
+                                            <p className="font-bold text-white text-sm">Target Paper Match Scoring Simulation</p>
+                                            <p className="text-slate-400 mt-0.5">Target Scoring Bay • Coach Vikram Singh</p>
                                         </div>
                                     </div>
-                                    <span className="font-tech text-cyber-400 font-bold">Friday 04:00 PM</span>
+                                    <span className="font-tech text-cyber-400 font-bold">Friday 04:30 PM</span>
                                 </div>
                             </div>
                         </div>
@@ -228,9 +229,9 @@ const UserDashboard = () => {
                     <h3 className="font-display font-black text-xl text-white">Your Enrolled Training Drills</h3>
                     <div className="space-y-4 text-xs">
                         {[
-                            { name: 'Speed Agility & Sprint Deceleration', time: 'Monday & Wednesday • 06:00 AM', coach: 'Coach Elena Rostova', room: 'Gym Sprint Track' },
-                            { name: 'Tactical Set-Piece Practice', time: 'Tuesday & Thursday • 07:00 AM', coach: 'Coach Marcus Vance', room: 'Football Turf #1' },
-                            { name: 'Aim Reflex & VOD Review', time: 'Friday • 04:30 PM', coach: 'Tyler Ray', room: 'Esports Scrim Lab' }
+                            { name: '10M Air Rifle Sight Alignment & NPA Drill', time: 'Monday & Wednesday • 08:30 AM', coach: 'Coach Rajesh Sharma', room: 'Rifle Range Lane #4' },
+                            { name: '10M Air Pistol Trigger Rhythm & Hold Stability', time: 'Tuesday & Thursday • 04:30 PM', coach: 'Coach Vikram Singh', room: 'Pistol Range Lane #2' },
+                            { name: 'Match Target Paper Scoring & Scatt Analysis', time: 'Saturday • 10:00 AM', coach: 'Coach Rahul Nair', room: 'Biomechanics Target Bay' }
                         ].map((d, i) => (
                             <div key={i} className="p-4 rounded-2xl bg-obsidian-900 border border-white/10 flex items-center justify-between">
                                 <div>
@@ -249,8 +250,8 @@ const UserDashboard = () => {
                 <div className="bg-obsidian-850 rounded-3xl p-6 sm:p-8 border border-white/10 shadow-xl space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="font-display font-black text-2xl text-white">Active Arena Membership</h3>
-                            <p className="text-xs text-slate-400 mt-0.5">Tier: Pro Athlete & Gamer Pass (Monthly Standard)</p>
+                            <h3 className="font-display font-black text-2xl text-white">Active Shooting Membership</h3>
+                            <p className="text-xs text-slate-400 mt-0.5">Tier: 10M Precision Athlete • Monthly Training (₹4,700/mo) | Annual Reg (₹5,000/yr)</p>
                         </div>
                         <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-volt-500/20 text-volt-400 border border-volt-500/40">
                             Active & Verified
@@ -260,14 +261,14 @@ const UserDashboard = () => {
                     <div className="p-6 rounded-2xl bg-obsidian-900 border border-white/10 grid sm:grid-cols-3 gap-4 text-xs">
                         <div>
                             <span className="text-slate-400 block font-bold">Shift Timing:</span>
-                            <span className="text-white font-tech font-bold text-sm">Full-Day Pro (06:00 AM - 11:00 PM)</span>
+                            <span className="text-white font-tech font-bold text-sm">8:00 AM - 8:00 PM (1 to 1.5 Hrs Daily)</span>
                         </div>
                         <div>
-                            <span className="text-slate-400 block font-bold">Pass Expiration:</span>
-                            <span className="text-white font-tech font-bold text-sm">28 Days Remaining</span>
+                            <span className="text-slate-400 block font-bold">Pass Status:</span>
+                            <span className="text-white font-tech font-bold text-sm">Annual Reg & Monthly Paid</span>
                         </div>
                         <div>
-                            <span className="text-slate-400 block font-bold">Dedicated Gear Locker:</span>
+                            <span className="text-slate-400 block font-bold">Dedicated Range Locker:</span>
                             <span className="text-volt-400 font-bold text-sm">Locker #L-42 (Assigned)</span>
                         </div>
                     </div>

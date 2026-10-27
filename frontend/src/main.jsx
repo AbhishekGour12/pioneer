@@ -9,7 +9,7 @@ import { Store } from './store/Store.js'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then((reg) => {
-      console.log('PlayPeak PWA Service Worker Active');
+      console.log('Pioneer Academy PWA Service Worker Active');
     }).catch((err) => {
       console.log('SW registration:', err);
     });

@@ -1,4 +1,4 @@
-// pages/BookDetail.jsx - PlayPeak Sports Facility & Program Deep Dive
+// pages/BookDetail.jsx - Pioneer Rifle Shooting Academy Facility & Program Deep Dive
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
@@ -15,93 +15,117 @@ import {
   FiActivity,
   FiMapPin,
   FiPhone,
-  FiCheck
+  FiCheck,
+  FiTarget
 } from 'react-icons/fi';
-import { FaFutbol, FaGamepad, FaBasketballBall, FaDumbbell, FaSwimmer } from 'react-icons/fa';
-import { GiCricketBat, GiShuttlecock, GiPunchingBag, GiTennisRacket, GiWhistle } from 'react-icons/gi';
+import { FaTrophy } from 'react-icons/fa';
+import { GiWhistle, GiMedal, GiLaurelCrown } from 'react-icons/gi';
 
 const BookDetail = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('curriculum');
   const [enrolled, setEnrolled] = useState(false);
 
-  // Sports Programs & Facilities Database
+  // Shooting Programs & Facilities Database
   const programsDb = {
     "1": {
-      title: "FIFA-Standard Pro Turf Football Arena & Elite Coaching",
-      coach: "Coach Marcus Vance (UEFA Pro License)",
-      category: "Football / Soccer",
-      duration: "8 Weeks Cohort (3 Sessions / Week)",
-      level: "Advanced / Semi-Pro",
-      availableSlots: 4,
-      totalSlots: 16,
+      title: "10M Olympic Air Rifle Precision Championship Program",
+      coach: "Coach Rajesh Sharma (ISSF / NRAI)",
+      category: "10M Rifle Shooting",
+      duration: "Daily Sessions (8:00 AM - 8:00 PM • 1 to 1.5 Hrs)",
+      level: "Beginner to Championship",
+      availableSlots: 6,
+      totalSlots: 12,
       rating: 4.9,
-      hourlyRate: "₹1,200 / hr",
-      image: "/images/sports-football-turf.jpg",
-      description: "A comprehensive high-intensity football curriculum and arena rental setup designed for ambitious players and teams. Learn the art of breaking low-blocks, half-space penetration, timing explosive runs, and clinical one-touch finishing inside the box on our FIFA-certified 50mm monofilament turf.",
-      methodology: "Key Facility & Training Highlights:\n• 105m x 68m full FIFA-certified turf with 500 Lux anti-glare broadcast floodlights.\n• Master clinical one-touch finishing under live defense pressure and speed gate timing.\n• High-definition cameras for weekly tactical video breakdowns and scout showcases.",
+      hourlyRate: "Included in Pass (₹4,700/mo)",
+      image: "/images/shooting/shooting-squad-steps.jpg",
+      description: "Olympic-spec 10M air rifle training focusing on stance alignment, cheekpiece geometry, natural point of aim (NPA), breath control, and consistent 10.9 shot release. Weapons, match pellets, and target papers are all included.",
+      methodology: "Key Facility & Training Highlights:\n• 12 dedicated 10-meter shooting lanes with motorized paper target retrieval.\n• Master steady hold and trigger release under live match competition timing.\n• High-definition SCATT laser tracing for sighting stability and zero recoil follow-through.",
       modules: [
-        "First-Touch Control & Body Orientation in Tight Spaces (Week 1-2)",
-        "Counter-Pressing Triggers & Spatial Exploitation (Week 3-4)",
-        "Set-Piece Specialization: Free Kicks, Penalties & Tactical Sets (Week 5)",
-        "Match Simulation & Scout Showcase Tournament (Week 6-8)"
+        "Shooting Jacket & Rifle Sling Fitment Biomechanics (Week 1-2)",
+        "Natural Point of Aim (NPA) & Sight Picture Alignment (Week 3-4)",
+        "Trigger Squeeze Rhythm & Smooth Follow-Through (Week 5-6)",
+        "State & National Championship 60-Shot Match Simulations (Week 7-8)"
       ],
       gearRequired: [
-        "Molded synthetic turf football boots (AG/FG studs)",
-        "PlayPeak Official Training Jersey & Bibs (Provided on enrollment)",
-        "Ankle compression sleeves & shin guards",
-        "Personal GPS tracker vest (Provided for biometric speed tracking)"
+        "Flat-soled athletic shoes or shooting boots",
+        "Pioneer Shooting Academy Official Jersey (Provided on enrollment)",
+        "Match-grade air rifles, pellets, and target papers (Provided by academy)",
+        "Eye blinder / shooting glasses (Provided or personal)"
       ]
     },
     "2": {
-      title: "Ranji-Spec Pro Cricket Nets & Automated Bowling Lab",
-      coach: "Coach Vikram Singh (BCCI Certified)",
-      category: "Cricket",
-      duration: "6 Weeks (4 Sessions / Week)",
-      level: "Intermediate - Pro",
-      availableSlots: 6,
-      totalSlots: 20,
+      title: "10M Olympic Air Pistol Stance & Trigger Control Program",
+      coach: "Coach Vikram Singh (National Medalist)",
+      category: "10M Pistol Shooting",
+      duration: "Daily Sessions (8:00 AM - 8:00 PM • 1 to 1.5 Hrs)",
+      level: "Beginner to Advanced",
+      availableSlots: 8,
+      totalSlots: 12,
       rating: 4.9,
-      hourlyRate: "₹900 / hr",
-      image: "/images/playpeak/prog-cricket.jpg",
-      description: "Premier cricket training facility equipped with programmable bowling machines (up to 155 km/h spin & swing) and high-speed slow-motion video analysis to hone your stance, trigger movement, and power hitting.",
-      methodology: "Key Training Takeaways:\n• 4 natural red clay match pitches and 2 heavy-duty AstroTurf all-weather nets.\n• Merlin & Bola automated bowling machines with customizable swing and pace.\n• Speed radar guns tracking bowler release speeds and bowling biomechanics.",
+      hourlyRate: "Included in Pass (₹4,700/mo)",
+      image: "/images/shooting/shooting-podium-girls.jpg",
+      description: "Comprehensive 10M Air Pistol mastery developing single-handed isometric hold stability, front sight focus on the black bullseye, and smooth trigger release without jerking.",
+      methodology: "Key Training Takeaways:\n• Custom anatomical grip fitment matching athlete hand anatomy.\n• Front sight elevation control and stable shoulder locking.\n• Timed match series simulation under ISSF 60-shot qualification rules.",
       modules: [
-        "Batting Stance, Backlift & Front-Foot Drive Precision (Week 1)",
-        "Short-Pitch Defense & Pull/Hook Execution (Week 2-3)",
-        "Spin Bowling Variation: Wrong-uns, Drifting & Dip (Week 4-5)",
-        "Match Scenarios & BCCI Trial Preparation (Week 6)"
+        "Anatomical Grip Customization & Arm Raise Trajectory (Week 1)",
+        "Front-Sight Focus & Sight Alignment Centering (Week 2-3)",
+        "Trigger Weight Sensitivity & Smooth Follow-Through (Week 4-5)",
+        "District & State Level Qualification Match Trials (Week 6)"
       ],
       gearRequired: [
-        "Personal cricket bat & spikes for turf nets",
-        "Full protective kit (Helmets, pads, gloves, chest guard)",
-        "PlayPeak white cricket training jersey",
-        "Hydration pack and sweatbands"
+        "Comfortable athletic shoes with solid flat sole",
+        "Pioneer Shooting Academy Training Kit",
+        "Match air pistol & ammunition pellets (Provided by academy)",
+        "Shooter logbook for shot grouping records"
       ]
     },
     "3": {
-      title: "FIBA-Certified Hardwood Basketball Arena & Guard Masterclass",
-      coach: "Coach David Miller (FIBA Level-2)",
-      category: "Basketball",
-      duration: "10 Weeks (3 Sessions / Week)",
-      level: "All Skill Levels",
-      availableSlots: 5,
+      title: "Beginner Safety, Stance & Foundation Shooting Course",
+      coach: "Coach Ananya Sen (Shooting Lead)",
+      category: "Beginner Foundation",
+      duration: "Daily Sessions (8:00 AM - 8:00 PM • 1 to 1.5 Hrs)",
+      level: "Zero Experience / Grassroots (Ages 8+)",
+      availableSlots: 6,
       totalSlots: 15,
-      rating: 4.8,
-      hourlyRate: "₹1,100 / hr",
-      image: "/images/sports-basketball-court.jpg",
-      description: "Train on shock-absorbing North American maple wood sprung floors. Develop the complete basketball toolkit from hesitation crossover dribbles against full-court presses to NBA-distance pull-up jumpers and perimeter defense.",
-      methodology: "Key Basketball Drills:\n• Two-ball coordination & tennis ball distraction handling drills.\n• Automated Noah shooting analytics tracking shot arc angle and entry depth.\n• High-tempo 3-on-3 transition and pick-and-roll reads.",
+      rating: 4.9,
+      hourlyRate: "Included in Pass (₹4,700/mo)",
+      image: "/images/shooting/shooting-team-trophy.jpg",
+      description: "The ideal starting point for youth and adults with zero prior shooting experience. Complete firearm safety protocols, master eye identification, posture balance, and your very first 10-ring bullseye shots.",
+      methodology: "Key Beginner Drills:\n• Comprehensive range safety rules & weapon handling discipline.\n• Master eye testing and sighting geometry explanation.\n• Daily personalized coaching on trigger press and steady breathing.",
       modules: [
-        "Handle & Deceleration: Shifty Changes of Pace (Week 1-3)",
-        "Shooting Pocket Mechanics & Catch-and-Shoot Rhythm (Week 4-6)",
-        "Pick & Roll Mastery: Pocket Passes, Floaters & Lob Reads (Week 7-8)",
-        "Full-Court 5-on-5 Competitive League Play (Week 9-10)"
+        "Range Safety Rules & Firearm Etiquette (Week 1)",
+        "Master Eye Determination & Sight Picture Fundamentals (Week 2)",
+        "Body Stance Balance & Diaphragmatic Breath Rhythm (Week 3-4)",
+        "Scoring & Evaluation on 10M Target Papers (Week 5-6)"
       ],
       gearRequired: [
-        "Indoor basketball high-top shoes with non-marking gum soles",
-        "PlayPeak Reversible Basketball Training Uniform",
-        "Athletic knee sleeves & mouthguard"
+        "Standard sports attire and flat sneakers",
+        "All weapons, pellets, and target papers provided by academy",
+        "Beginner progress passport"
+      ]
+    },
+    "4": {
+      title: "SCATT Laser Sighting & Biomechanics Alignment Studio",
+      coach: "Coach Rahul Nair (Biomechanics)",
+      category: "Biomechanics Lab",
+      duration: "Integrated into Daily Sessions",
+      level: "All Trainees",
+      availableSlots: 5,
+      totalSlots: 10,
+      rating: 4.9,
+      hourlyRate: "Included in Pass (₹4,700/mo)",
+      image: "/images/shooting/shooting-squad-outdoor.jpg",
+      description: "High-tech optoelectronic trace analysis mapping sight sway, hold steadiness, and trigger release execution in real-time to convert 9s into steady 10.5+ inner 10s.",
+      methodology: "Key Science Metrics:\n• 1.0s pre-trigger hold stability tracking.\n• Tremor reduction and heart rate pause synchronization.\n• Shot group displacement diagnostics.",
+      modules: [
+        "Hold Stability Mapping & Natural Point of Aim Alignment",
+        "Trigger Jerk Identification & Smooth Release Synchronization",
+        "Heart Rate & Respiratory Pause Integration"
+      ],
+      gearRequired: [
+        "Shooting stance gear",
+        "All sensors, computers, and analysis software provided"
       ]
     }
   };
@@ -143,7 +167,7 @@ const BookDetail = () => {
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs">
                 <span className="flex items-center gap-1 font-semibold">
-                  <FiMapPin className="text-[#FF6A1A]" /> PlayPeak Arena Campus
+                  <FiMapPin className="text-[#FF6A1A]" /> Pioneer Shooting Range, Mahalaxmi Nagar
                 </span>
                 <span className="bg-emerald-500 text-white px-2.5 py-1 rounded-full font-bold text-[11px]">
                   {program.hourlyRate}
@@ -168,6 +192,14 @@ const BookDetail = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">Batch Availability:</span>
                   <strong className="text-[#FF6A1A] font-bold">{program.availableSlots} of {program.totalSlots} Slots Open</strong>
+                </div>
+                <div className="flex items-center justify-between border-t border-slate-200/60 pt-2">
+                  <span className="text-slate-500">Annual Reg. Fee:</span>
+                  <strong className="text-slate-800">₹5,000 (One-Time / Year)</strong>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Monthly Training Fee:</span>
+                  <strong className="text-emerald-600 font-bold">₹4,700 / mo (All Consumables Included)</strong>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">Rating:</span>

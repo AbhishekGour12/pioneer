@@ -22,7 +22,7 @@ import {
     FiDownload,
     FiCopy
 } from 'react-icons/fi';
-import { FaFutbol, FaGamepad, FaBasketballBall, FaQrcode } from 'react-icons/fa';
+import { FaQrcode } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { attendanceinfo } from '../features/attendance';
@@ -31,7 +31,7 @@ import jsPDF from 'jspdf';
 const url = import.meta.env.VITE_API_URL;
 const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
 const qrReaderId = "qr-code-reader";
-const PLAYPEAK_QR_URL = "https://playpeak.vercel.app/qr-checkin";
+const PIONEER_QR_URL = typeof window !== 'undefined' ? `${window.location.origin}/qr-checkin` : "https://pioneershooting.in/qr-checkin";
 
 const QRCheckIn = () => {
     const [scanResult, setScanResult] = useState('');
@@ -39,16 +39,16 @@ const QRCheckIn = () => {
     const [attendanceStatus, setAttendanceStatus] = useState(null);
     const [userLocation, setUserLocation] = useState({ lat: 22.7569, lng: 75.8697 });
     const [actionType, setActionType] = useState('checkin');
-    const [selectedSector, setSelectedSector] = useState('Football Turf #1');
+    const [selectedSector, setSelectedSector] = useState('10M Rifle Shooting Range (Lane 1-8)');
     const [cameraActive, setCameraActive] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [gateQrDataUrl, setGateQrDataUrl] = useState('');
     const [copiedLink, setCopiedLink] = useState(false);
 
     const [attendanceHistory, setAttendanceHistory] = useState([
-        { id: 1, type: 'checkin', sector: 'Football Turf #1', time: 'Today, 06:15 AM', status: 'Verified' },
-        { id: 2, type: 'checkout', sector: 'Strength & Biomechanics Gym', time: 'Yesterday, 08:30 PM', status: 'Completed' },
-        { id: 3, type: 'checkin', sector: 'Badminton Court #2', time: 'Yesterday, 04:00 PM', status: 'Verified' }
+        { id: 1, type: 'checkin', sector: '10M Rifle Shooting Range (Lane 1-8)', time: 'Today, 08:15 AM', status: 'Verified' },
+        { id: 2, type: 'checkout', sector: '10M Pistol Shooting Range (Lane 9-16)', time: 'Yesterday, 07:30 PM', status: 'Completed' },
+        { id: 3, type: 'checkin', sector: 'Beginner Training Bay & Simulator', time: 'Yesterday, 04:00 PM', status: 'Verified' }
     ]);
 
     const qrScannerRef = useRef(null);
@@ -56,17 +56,17 @@ const QRCheckIn = () => {
     const user = useSelector((state) => state.user?.value) || JSON.parse(localStorage.getItem('libraryUser') || '{}');
 
     const arenaSectors = [
-        'Football Synthetic Turf #1',
-        'Olympic Swimming Pool #2',
-        'Hardwood Basketball Court #3',
-        'Strength & Biomechanics Gym #4',
-        'Badminton & Tennis Arena #5',
-        'Cricket Pitch & Practice Nets #6'
+        '10M Rifle Shooting Range (Lane 1-8)',
+        '10M Pistol Shooting Range (Lane 9-16)',
+        'Beginner Training Bay & Simulator',
+        'Electronic Target System (SIUS)',
+        'Armory & Weapon Maintenance Bay',
+        'Physical Conditioning & Biomechanics Area'
     ];
 
-    // Generate Gate Entry QR Code for playpeak.vercel.app/qr-checkin
+    // Generate Gate Entry QR Code for pioneer shooting checkin
     useEffect(() => {
-        const fullLink = `${PLAYPEAK_QR_URL}?athlete=${encodeURIComponent(user.name || 'Pro Athlete')}&sector=${encodeURIComponent(selectedSector)}`;
+        const fullLink = `${PIONEER_QR_URL}?athlete=${encodeURIComponent(user.name || 'Pioneer Shooter')}&sector=${encodeURIComponent(selectedSector)}`;
         QRCode.toDataURL(fullLink, {
             width: 320,
             margin: 2,
@@ -168,7 +168,7 @@ const QRCheckIn = () => {
     };
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(PLAYPEAK_QR_URL);
+        navigator.clipboard.writeText(PIONEER_QR_URL);
         setCopiedLink(true);
         setTimeout(() => setCopiedLink(false), 3000);
     };
@@ -177,7 +177,7 @@ const QRCheckIn = () => {
         if (!gateQrDataUrl) return;
         const link = document.createElement('a');
         link.href = gateQrDataUrl;
-        link.download = `PlayPeak_Gate_QR_Pass.png`;
+        link.download = `Pioneer_Shooting_Range_Pass.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -191,14 +191,14 @@ const QRCheckIn = () => {
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-[#FF6A1A]/30">
                     <span className="w-2 h-2 rounded-full bg-[#FF6A1A] animate-pulse" />
                     <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A1A]">
-                        PLAYPEAK ARENA GATE ACCESS & SCANNER
+                        PIONEER RIFLE SHOOTING ACADEMY - RANGE GATE ACCESS
                     </span>
                 </div>
                 <h1 className="font-display text-4xl sm:text-5xl font-black text-white leading-tight">
-                    Athlete Digital Turnstile Gate
+                    Shooter Digital Turnstile Gate
                 </h1>
                 <p className="text-slate-300 text-sm sm:text-base">
-                    Official QR Access URL: <span className="font-mono text-[#FF6A1A] font-bold">https://playpeak.vercel.app/qr-checkin</span>
+                    Official Range Access URL: <span className="font-mono text-[#FF6A1A] font-bold">{PIONEER_QR_URL}</span>
                 </p>
             </div>
 
@@ -257,25 +257,25 @@ const QRCheckIn = () => {
                                     <FiCamera />
                                 </div>
                                 <div>
-                                    <p className="font-display font-bold text-white text-base">Arena Turnstile Camera Scanner</p>
+                                    <p className="font-display font-bold text-white text-base">Range Turnstile Camera Scanner</p>
                                     <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                                        Scan the official PlayPeak QR code mounted on turnstile or player pass to record entry.
-                                    </p>
-                                </div>
-                                <div className="flex flex-wrap gap-3 justify-center pt-2">
-                                    <button
-                                        onClick={startScanner}
-                                        className="px-6 py-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-black text-xs shadow-lg shadow-orange-500/20 hover:opacity-90 transition-all"
-                                    >
-                                        Launch Scanner Camera
-                                    </button>
-                                    <button
-                                        onClick={handleManualSimulatedCheckin}
-                                        className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold text-xs transition-colors"
-                                    >
-                                        One-Tap Gate Unlock
-                                    </button>
-                                </div>
+                                         Scan the official Pioneer Shooting Range QR code mounted on turnstile or shooter pass to record entry.
+                                     </p>
+                                 </div>
+                                 <div className="flex flex-wrap gap-3 justify-center pt-2">
+                                     <button
+                                         onClick={startScanner}
+                                         className="px-6 py-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-black text-xs shadow-lg shadow-orange-500/20 hover:opacity-90 transition-all"
+                                     >
+                                         Launch Scanner Camera
+                                     </button>
+                                     <button
+                                         onClick={handleManualSimulatedCheckin}
+                                         className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold text-xs transition-colors"
+                                     >
+                                         One-Tap Gate Unlock
+                                     </button>
+                                 </div>
                             </div>
                         )}
 
@@ -312,7 +312,7 @@ const QRCheckIn = () => {
                             <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-[#FF6A1A] animate-ping" />
                                 <span className="text-xs font-black text-[#FF6A1A] uppercase tracking-widest">
-                                    PLAYPEAK GATE PASS QR
+                                    PIONEER RANGE PASS QR
                                 </span>
                             </div>
                             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-orange-500/20 text-[#FF6A1A] border border-orange-500/30 font-bold">
@@ -333,10 +333,10 @@ const QRCheckIn = () => {
 
                         <div className="space-y-1">
                             <h3 className="font-display font-black text-xl text-white">
-                                {user.name || 'Pro Athlete Pass'}
+                                {user.name || 'Pioneer Shooter Pass'}
                             </h3>
                             <p className="text-xs font-mono text-[#FF6A1A] truncate">
-                                https://playpeak.vercel.app/qr-checkin
+                                {PIONEER_QR_URL}
                             </p>
                         </div>
 

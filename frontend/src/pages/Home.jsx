@@ -19,20 +19,14 @@ import {
     FiChevronDown
 } from 'react-icons/fi';
 import { 
-    FaFutbol, 
-    FaBasketballBall, 
     FaTrophy, 
-    FaSwimmer,
-    FaRunning
+    FaMedal
 } from 'react-icons/fa';
 import { 
-    GiCricketBat, 
-    GiShuttlecock, 
-    GiTennisRacket, 
     GiWhistle,
     GiLaurelCrown
 } from 'react-icons/gi';
-import { MdOutlineSportsScore, MdOutlineEmojiEvents, MdOutlineFitnessCenter, MdOutlineStadium } from 'react-icons/md';
+import { MdOutlineSportsScore, MdOutlineEmojiEvents } from 'react-icons/md';
 
 const Home = () => {
     const videoRef = useRef(null);
@@ -163,54 +157,54 @@ const Home = () => {
         }
     };
 
-    // 6 Sports Programs
+    // 6 Shooting Programs
     const sportsPrograms = [
         {
-            id: 'football',
-            title: 'Football',
-            subtitle: 'Discipline | Teamwork',
-            icon: <FaFutbol className="text-white text-base" />,
-            image: '/images/playpeak/prog-football.jpg',
+            id: 'rifle',
+            title: 'Rifle Shooting',
+            subtitle: '10M Air Rifle Precision',
+            icon: <FiTarget className="text-white text-base" />,
+            image: '/images/shooting/program-rifle-10m.jpg',
             link: '/services'
         },
         {
-            id: 'cricket',
-            title: 'Cricket',
-            subtitle: 'Focus | Strategy',
-            icon: <GiCricketBat className="text-white text-base" />,
-            image: '/images/playpeak/prog-cricket.jpg',
+            id: 'pistol',
+            title: 'Pistol Shooting',
+            subtitle: '10M Air Pistol Control',
+            icon: <FiTarget className="text-white text-base" />,
+            image: '/images/shooting/program-pistol-10m.jpg',
             link: '/services'
         },
         {
-            id: 'badminton',
-            title: 'Badminton',
-            subtitle: 'Speed | Agility',
-            icon: <GiShuttlecock className="text-white text-base" />,
-            image: '/images/playpeak/prog-badminton.jpg',
+            id: 'beginner',
+            title: 'Beginner Training',
+            subtitle: 'Foundation & Safety',
+            icon: <GiWhistle className="text-white text-base" />,
+            image: '/images/shooting/program-beginner-course.jpg',
             link: '/services'
         },
         {
-            id: 'basketball',
-            title: 'Basketball',
-            subtitle: 'Strength | Confidence',
-            icon: <FaBasketballBall className="text-white text-base" />,
-            image: '/images/playpeak/prog-basketball.jpg',
+            id: 'competition',
+            title: 'Championship Prep',
+            subtitle: 'State & National Trials',
+            icon: <FaTrophy className="text-white text-base" />,
+            image: '/images/shooting/program-championship-prep.jpg',
             link: '/services'
         },
         {
-            id: 'tennis',
-            title: 'Tennis',
-            subtitle: 'Precision | Patience',
-            icon: <GiTennisRacket className="text-white text-base" />,
-            image: '/images/playpeak/prog-tennis.jpg',
+            id: 'biomechanics',
+            title: 'Stance & Focus',
+            subtitle: 'Breath Control & IQ',
+            icon: <FiTarget className="text-white text-base" />,
+            image: '/images/shooting/program-stance-focus.jpg',
             link: '/services'
         },
         {
-            id: 'swimming',
-            title: 'Swimming',
-            subtitle: 'Endurance | Fitness',
-            icon: <FaSwimmer className="text-white text-base" />,
-            image: '/images/playpeak/prog-swimming.jpg',
+            id: 'daily-practice',
+            title: 'Daily Practice',
+            subtitle: '1 to 1.5 Hours Sessions',
+            icon: <FiCheck className="text-white text-base" />,
+            image: '/images/shooting/program-daily-practice.jpg',
             link: '/services'
         }
     ];
@@ -219,49 +213,49 @@ const Home = () => {
     const galleryItems = [
         {
             id: 1,
-            image: '/images/playpeak/gallery-football.jpg',
-            title: 'Football Agility Drills'
+            image: '/images/shooting/program-championship-prep.jpg',
+            title: 'Pioneer Championship Victory & 1st Place Podium'
         },
         {
             id: 2,
-            image: '/images/playpeak/gallery-cricket.jpg',
-            title: 'Cricket Batting Practice'
+            image: '/images/shooting/program-rifle-10m.jpg',
+            title: '10M Precision Air Rifle Champion - Pioneer Squad'
         },
         {
             id: 3,
-            image: '/images/playpeak/gallery-swimming.jpg',
-            title: 'Swimming Championship Laps'
+            image: '/images/shooting/program-pistol-10m.jpg',
+            title: '10M Air Pistol State Medalist - Pioneer Shooter'
         },
         {
             id: 4,
-            image: '/images/playpeak/gallery-basketball.jpg',
-            title: 'Sunset Basketball Session'
+            image: '/images/shooting/program-daily-practice.jpg',
+            title: 'Pioneer Shooting Academy Daily Range Practice'
         },
         {
             id: 5,
-            image: '/images/playpeak/gallery-team.jpg',
-            title: 'Team Strategy & Spirit'
+            image: '/images/shooting/program-beginner-course.jpg',
+            title: 'Expert Coach Mentoring Junior Shooter at Range'
         }
     ];
 
     // Testimonials
     const testimonials = [
         {
-            quote: "An amazing place for young athletes. My son has improved so much in both skills and confidence.",
+            quote: "Pioneer Rifle Shooting Academy transformed my precision and mental focus. The coaches gave me personalized trigger guidance that helped me qualify for the State Championship.",
             author: "Priya Sharma",
-            role: "Parent of U14 Football Player",
+            role: "10M Air Rifle Junior Shooter",
             avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80"
         },
         {
-            quote: "Great coaches, excellent facilities and a motivating environment.",
+            quote: "We don't just teach shooting, we build champions is truly lived here. Weapons, pellets, and target papers are all provided so athletes can focus purely on excellence.",
             author: "Rohan Mehta",
-            role: "Student - Cricket Program",
+            role: "Parent of Pistol Shooter",
             avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80"
         },
         {
-            quote: "PlayPeak is not just about sports, it's about building character.",
+            quote: "Flexible timings from 8:00 AM to 8:00 PM make it easy to practice 1.5 hours daily alongside school studies. Best shooting range in Indore!",
             author: "Amit Verma",
-            role: "Parent of U12 Basketball Player",
+            role: "Student - 10M Air Pistol Program",
             avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"
         }
     ];
@@ -283,9 +277,9 @@ const Home = () => {
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
                 >
-                    <source src="/Create_a_premium_cinematic_–_.mp4" type="video/mp4" />
+                    <source src="/gemini_generated_video_bde3031e.mp4" type="video/mp4" />
                     {/* Fallback image if video cannot play */}
-                    <img src="/images/playpeak/hero-football.jpg" alt="PlayPeak Sports Academy" className="w-full h-full object-cover" />
+                    <img src="/images/shooting/program-championship-prep.jpg" alt="Pioneer Rifle Shooting Academy Champions" className="w-full h-full object-cover" />
                 </video>
 
                 {/* Dark Vignette and Gradient Overlays for High-Contrast Text Legibility */}
@@ -295,10 +289,10 @@ const Home = () => {
                 {/* Subtle Radial Glow */}
                 <div className="absolute top-10 left-10 w-96 h-96 bg-[#FF6A1A]/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Script Watermark in Background Right: "More Than Sports" */}
+                {/* Script Watermark in Background Right: "Shoot Then Lead" */}
                 <div className="hidden lg:block absolute top-12 right-1/4 pointer-events-none select-none z-10 opacity-70">
                     <span className="font-script text-6xl xl:text-7xl text-white/40 tracking-wide rotate-[-8deg] block drop-shadow-md">
-                        More<br />Than<br />Sports
+                        Shoot<br />Then<br />Lead
                     </span>
                 </div>
 
@@ -309,23 +303,23 @@ const Home = () => {
                         {/* Left Hero Content */}
                         <div className="lg:col-span-7 space-y-6">
                             
-                            {/* Orange Sub-heading kicker */}
+                            {/* Sub-heading kicker */}
                             <div className="flex items-center gap-2">
                                 <span className="text-[11px] sm:text-xs font-bold text-[#FF6A1A] tracking-[0.25em] uppercase">
-                                    DISCIPLINE • FITNESS • BETTER TOMORROW
+                                    AIM • FOCUS • DISCIPLINE • EXCELLENCE
                                 </span>
                             </div>
 
-                            {/* Massive Headline */}
+                            {/* Headline */}
                             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.08] tracking-tight drop-shadow-sm">
-                                Train Today <br />
-                                for a <span className="text-[#FF6A1A]">Brighter</span> <br />
-                                Tomorrow
+                                Shoot Today, <br />
+                                Then <span className="text-[#FF6A1A]">Lead</span> <br />
+                                Tomorrow.
                             </h1>
 
                             {/* Paragraph description */}
                             <p className="text-slate-200 text-sm sm:text-base max-w-lg leading-relaxed font-normal drop-shadow-sm">
-                                Join our professional sports academy and unlock your potential with world-class coaching, modern facilities and a supportive community.
+                                At Pioneer Rifle Shooting Academy, we provide a professional, disciplined and focused training environment for aspiring shooters.
                             </p>
 
                             {/* CTA Action Buttons & Video Controls */}
@@ -374,38 +368,38 @@ const Home = () => {
                                         <GiWhistle className="text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-white leading-tight">Expert Coaches</h4>
-                                        <p className="text-[11px] text-slate-300">Certified & Experienced</p>
+                                        <h4 className="text-sm font-bold text-white leading-tight">Academy Timings</h4>
+                                        <p className="text-[11px] text-slate-300">8:00 AM TO 8:00 PM (All Days)</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3.5 pb-3 border-b border-white/10">
                                     <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg shrink-0">
-                                        <MdOutlineStadium className="text-white" />
+                                        <FiTarget className="text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-white leading-tight">Modern Facilities</h4>
-                                        <p className="text-[11px] text-slate-300">World-class Infrastructure</p>
+                                        <h4 className="text-sm font-bold text-white leading-tight">Daily Practice Sessions</h4>
+                                        <p className="text-[11px] text-slate-300">Duration: 1 to 1.5 Hours</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3.5 pb-3 border-b border-white/10">
                                     <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg shrink-0">
-                                        <FaRunning className="text-white" />
+                                        <FaTrophy className="text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-white leading-tight">Holistic Development</h4>
-                                        <p className="text-[11px] text-slate-300">Sports + Discipline + Life Skills</p>
+                                        <h4 className="text-sm font-bold text-white leading-tight">Fee Structure</h4>
+                                        <p className="text-[11px] text-slate-300">Annual Reg: ₹5,000 | Monthly: ₹4,700</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3.5">
                                     <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg shrink-0">
-                                        <FaTrophy className="text-white" />
+                                        <FiCheck className="text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-white leading-tight">Competitive Opportunities</h4>
-                                        <p className="text-[11px] text-slate-300">Tournaments & Exposure</p>
+                                        <h4 className="text-sm font-bold text-white leading-tight">Training Fee Includes</h4>
+                                        <p className="text-[11px] text-slate-300">Pellets, Targets, Weapons & Coaching</p>
                                     </div>
                                 </div>
 
@@ -469,10 +463,10 @@ const Home = () => {
                                 </span>
                             </div>
                             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                                Explore Our Sports Programs
+                                Explore Our Shooting Programs
                             </h2>
                             <p className="text-slate-500 text-sm mt-1">
-                                Train in your passion with expert coaching and structured programs for all age groups.
+                                Train in precision shooting with expert coaching and structured programs for all age groups.
                             </p>
                         </div>
 
@@ -480,7 +474,7 @@ const Home = () => {
                             to="/services"
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-300 hover:border-slate-800 text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm transition-all"
                         >
-                            View All Sports <FiArrowRight />
+                            View All Programs <FiArrowRight />
                         </Link>
                     </div>
 
@@ -547,17 +541,7 @@ const Home = () => {
                                 </div>
                                 <div className="text-left">
                                     <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">500+</p>
-                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Students Trained</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-3 justify-center sm:justify-start">
-                                <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xl text-slate-300">
-                                    <FiUserCheck />
-                                </div>
-                                <div className="text-left">
-                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">20+</p>
-                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Expert Coaches</p>
+                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Shooters Trained</p>
                                 </div>
                             </div>
 
@@ -566,8 +550,18 @@ const Home = () => {
                                     <FiTarget />
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">10+</p>
-                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Sports Programs</p>
+                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">8 AM - 8 PM</p>
+                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Open All Days</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 justify-center sm:justify-start">
+                                <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xl text-slate-300">
+                                    <FiAward />
+                                </div>
+                                <div className="text-left">
+                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">1 - 1.5 Hrs</p>
+                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Daily Practice</p>
                                 </div>
                             </div>
 
@@ -576,8 +570,8 @@ const Home = () => {
                                     <FaTrophy />
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">15+</p>
-                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Tournaments Annually</p>
+                                    <p className="font-display text-2xl sm:text-3xl font-black text-white leading-none">₹4,700</p>
+                                    <p className="text-[11px] text-slate-400 mt-1 font-medium">Monthly All-Inclusive</p>
                                 </div>
                             </div>
 
@@ -593,7 +587,7 @@ const Home = () => {
                                     Building Champions
                                 </h4>
                                 <p className="text-xs font-semibold text-orange-100">
-                                    On & Off The Field
+                                    Discipline • Focus • Success
                                 </p>
                             </div>
                         </div>
@@ -615,17 +609,17 @@ const Home = () => {
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
                                 <span className="text-xs font-bold uppercase tracking-wider text-[#FF6A1A]">
-                                    ABOUT PLAYPEAK
+                                    ABOUT PIONEER RIFLE SHOOTING ACADEMY
                                 </span>
                             </div>
 
                             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                                More Than an Academy <br />
-                                A Community
+                                Shoot Today, <br />
+                                Then Lead Tomorrow
                             </h2>
 
                             <p className="text-slate-600 text-sm leading-relaxed">
-                                At PlayPeak Sports Academy, we believe sports shape better humans. Our mission is to nurture talent, build character and create opportunities for every aspiring athlete.
+                                At Pioneer Rifle Shooting Academy, we provide a professional, disciplined and focused training environment for aspiring shooters. We are committed to providing quality training and helping every shooter develop discipline, focus, and competitive shooting skills in a safe, professional and supportive environment.
                             </p>
 
                             <div className="pt-2">
@@ -642,17 +636,17 @@ const Home = () => {
                         <div className="lg:col-span-4 relative group">
                             <div className="rounded-3xl overflow-hidden shadow-lg border border-slate-200">
                                 <img
-                                    src="/images/playpeak/coach-guiding-kids.jpg"
-                                    alt="Coach guiding young athletes"
+                                    src="/images/shooting/program-beginner-course.jpg"
+                                    alt="Shooting mentor guiding young shooter"
                                     className="w-full h-80 sm:h-96 object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
 
                             {/* Floating bottom-right dark badge */}
-                            <div className="absolute bottom-4 right-4 bg-[#0F172A]/90 backdrop-blur-md text-white p-3.5 rounded-2xl border border-white/10 shadow-xl max-w-[180px]">
+                            <div className="absolute bottom-4 right-4 bg-[#0F172A]/90 backdrop-blur-md text-white p-3.5 rounded-2xl border border-white/10 shadow-xl max-w-[190px]">
                                 <div className="flex items-center justify-between gap-2">
                                     <p className="text-xs font-bold leading-snug">
-                                        Guiding Young Talent Every Step of the Way
+                                        We don't just teach shooting, we build champions.
                                     </p>
                                     <div className="w-6 h-6 rounded-full bg-white text-slate-900 flex items-center justify-center shrink-0">
                                         <FiChevronRight className="text-xs" />
@@ -669,33 +663,33 @@ const Home = () => {
                                     <GiWhistle />
                                 </div>
                                 <div>
-                                    <h4 className="font-display font-bold text-slate-900 text-sm">Professional Coaching</h4>
+                                    <h4 className="font-display font-bold text-slate-900 text-sm">Expert Coaching Support</h4>
                                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                                        Learn from certified and experienced coaches.
+                                        Certified national coaches for 10M air rifle & pistol guidance.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
-                                    <MdOutlineStadium />
+                                    <FiTarget />
                                 </div>
                                 <div>
-                                    <h4 className="font-display font-bold text-slate-900 text-sm">Modern Infrastructure</h4>
+                                    <h4 className="font-display font-bold text-slate-900 text-sm">Weapons & Equipment Provided</h4>
                                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                                        Top notch facilities for high-performance training.
+                                        Olympic-spec match rifles and pistols available for training.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
                                 <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
-                                    <FaRunning />
+                                    <FiCheck />
                                 </div>
                                 <div>
-                                    <h4 className="font-display font-bold text-slate-900 text-sm">Personal Growth</h4>
+                                    <h4 className="font-display font-bold text-slate-900 text-sm">Pellet Boxes & Target Papers</h4>
                                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                                        We focus on discipline, leadership and life skills.
+                                        All training consumables included in the monthly fee.
                                     </p>
                                 </div>
                             </div>
@@ -858,10 +852,10 @@ const Home = () => {
             {/* ========================================================================= */}
             <section className="relative overflow-hidden bg-[#0A0E17] text-white py-20 lg:py-24">
                 
-                {/* Background Runner Track Photo */}
+                {/* Background Shooting Championship Photo */}
                 <div 
                     className="absolute inset-0 bg-cover bg-center opacity-70"
-                    style={{ backgroundImage: `url('/images/playpeak/cta-runner.jpg')` }}
+                    style={{ backgroundImage: `url('/images/shooting/shooting-team-trophy.jpg')` }}
                 />
 
                 {/* Gradient Overlays */}
@@ -873,11 +867,11 @@ const Home = () => {
                         {/* Left Title and Subtitle */}
                         <div className="space-y-2 max-w-xl">
                             <h2 className="font-display text-3xl sm:text-5xl font-black text-white leading-tight">
-                                Your Sporting Journey <br />
+                                Your Shooting Journey <br />
                                 <span className="text-[#FF6A1A]">Starts Here</span>
                             </h2>
                             <p className="text-slate-300 text-sm sm:text-base font-normal">
-                                Take the first step towards a healthier, stronger and brighter future.
+                                Train Hard. Aim High. Achieve Excellence.
                             </p>
                         </div>
 
@@ -890,9 +884,9 @@ const Home = () => {
                                 Enquire Now <FiArrowRight className="text-base" />
                             </Link>
 
-                            {/* Script text below button: "Same Players Better People" */}
+                            {/* Script text below button */}
                             <span className="font-script text-2xl sm:text-3xl text-white/90 tracking-wide rotate-[-3deg] block">
-                                Same Players <span className="text-[#FF6A1A]">Better People</span>
+                                Shoot Today <span className="text-[#FF6A1A]">Lead Tomorrow</span>
                             </span>
                         </div>
 

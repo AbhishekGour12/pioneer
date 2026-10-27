@@ -1,4 +1,4 @@
-// pages/Gallery.jsx - PlayPeak Sports Academy Moments That Inspire
+// pages/Gallery.jsx - Pioneer Rifle Shooting Academy Moments That Inspire
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -16,79 +16,76 @@ const Gallery = () => {
 
   const categories = [
     'All',
-    'Football',
-    'Cricket',
-    'Badminton',
-    'Basketball',
-    'Tennis',
-    'Swimming',
-    'Academy Life'
+    'Championship Victories',
+    'Podium Finishers',
+    'Team & Squad',
+    '10M Precision'
   ];
 
   const galleryItems = [
     {
       id: 1,
-      title: 'Youth Football Agility Cones Drill',
-      category: 'Football',
-      subtitle: 'Junior squad executing sprint and ball control drills on green turf',
-      image: '/images/playpeak/gallery-football.jpg',
-      badge: 'Turf Pitch #1'
+      title: '1st Golden Light Rifle Shooting Championship Winners',
+      category: 'Championship Victories',
+      subtitle: 'Pioneer Rifle Shooting Academy athletes proudly hoisting the overall championship trophy with coaches and teammates.',
+      image: '/images/shooting/shooting-team-trophy.jpg',
+      badge: 'Championship 1st Place'
     },
     {
       id: 2,
-      title: 'Cricket Batting Practice in Nets',
-      category: 'Cricket',
-      subtitle: 'Batsman mastering drive technique in dedicated practice nets',
-      image: '/images/playpeak/gallery-cricket.jpg',
-      badge: 'Cricket Net #2'
+      title: 'Podium Champions & Championship Cup',
+      category: 'Podium Finishers',
+      subtitle: 'Top shooting medalists standing on 1st place podium holding the tournament trophy and gold medals.',
+      image: '/images/shooting/shooting-winners-podium.jpg',
+      badge: 'Gold Medal Podium'
     },
     {
       id: 3,
-      title: 'Championship Swimming Laps',
-      category: 'Swimming',
-      subtitle: 'Competitive racer executing breaststroke in Olympic 50m pool',
-      image: '/images/playpeak/gallery-swimming.jpg',
-      badge: 'Aquatic Center'
+      title: 'State Women\'s 10M Shooting Medalists',
+      category: 'Podium Finishers',
+      subtitle: 'Pioneer female shooters sweeping the podium with gold, silver and bronze medals.',
+      image: '/images/shooting/shooting-podium-girls.jpg',
+      badge: 'Victory Stand'
     },
     {
       id: 4,
-      title: 'Sunset Outdoor Basketball Session',
-      category: 'Basketball',
-      subtitle: 'High-energy streetball scrimmage under the golden hour sky',
-      image: '/images/playpeak/gallery-basketball.jpg',
-      badge: 'Hardwood Court'
+      title: 'Championship Shooting Contingent & Medals Tally',
+      category: 'Team & Squad',
+      subtitle: 'The full tournament squad displaying their national and state medals alongside head coaches.',
+      image: '/images/shooting/shooting-squad-steps.jpg',
+      badge: 'Medals Tally'
     },
     {
       id: 5,
-      title: 'Head Coach Mentoring Youth Squad',
-      category: 'Academy Life',
-      subtitle: 'National coach instilling team spirit, tactical discipline and camaraderie',
-      image: '/images/playpeak/coach-guiding-kids.jpg',
-      badge: 'Team Huddle'
+      title: 'Pioneer Rifle Shooting Squad in Official Colors',
+      category: 'Team & Squad',
+      subtitle: 'Athletes in official shooting academy jerseys ready for tournament qualifiers.',
+      image: '/images/shooting/shooting-squad-outdoor.jpg',
+      badge: 'Official Squad'
     },
     {
       id: 6,
-      title: 'Tennis Serve & Volley Dynamics',
-      category: 'Tennis',
-      subtitle: 'Junior champion executing topspin serve on tournament blue court',
-      image: '/images/playpeak/prog-tennis.jpg',
-      badge: 'Center Court'
+      title: 'Young Precision Shooting Champion Trophy Moment',
+      category: 'Championship Victories',
+      subtitle: 'Honoring our rising junior precision shooter with the championship cup after an outstanding final round.',
+      image: '/images/shooting/shooting-team-trophy.jpg',
+      badge: 'Rising Star'
     },
     {
       id: 7,
-      title: 'Badminton Jump Smash Drill',
-      category: 'Badminton',
-      subtitle: 'Speed and aerial agility on indoor synthetic green court',
-      image: '/images/playpeak/prog-badminton.jpg',
-      badge: 'Indoor Arena'
+      title: 'Precision Focus & Match Day Triumph',
+      category: '10M Precision',
+      subtitle: 'Celebrating precision shooting discipline, dedication to stance, dry firing and match day victory.',
+      image: '/images/shooting/shooting-winners-podium.jpg',
+      badge: '10.9 Precision'
     },
     {
       id: 8,
-      title: 'Floodlit Evening Football Mastery',
-      category: 'Football',
-      subtitle: 'Dynamic dribbling under stadium floodlights during night session',
-      image: '/images/playpeak/hero-football.jpg',
-      badge: 'Night Training'
+      title: 'Women Shooters Precision Excellence',
+      category: '10M Precision',
+      subtitle: 'Inspiring the next generation of precision 10M air rifle and air pistol state medalists.',
+      image: '/images/shooting/shooting-podium-girls.jpg',
+      badge: 'State Champions'
     }
   ];
 
@@ -123,7 +120,7 @@ const Gallery = () => {
       <div className="relative bg-[#0A0E17] text-white py-20 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-35"
-          style={{ backgroundImage: `url('/images/playpeak/hero-football.jpg')` }}
+          style={{ backgroundImage: `url('/images/shooting/shooting-squad-outdoor.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#070A0F]/95 via-[#070A0F]/80 to-[#070A0F]/40" />
 
@@ -136,11 +133,11 @@ const Gallery = () => {
           </div>
 
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-            PlayPeak Academy <span className="text-[#FF6A1A]">Photo Gallery</span>
+            Pioneer Rifle Shooting Academy <span className="text-[#FF6A1A]">Gallery</span>
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            A glimpse into our intensive training sessions, tournaments, facilities, and inspiring student athlete victories.
+            Witness precision training, 10M rifle and pistol shooting sessions, national competitions, and champion shooter journeys.
           </p>
         </div>
       </div>

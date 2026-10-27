@@ -20,31 +20,22 @@ import {
     FiCheck,
     FiPhoneCall,
     FiHelpCircle,
-    FiSliders
+    FiSliders,
+    FiTarget
 } from 'react-icons/fi';
 import { 
-    FaFutbol, 
-    FaBasketballBall, 
-    FaSwimmer, 
-    FaDumbbell, 
     FaTrophy, 
-    FaGamepad,
     FaRegClock,
     FaLightbulb
 } from 'react-icons/fa';
 import { 
-    GiCricketBat, 
-    GiShuttlecock, 
-    GiTennisRacket, 
-    GiPunchingBag, 
     GiWhistle,
-    GiMedal
+    GiMedal,
+    GiLaurelCrown
 } from 'react-icons/gi';
 import { 
     MdOutlineStadium, 
     MdOutlineSportsScore, 
-    MdOutlineFitnessCenter, 
-    MdPool,
     MdSecurity
 } from 'react-icons/md';
 
@@ -62,273 +53,187 @@ const Catalog = () => {
     // Booking form state
     const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
     const [bookingSlot, setBookingSlot] = useState('Evening Prime (05:00 PM - 07:00 PM)');
-    const [playerCount, setPlayerCount] = useState('2-4 Players');
+    const [playerCount, setPlayerCount] = useState('1 Shooter');
     const [userName, setUserName] = useState('');
     const [userPhone, setUserPhone] = useState('');
 
     const categories = [
         'All',
-        'Turf & Field',
-        'Indoor Courts',
-        'Racquet Sports',
-        'Aquatics',
-        'Strength & Conditioning',
-        'Combat & Esports'
+        '10M Ranges',
+        'Target Systems',
+        'Armory & Weapons',
+        'Biomechanics Lab'
     ];
 
     useEffect(() => {
         const fullFacilities = [
             {
                 id: 1,
-                title: "FIFA-Standard Floodlit Football Arena",
-                category: "Turf & Field",
-                sport: "Football",
-                badgeIcon: <FaFutbol className="text-[#FF6A1A]" />,
+                title: "10M Olympic Air Rifle & Air Pistol Range (12 Precision Lanes)",
+                category: "10M Ranges",
+                sport: "10M Precision Range",
+                badgeIcon: <FiTarget className="text-[#FF6A1A]" />,
                 rating: 4.9,
-                reviews: 348,
-                hourlyRate: "₹1,200 / hr",
-                monthlyPass: "₹3,999 / mo",
+                reviews: 412,
+                hourlyRate: "Included in Pass",
+                monthlyPass: "₹4,700 / mo",
                 availableSlots: 6,
-                capacity: "11v11 / 7v7 / 5v5 Turf",
-                dimensions: "105m x 68m Full Turf",
-                surface: "50mm Imported Monofilament Grass + 15mm ShockPad",
-                lighting: "500 Lux Night Broadcast Floodlights",
-                certification: "FIFA Quality Pro Standard",
-                openHours: "06:00 AM - 11:00 PM",
-                image: "/images/sports-football-turf.jpg",
-                amenities: ["Floodlit Night Play", "European Shockpad", "Dugouts & Benches", "Locker Rooms", "Live-Stream Ready"],
-                summary: "International-grade synthetic football turf engineered for optimal ball roll, high player traction, and zero skin abrasion during slides.",
+                capacity: "12 Individual Shooting Lanes",
+                dimensions: "10-Meter Olympic Standard Distance",
+                surface: "Anti-Vibration Acoustic Modular Shooting Floor",
+                lighting: "1000 Lux Target Paper Shadowless LED Illumination",
+                certification: "ISSF & NRAI Technical Specification",
+                openHours: "08:00 AM - 08:00 PM (All 7 Days)",
+                image: "/images/shooting/shooting-squad-steps.jpg",
+                amenities: ["Individual Lane Control", "Motorized Target Retrieval", "Weapon Racks", "Telescope Spotting Stands", "Air Conditioned"],
+                summary: "Olympic-spec 10M shooting range equipped with precision lane dividers, adjustable shooting tables, spotting optics, and calibrated illumination.",
                 highlights: [
-                    "Can be configured as a single 11v11 pitch or partitioned into three 5v5 practice cages",
-                    "Integrated high-speed speed radar & GPS tracker vest compatibility",
-                    "Dedicated home & away changing rooms with hot shower suites",
-                    "200-seat covered spectator stand with refreshments lounge"
+                    "12 dedicated 10-meter shooting lanes with independent motorized paper target return pulleys",
+                    "Calibrated 1000 Lux shadow-free lighting on target faces for crystal-clear sight pictures",
+                    "Acoustic wall baffles reducing muzzle sound and enhancing deep mental concentration",
+                    "Supervised daily by ISSF & NRAI certified coaches Rajesh Sharma and Vikram Singh"
                 ],
-                equipmentProvided: "Size 4 & 5 FIFA match balls, agility ladders, slalom poles, training bibs, mini goals"
+                equipmentProvided: "Match-grade air rifles, match air pistols, pellet boxes, target papers, shooting stands, spotting scopes"
             },
             {
                 id: 2,
-                title: "Ranji-Spec Pro Cricket Nets & Bowling Simulators",
-                category: "Turf & Field",
-                sport: "Cricket",
-                badgeIcon: <GiCricketBat className="text-[#FF6A1A]" />,
+                title: "Championship Target Paper & Electronic Scoring System",
+                category: "Target Systems",
+                sport: "Target Analysis",
+                badgeIcon: <MdOutlineSportsScore className="text-[#FF6A1A]" />,
                 rating: 4.9,
-                reviews: 412,
-                hourlyRate: "₹900 / hr",
-                monthlyPass: "₹3,499 / mo",
-                availableSlots: 4,
-                capacity: "6 Enclosed Turf Lanes",
-                dimensions: "22 Yards Pitch + 25m Run-up",
-                surface: "Red Clay Natural Turf & Imported AstroTurf Nets",
-                lighting: "450 Lux Shadowless LED Canopy",
-                certification: "BCCI Level-3 Training Spec",
-                openHours: "06:00 AM - 10:30 PM",
-                image: "/images/playpeak/prog-cricket.jpg",
-                amenities: ["Automated Bowling Machines", "Speed Gun Radar", "Video Biomechanics", "Full Net Enclosures"],
-                summary: "Premier cricket training facility equipped with programmable bowling machines (up to 155 km/h spin & swing) and slow-motion batting analysis.",
+                reviews: 388,
+                hourlyRate: "Included in Pass",
+                monthlyPass: "₹4,700 / mo",
+                availableSlots: 8,
+                capacity: "Dual Paper & Electronic Analysis",
+                dimensions: "10M Certified Precision Distance",
+                surface: "Precision Backstop & Pellet Traps",
+                lighting: "Target Bay Focused Daylight LEDs",
+                certification: "National Rifle Association of India Spec",
+                openHours: "08:00 AM - 08:00 PM (All 7 Days)",
+                image: "/images/shooting/shooting-team-trophy.jpg",
+                amenities: ["Official ISSF Target Papers", "Pellet Group Gauge Overlay", "Score Log Cards", "Optical Target Scopes"],
+                summary: "High-accuracy scoring and evaluation system tracking shooter consistency, millimeter group size, and shot-by-shot ring statistics.",
                 highlights: [
-                    "4 natural red clay match pitches and 2 heavy-duty AstroTurf all-weather nets",
-                    "Merlin & Bola automated bowling machines with customized swing and spin controls",
-                    "HD high-frame-rate cameras for real-time batting stance and release point analysis",
-                    "Supervised by Ranji-trophy certified batting and pace bowling mentors"
+                    "Official ISSF certified 10M air rifle and air pistol target paper sheets provided every session",
+                    "Precision transparent overlay gauges for decimal millimeter score adjudication",
+                    "Match score tracking logs helping athletes prepare for district and state qualifiers",
+                    "Target card retention archive for weekly performance curve analysis"
                 ],
-                equipmentProvided: "Leather and synthetic balls, bowling machines, batting tees, full protective gear sets (pads, helmets, gloves)"
+                equipmentProvided: "Target paper batches, scoring gauges, target mounting pins, shooter record cards"
             },
             {
                 id: 3,
-                title: "FIBA-Certified Hardwood Indoor Basketball Arena",
-                category: "Indoor Courts",
-                sport: "Basketball",
-                badgeIcon: <FaBasketballBall className="text-[#FF6A1A]" />,
-                rating: 4.8,
-                reviews: 295,
-                hourlyRate: "₹1,100 / hr",
-                monthlyPass: "₹3,799 / mo",
-                availableSlots: 5,
-                capacity: "2 Full Courts (5v5 / 3v3)",
-                dimensions: "28m x 15m FIBA Standard",
-                surface: "North American Maple Wood Sprung Floor",
-                lighting: "750 Lux Glare-Free LED Arena Lighting",
-                certification: "FIBA Level-1 Approved Court",
-                openHours: "06:00 AM - 10:00 PM",
-                image: "/images/sports-basketball-court.jpg",
-                amenities: ["Sprung Hardwood Floor", "24s Shot Clocks", "Electronic Scoreboard", "Air Conditioned"],
-                summary: "Premium shock-absorbing maple wood arena designed to reduce knee and ankle impact while delivering true ball bounce and optimal grip.",
+                title: "Match Weapons Armory & Fitting Station",
+                category: "Armory & Weapons",
+                sport: "Armory & Gear",
+                badgeIcon: <FiShield className="text-[#FF6A1A]" />,
+                rating: 4.9,
+                reviews: 365,
+                hourlyRate: "Included in Pass",
+                monthlyPass: "₹4,700 / mo",
+                availableSlots: 4,
+                capacity: "Full Armory Suite",
+                dimensions: "Biometrically Secured Armory",
+                surface: "Custom Weapon Mounting & Workbench",
+                lighting: "Detail Armory Workstation Lights",
+                certification: "Gun Safety & Range Armor Standards",
+                openHours: "08:00 AM - 08:00 PM (All 7 Days)",
+                image: "/images/shooting/shooting-winners-podium.jpg",
+                amenities: ["Match Air Rifles", "Match Air Pistols", "Cylinder Pressure Filling Station", "Shooting Jackets & Slings", "Cleaning Kits"],
+                summary: "Secure on-site armory featuring competition match air rifles and air pistols, compressed air filling cylinders, and personalized ergonomic fittings.",
                 highlights: [
-                    "Full-size FIBA court with hydraulic breakaway hoops and tempered glass backboards",
-                    "Digital 24-second shot clocks, foul indicators, and synchronized LED scoreboards",
-                    "Noah Arc shooting analytics system tracking shot trajectory, entry angle, and depth",
-                    "Fully climate-controlled indoor stadium with viewing balcony"
+                    "All trainees receive direct access to match air rifles and pistols with zero weapon rental fees",
+                    "Cheekpiece, buttplate, and trigger reach adjustments customized to athlete stature",
+                    "High-pressure 200/300 bar compressed air cylinder refilling station on premises",
+                    "Shooting jackets, gloves, and rifle slings available for competition prep"
                 ],
-                equipmentProvided: "Wilson Evolution & Molten FIBA match balls, dribble goggles, weighted training balls, cone sets"
+                equipmentProvided: "0.177 cal match air rifles, 0.177 match air pistols, compressed air fills, trigger gauges"
             },
             {
                 id: 4,
-                title: "BWF Standard International Badminton Complex",
-                category: "Racquet Sports",
-                sport: "Badminton",
-                badgeIcon: <GiShuttlecock className="text-[#FF6A1A]" />,
+                title: "SCATT Laser Sighting & Trigger Biomechanics Lab",
+                category: "Biomechanics Lab",
+                sport: "Sighting Biomechanics",
+                badgeIcon: <FiActivity className="text-[#FF6A1A]" />,
                 rating: 4.9,
-                reviews: 380,
-                hourlyRate: "₹600 / hr",
-                monthlyPass: "₹2,499 / mo",
-                availableSlots: 8,
-                capacity: "6 Individual BWF Courts",
-                dimensions: "13.4m x 6.1m (Per Court)",
-                surface: "Yonex 5-Layer Synthetic Vinyl over Wooden Base",
-                lighting: "Anti-Glare Indirect 600 Lux Vertical Lighting",
-                certification: "BWF Grade-2 Tournament Spec",
-                openHours: "05:30 AM - 11:00 PM",
-                image: "/images/sports-badminton-tennis.jpg",
-                amenities: ["Yonex Mats", "Wooden Sub-Base", "Anti-Glare Lighting", "Racket Stringing Onsite"],
-                summary: "State-of-the-art 6-court indoor badminton hall with seamless shock absorption, zero draft ventilation, and international tournament lighting.",
+                reviews: 320,
+                hourlyRate: "Integrated Coaching",
+                monthlyPass: "₹4,700 / mo",
+                availableSlots: 5,
+                capacity: "4 Sensor Stations",
+                dimensions: "Digital Trajectory Lab",
+                surface: "Static Hold Platform",
+                lighting: "Glare-Free Optical Calibration",
+                certification: "SCATT Optoelectronic Training Spec",
+                openHours: "08:00 AM - 08:00 PM",
+                image: "/images/shooting/shooting-squad-outdoor.jpg",
+                amenities: ["SCATT MX-02 Sensors", "Barrel Trace Analytics", "Heartbeat Sync", "Trigger Pressure Graphs"],
+                summary: "Optoelectronic trace training system capturing micro-movements of sight alignment 1 second before, during, and after trigger release.",
                 highlights: [
-                    "6 individual tournament-grade courts with ample perimeter run-off space",
-                    "Multi-shuttle feeding machines and automated smash speed measuring radar",
-                    "High-ceiling arena (12m clearance) with zero air-turbulence climate flow",
-                    "On-site racket stringing service and pro equipment shop"
+                    "Visual trajectory plot displaying shooter hold stability and aiming trajectory in real-time",
+                    "Identifies trigger jerking, sight anticipation, and follow-through flaws instantly",
+                    "Helps athletes stabilize natural point of aim (NPA) to consistently shoot 10.5+ values",
+                    "Weekly exportable bio-feedback reports for coaches and athletes"
                 ],
-                equipmentProvided: "Tournament nylon and feather shuttles, court nets, grip tapes, demo Yonex/Li-Ning rackets"
+                equipmentProvided: "SCATT optical sensors, mounting brackets, laptop analysis displays, calibration targets"
             },
             {
                 id: 5,
-                title: "Olympic 25m Heated Aquatics & Swimming Arena",
-                category: "Aquatics",
-                sport: "Swimming",
-                badgeIcon: <FaSwimmer className="text-[#FF6A1A]" />,
-                rating: 4.9,
-                reviews: 310,
-                hourlyRate: "₹800 / session",
-                monthlyPass: "₹3,200 / mo",
-                availableSlots: 7,
-                capacity: "6 Competition Lanes",
-                dimensions: "25m Length x 15m Width (1.4m - 2.2m Depth)",
-                surface: "Anti-Slip Ceramic Tiling + Overflow Gutter Channels",
-                lighting: "Underwater LED Illumination + Natural Skylights",
-                certification: "FINA Approved Training Standards",
-                openHours: "06:00 AM - 09:30 PM",
-                image: "/images/playpeak/gallery-swimming.jpg",
-                amenities: ["All-Weather Heated Water (28°C)", "Ozone Sanitization", "Certified Lifeguards", "Underwater Cameras"],
-                summary: "Semi-Olympic heated indoor pool with cutting-edge German ozone purification, anti-wave lane ropes, and professional coaching lanes.",
+                title: "Match-Grade Pellet Dispensing & Inspection Bay",
+                category: "Armory & Weapons",
+                sport: "Ammunition & Pellets",
+                badgeIcon: <GiMedal className="text-[#FF6A1A]" />,
+                rating: 4.8,
+                reviews: 290,
+                hourlyRate: "Included in Pass",
+                monthlyPass: "₹4,700 / mo",
+                availableSlots: 10,
+                capacity: "Pellet Sorting & Ammunition Station",
+                dimensions: "Precision Inspection Counter",
+                surface: "Felt-Lined Inspection Trays",
+                lighting: "Magnified LED Inspection Lamps",
+                certification: "0.177 Cal (4.5mm) Match Grade Standard",
+                openHours: "08:00 AM - 08:00 PM (All 7 Days)",
+                image: "/images/shooting/shooting-podium-girls.jpg",
+                amenities: ["Pellet Boxes Included", "Match Grade 4.5mm Wadcutter", "Weight Scale (0.001g)", "Felt Inspection Trays"],
+                summary: "Quality-tested 0.177 caliber flat-head match pellets provided to all enrolled athletes for clean punch cuts in 10-ring target papers.",
                 highlights: [
-                    "Continuous 28°C thermostatic temperature regulation for year-round swimming comfort",
-                    "100% skin-safe chlorine-free ozone water purification system",
-                    "Underwater cameras for real-time stroke analysis and flip-turn biomechanics",
-                    "Private family changing cubicles, heated showers, and poolside loungers"
+                    "High-purity match pellets provided as part of the monthly ₹4,700 training fee",
+                    "Flat wadcutter head geometry creating razor-clean circular holes for undisputed scoring",
+                    "Micro-balance pellet weighing scale to eliminate ballistic weight variance during finals",
+                    "Safe pellet catch traps behind every shooting lane preventing ricochets"
                 ],
-                equipmentProvided: "Kickboards, pull buoys, swim fins, lane ropes, tempo trainers, timing touchpads"
+                equipmentProvided: "Pellet tins (500 count), pellet holder blocks, digital balance scale, skirt inspection gauges"
             },
             {
                 id: 6,
-                title: "Grand Slam Pro-Cushion Acrylic Tennis Courts",
-                category: "Racquet Sports",
-                sport: "Tennis",
-                badgeIcon: <GiTennisRacket className="text-[#FF6A1A]" />,
-                rating: 4.8,
-                reviews: 220,
-                hourlyRate: "₹950 / hr",
-                monthlyPass: "₹3,400 / mo",
-                availableSlots: 4,
-                capacity: "3 Plexipave Championship Courts",
-                dimensions: "23.77m x 10.97m (ITF Standard)",
-                surface: "8-Coat Plexipave Cushion Acrylic Hard Court",
-                lighting: "600 Lux Even Court Floodlighting",
-                certification: "ITF Category-3 Medium-Pace Surface",
-                openHours: "06:00 AM - 10:00 PM",
-                image: "/images/playpeak/prog-tennis.jpg",
-                amenities: ["Plexipave Cushion", "Spinfire Ball Machine", "High-Mast Floodlights", "Umpire Chairs"],
-                summary: "Championship hard tennis courts featuring an 8-coat cushioned rubberized acrylic finish that yields true ball bounce and gentle joint impact.",
-                highlights: [
-                    "3 dedicated courts with tournament-grade center nets and adjustable tensions",
-                    "Spinfire Pro programmable ball launcher with customizable topspin, slice, and lob sequences",
-                    "Elevated umpire seating and player relaxation canopies with hydration stations",
-                    "Night session floodlights with no shadow interference"
-                ],
-                equipmentProvided: "Head & Wilson championship pressurized tennis balls, ball machines, targets, demo rackets"
-            },
-            {
-                id: 7,
-                title: "High-Performance Strength, Conditioning & Biomechanics Lab",
-                category: "Strength & Conditioning",
-                sport: "Fitness & Gym",
-                badgeIcon: <FaDumbbell className="text-[#FF6A1A]" />,
+                title: "Shooter Breath Conditioning, Pulse Sync & Focus Lounge",
+                category: "Biomechanics Lab",
+                sport: "Mental Conditioning",
+                badgeIcon: <GiLaurelCrown className="text-[#FF6A1A]" />,
                 rating: 4.9,
-                reviews: 440,
-                hourlyRate: "₹500 / day pass",
-                monthlyPass: "₹2,499 / mo",
-                availableSlots: 10,
-                capacity: "60 Athletes Simultaneously",
-                dimensions: "4,500 Sq. Ft. Training Floor",
-                surface: "Vulcanized Heavy-Impact Rubber Flooring (20mm)",
-                lighting: "Dynamic Natural Lighting + Accent LEDs",
-                certification: "NSCA & CSCS Approved Facility",
-                openHours: "05:30 AM - 10:30 PM",
-                image: "/images/sports-gym-fitness.jpg",
-                amenities: ["Eleiko Olympic Platforms", "Keiser Pneumatics", "Force Plate Biomechanics", "Ice Bath Recovery Zone"],
-                summary: "Comprehensive athletic strength and conditioning facility designed specifically for athlete power development, sprint speed, and injury resilience.",
-                highlights: [
-                    "6 Olympic lifting stations with competition calibrated Eleiko bumper plates and bars",
-                    "Keiser pneumatic air-resistance functional training systems for explosive power",
-                    "Sprint testing lane with laser timing gates and dual Vald force plates",
-                    "Contrast therapy recovery room with cold plunge ice baths and infrared sauna"
-                ],
-                equipmentProvided: "Olympic bars, trap bars, resistance bands, kettlebells, medicine balls, sleds, plyometric boxes"
-            },
-            {
-                id: 8,
-                title: "Championship Boxing & MMA Combat Arena",
-                category: "Combat & Esports",
-                sport: "Combat Sports",
-                badgeIcon: <GiPunchingBag className="text-[#FF6A1A]" />,
-                rating: 4.8,
-                reviews: 195,
-                hourlyRate: "₹750 / hr",
-                monthlyPass: "₹2,999 / mo",
-                availableSlots: 4,
-                capacity: "Ring + Hexagon Cage + Mat Area",
-                dimensions: "20ft Boxing Ring & 24ft MMA Cage",
-                surface: "50mm High-Density Tatami Grappling Mats",
-                lighting: "High-Intensity Focus Spotlights",
-                certification: "WBC & IMMAF Approved Ring Specifications",
-                openHours: "06:00 AM - 10:00 PM",
-                image: "/images/sports-combat-ring.jpg",
-                amenities: ["Elevated Boxing Ring", "Full MMA Cage", "Fairtex Heavy Bags", "Grappling Tatami"],
-                summary: "Specialized combat sports stadium with an elevated Olympic boxing ring, competition MMA cage, heavy bag rail system, and padded wrestling mats.",
-                highlights: [
-                    "20ft elevated pro boxing ring with custom shock-absorbing floor and corner stools",
-                    "Full-size 24ft competition octagon cage with heavy padding and safety netting",
-                    "10 Fairtex heavy bags (tear-drop, banana bags, uppercut wall units) on ceiling rails",
-                    "Sanitized antibacterial grappling mats for Brazilian Jiu-Jitsu and Olympic wrestling"
-                ],
-                equipmentProvided: "Sparring gloves, headgear, Thai pads, focus mitts, kick shields, shin guards"
-            },
-            {
-                id: 9,
-                title: "Pro Esports Training & Digital Simulation Hub",
-                category: "Combat & Esports",
-                sport: "Esports",
-                badgeIcon: <FaGamepad className="text-[#FF6A1A]" />,
-                rating: 4.9,
-                reviews: 360,
-                hourlyRate: "₹250 / hr",
-                monthlyPass: "₹2,200 / mo",
+                reviews: 315,
+                hourlyRate: "Included in Pass",
+                monthlyPass: "₹4,700 / mo",
                 availableSlots: 8,
-                capacity: "20 High-End Esports Rigs",
-                dimensions: "1,800 Sq. Ft. Soundproof Hub",
-                surface: "Anti-Static Acoustic Flooring",
-                lighting: "RGB Ambient + Studio Broadcast Lighting",
-                certification: "Esports Federation Tier-1 Certified Hub",
-                openHours: "08:00 AM - 11:00 PM",
-                image: "/images/sports-esports-arena.jpg",
-                amenities: ["240Hz Gaming Monitors", "RTX 4080 Pro Rigs", "Dedicated 1Gbps Fiber", "Tactical VOD Review Lounge"],
-                summary: "Cutting-edge esports performance facility with sub-millisecond low-latency monitors, tournament soundproof booths, and tactical coaching screens.",
+                capacity: "20 Shooters Lounge",
+                dimensions: "Acoustic Quiet Conditioning Zone",
+                surface: "Soft Carpet & Posture Mats",
+                lighting: "Warm Ambient Relaxation Lighting",
+                certification: "Sports Psychology Focus Protocols",
+                openHours: "08:00 AM - 08:00 PM (All 7 Days)",
+                image: "/images/shooting/shooting-squad-steps.jpg",
+                amenities: ["Diaphragmatic Breathing Aids", "Heart Rate Monitors", "Quiet Visualization Zone", "Shooter Hydration Bar"],
+                summary: "Dedicated focus zone designed for pre-match visualization, pulse-rate lowering routines, and mental resilience under tournament pressure.",
                 highlights: [
-                    "20 custom esports setups with Intel i9 CPUs, RTX 4080 GPUs, and 240Hz IPS displays",
-                    "Dual dedicated redundant 1 Gbps ultra-low-jitter fiber internet connections",
-                    "Ergonomic Secretlab Titan chairs and noise-cancelling tournament headsets",
-                    "Dedicated 65-inch 4K touchscreen lounge for team strategy and match VOD breakdown"
+                    "Breathing pacing protocols training shooters to execute shots comfortably during natural respiratory pause",
+                    "Heart rate bio-monitors showing athletes how to shoot between heartbeats for zero tremor",
+                    "Visualization cubicles for 60-shot competition mental walk-throughs",
+                    "Hydration and recovery station maintaining optimal visual contrast and alertness"
                 ],
-                equipmentProvided: "Pro mechanical keyboards, ultra-lightweight optical gaming mice, broadcast headsets, webcam arrays"
+                equipmentProvided: "Breathing trainers, pulse oximeters, posture alignment mirrors, hydration dispensers"
             }
         ];
 
@@ -415,18 +320,18 @@ const Catalog = () => {
                         <div className="lg:col-span-8 space-y-5">
                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF6A1A]/15 border border-[#FF6A1A]/30 text-[#FF6A1A] text-xs font-bold uppercase tracking-wider">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A] animate-pulse" />
-                                <span>PLAYPEAK WORLD-CLASS ARENAS & INFRASTRUCTURE</span>
+                                <span>PIONEER RIFLE SHOOTING ACADEMY • WORLD-CLASS PRECISION INFRASTRUCTURE</span>
                             </div>
 
                             <h1 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                                International Standard <br className="hidden sm:inline" />
+                                Olympic Standard <br className="hidden sm:inline" />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6A1A] via-orange-400 to-amber-300">
-                                    Sports Arenas & Facilities
+                                    Shooting Ranges & Facilities
                                 </span>
                             </h1>
 
                             <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
-                                Train on the exact same surfaces as the pros. From FIFA-certified floodlit turf and FIBA sprung hardwood basketball courts to Olympic heated swimming and biomechanics labs.
+                                Train on precision 10m target paper lanes with match-grade air rifles, air pistols, pellet boxes, and certified coach mentorship at Sector R Mahalaxmi Nagar, Indore.
                             </p>
 
                             {/* Quick Value Metrics */}
@@ -434,30 +339,30 @@ const Catalog = () => {
                                 <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm">
                                     <div className="text-lg sm:text-xl font-display font-black text-white flex items-center gap-1.5">
                                         <MdOutlineStadium className="text-[#FF6A1A]" />
-                                        <span>9+</span>
+                                        <span>10M</span>
                                     </div>
-                                    <span className="text-[11px] text-slate-400 font-medium">Olympic Arenas</span>
+                                    <span className="text-[11px] text-slate-400 font-medium">Olympic Range Lanes</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm">
                                     <div className="text-lg sm:text-xl font-display font-black text-white flex items-center gap-1.5">
                                         <FaLightbulb className="text-amber-400" />
-                                        <span>500 Lux</span>
+                                        <span>1 to 1.5 Hrs</span>
                                     </div>
-                                    <span className="text-[11px] text-slate-400 font-medium">Night Floodlights</span>
+                                    <span className="text-[11px] text-slate-400 font-medium">Daily Sessions</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm">
                                     <div className="text-lg sm:text-xl font-display font-black text-white flex items-center gap-1.5">
                                         <GiMedal className="text-[#FF6A1A]" />
-                                        <span>100%</span>
+                                        <span>₹4,700</span>
                                     </div>
-                                    <span className="text-[11px] text-slate-400 font-medium">Certified Surfaces</span>
+                                    <span className="text-[11px] text-slate-400 font-medium">Monthly Training Fee</span>
                                 </div>
                                 <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm">
                                     <div className="text-lg sm:text-xl font-display font-black text-white flex items-center gap-1.5">
                                         <FiClock className="text-emerald-400" />
-                                        <span>6 AM - 11 PM</span>
+                                        <span>8 AM - 8 PM</span>
                                     </div>
-                                    <span className="text-[11px] text-slate-400 font-medium">Daily Court Access</span>
+                                    <span className="text-[11px] text-slate-400 font-medium">Open All Days</span>
                                 </div>
                             </div>
                         </div>
@@ -673,7 +578,7 @@ const Catalog = () => {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     onError={(e) => {
                                         // Fallback if image fails
-                                        e.target.src = '/images/sports-football-turf.jpg';
+                                        e.target.src = '/images/shooting/shooting-squad-steps.jpg';
                                     }}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
@@ -803,10 +708,10 @@ const Catalog = () => {
                             <FiShield /> Certified Athletic Standards
                         </div>
                         <h2 className="font-display font-black text-2xl sm:text-3xl text-white">
-                            Why PlayPeak Infrastructure Outperforms Standard Sports Grounds
+                            Why Pioneer Shooting Range Infrastructure Outperforms Standard Facilities
                         </h2>
                         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                            Every arena on our campus is constructed in strict adherence to international sport federation guidelines, eliminating injury risks and maximizing athletic performance.
+                            Every shooting lane at Pioneer Rifle Shooting Academy is constructed in strict adherence to international shooting sport federation (ISSF) standards for precision and safety.
                         </p>
                     </div>
 
@@ -863,7 +768,7 @@ const Catalog = () => {
                             Court Booking & Facility Rules
                         </h2>
                         <p className="text-xs sm:text-sm text-slate-500">
-                            Everything you need to know before stepping onto PlayPeak arenas.
+                            Everything you need to know before stepping onto Pioneer shooting lanes.
                         </p>
                     </div>
 
@@ -871,30 +776,30 @@ const Catalog = () => {
                         <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                             <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                                What type of footwear is required?
+                                What type of attire and footwear is required?
                             </h4>
                             <p className="text-xs text-slate-600 leading-relaxed pl-4">
-                                Indoor courts (Basketball & Badminton) strictly require clean, non-marking gum sole shoes. Football and cricket turfs allow AG/FG studs or turf trainers. Metal cleats are prohibited.
+                                Flat-soled athletic shoes or shooting boots providing good ankle stability are recommended. Comfortable sportswear allowing natural shoulder and torso alignment is ideal.
                             </p>
                         </div>
 
                         <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                             <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                                Is sports equipment provided?
+                                Is weapons & shooting equipment provided?
                             </h4>
                             <p className="text-xs text-slate-600 leading-relaxed pl-4">
-                                Standard training balls, court nets, cones, and bibs are included in every hourly booking. High-end match racquets, bats, and bowling machine access can be rented at the front reception.
+                                Yes! Match-grade 10M air rifles, air pistols, pellet boxes, and target papers are all included in your monthly training fee (₹4,700/mo) with certified coach guidance. Pioneer admission also includes a One-Time Annual Registration Fee of ₹5,000 for official shooter accreditation, shooter ID, and state/district trials affiliation.
                             </p>
                         </div>
 
                         <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
                             <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                                Can we book arenas for corporate tournaments?
+                                What are the academy practice timings?
                             </h4>
                             <p className="text-xs text-slate-600 leading-relaxed pl-4">
-                                Yes! We host corporate sports days, inter-school tournaments, and community leagues with full referee coordination, electronic scoreboards, sound systems, and catering services.
+                                The academy is open 7 days a week from 8:00 AM to 8:00 PM. Daily practice sessions typically last 1 to 1.5 hours, allowing flexible practice for school and working athletes.
                             </p>
                         </div>
 
@@ -904,7 +809,7 @@ const Catalog = () => {
                                 What is the cancellation and rescheduling policy?
                             </h4>
                             <p className="text-xs text-slate-600 leading-relaxed pl-4">
-                                You can reschedule your reserved slot up to 4 hours prior to the session via your dashboard or by calling reception at +91 98765 43210 with zero deduction.
+                                You can reschedule your reserved slot up to 4 hours prior to the session via your dashboard or by calling reception at +91 9893270807 / 9294771208 with zero deduction.
                             </p>
                         </div>
                     </div>
@@ -1170,7 +1075,7 @@ const Catalog = () => {
                                         </label>
                                         <input
                                             type="tel"
-                                            placeholder="+91 98765 43210"
+                                            placeholder="+91 98932 70807"
                                             value={userPhone}
                                             onChange={(e) => setUserPhone(e.target.value)}
                                             className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6A1A]"

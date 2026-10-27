@@ -12,23 +12,22 @@ import {
   FiPlus,
   FiMinus
 } from 'react-icons/fi';
-import { FaInstagram, FaYoutube, FaFacebook, FaTwitter } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 
 import axios from 'axios';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    studentName: '',
-    parentName: '',
+    name: '',
+    phone: '',
     email: '',
-    phoneNumber: '',
-    sportPreference: 'Football Academy',
-    ageCategory: 'Under 14 (U-14)',
+    sport: '10M Rifle Shooting',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const [isCustomSport, setIsCustomSport] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,59 +40,71 @@ const Contact = () => {
 
     const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/';
     const leadPayload = {
-      name: formData.studentName || formData.parentName,
-      phone: formData.phoneNumber,
-      email: formData.email,
-      sport: formData.sportPreference,
-      planInterested: formData.ageCategory,
-      message: formData.message || `Parent: ${formData.parentName}`,
+      id: 'inq_' + Date.now(),
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      email: formData.email.trim(),
+      sport: formData.sport,
+      planInterested: formData.sport,
+      message: formData.message.trim(),
       status: 'New',
       date: new Date().toISOString().split('T')[0]
     };
 
-    // Post to MongoDB Atlas API
+    // 1. Post to MongoDB Atlas API
     axios.post(`${API_BASE}inquiries`, leadPayload)
       .then(() => {
-        // Also save to localStorage for offline cache
-        try {
-          const existing = JSON.parse(localStorage.getItem('playpeak_inquiries') || '[]');
-          localStorage.setItem('playpeak_inquiries', JSON.stringify([leadPayload, ...existing]));
-        } catch (err) {}
+        console.log("Inquiry submitted to MongoDB Atlas");
       })
       .catch((err) => console.warn('Inquiry API note:', err.message));
+
+    // 2. Save to local storage for offline cache & multi-tab recovery
+    try {
+      const existing = JSON.parse(localStorage.getItem('playpeak_inquiries') || '[]');
+      localStorage.setItem('playpeak_inquiries', JSON.stringify([leadPayload, ...existing]));
+
+      const pioneerExisting = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
+      localStorage.setItem('pioneer_inquiries', JSON.stringify([leadPayload, ...pioneerExisting]));
+    } catch (err) {}
+
+    // 3. Instant cross-tab real-time sync with Admin Dashboard
+    try {
+      window.dispatchEvent(new CustomEvent('pioneer_inquiry_received', { detail: leadPayload }));
+      const channel = new BroadcastChannel('playpeak_realtime_sync');
+      channel.postMessage({ type: 'INQUIRY_RECEIVED', inquiry: leadPayload });
+      channel.close();
+    } catch (err) {}
 
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
       setFormData({
-        studentName: '',
-        parentName: '',
+        name: '',
+        phone: '',
         email: '',
-        phoneNumber: '',
-        sportPreference: 'Football Academy',
-        ageCategory: 'Under 14 (U-14)',
+        sport: '10M Rifle Shooting',
         message: ''
       });
-      setTimeout(() => setSubmitted(false), 6000);
-    }, 700);
+      setTimeout(() => setSubmitted(false), 7000);
+    }, 600);
   };
 
   const faqs = [
     {
-      q: "How do I book a Free Trial Training Session?",
-      a: "Fill out the enquiry form on this page with your preferred sport and age group. Our admissions desk will call or WhatsApp you to schedule a convenient time slot with our coach."
+      q: "How do I book a Trial Practice Session at the Range?",
+      a: "Fill out the enquiry form on this page with your preferred discipline (10M Rifle, Pistol, or Beginner Course). Our coaching desk will call or WhatsApp you to schedule your session between 8:00 AM and 8:00 PM."
     },
     {
-      q: "What age groups does PlayPeak cater to?",
-      a: "We have structured programs starting from age 5 (Grassroots Foundation) all the way to U-10, U-14, U-18, and Senior Competitive batches."
+      q: "What age groups does Pioneer Rifle Shooting Academy cater to?",
+      a: "We train aspiring shooters from beginner level (ages 8+) to junior, youth, and open competitive categories for state and national championships."
     },
     {
-      q: "What gear is required for the first training session?",
-      a: "For football, molded turf shoes or football studs. For cricket, whites and basic batting pads (academy spares available). For badminton/tennis/basketball, non-marking sports shoes. For swimming, swim cap and goggles."
+      q: "What is the membership fee structure at Pioneer Shooting Academy?",
+      a: "Our official fee structure consists of a One-Time Annual Registration Fee of ₹5,000 (mandatory annual admission for shooter accreditation, official ID card, digital QR gate pass, locker access, and state/district trial affiliation) and an All-Inclusive Monthly Training Fee of ₹4,700 per month (covers daily 1 to 1.5 hr practice sessions 8 AM - 8 PM, match rifles/pistols access, high-grade pellet boxes, target papers, and certified coach mentorship)."
     },
     {
-      q: "Are parents allowed to watch the training sessions?",
-      a: "Yes! We have dedicated covered spectator stands and parent lounges overlooking all fields, courts, and pools."
+      q: "What are the academy timings and session durations?",
+      a: "We are open all days from 8:00 AM to 8:00 PM. Each practice session generally lasts 1 to 1.5 hours to provide flexible training for every shooter."
     }
   ];
 
@@ -104,7 +115,7 @@ const Contact = () => {
       <div className="relative bg-[#0A0E17] text-white py-20 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-35"
-          style={{ backgroundImage: `url('/images/playpeak/hero-football.jpg')` }}
+          style={{ backgroundImage: `url('/images/shooting/shooting-winners-podium.jpg')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#070A0F]/95 via-[#070A0F]/80 to-[#070A0F]/40" />
 
@@ -145,7 +156,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <strong className="text-slate-900 block font-display">Campus Location:</strong>
-                    <span>PlayPeak Sports Arena, Olympic Complex Road, Vijay Nagar, Indore, MP - 452010</span>
+                    <span>Sector R Mahalaxmi Nagar, Near Pioneer Convent School, Indore, MP - 452010</span>
                   </div>
                 </div>
 
@@ -155,7 +166,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <strong className="text-slate-900 block font-display">Direct Phone & WhatsApp:</strong>
-                    <span>+91 98765 43210 / +91 98765 43211</span>
+                    <span>+91 9893270807 / +91 9294771208</span>
                   </div>
                 </div>
 
@@ -165,7 +176,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <strong className="text-slate-900 block font-display">Admissions & Enquiries:</strong>
-                    <span>info@playpeaksports.com</span>
+                    <span>pioneershootingindore@gmail.com</span>
                   </div>
                 </div>
 
@@ -174,8 +185,8 @@ const Contact = () => {
                     <FiClock />
                   </div>
                   <div>
-                    <strong className="text-slate-900 block font-display">Operating Hours:</strong>
-                    <span>Mon - Sun: 06:00 AM - 10:00 PM (All 6 Sports Arenas)</span>
+                    <strong className="text-slate-900 block font-display">Academy Timings:</strong>
+                    <span>8:00 AM TO 8:00 PM (Open all days • Practice Duration: 1 to 1.5 Hours)</span>
                   </div>
                 </div>
               </div>
@@ -183,7 +194,7 @@ const Contact = () => {
               {/* Social Channels */}
               <div className="pt-4 border-t border-slate-200">
                 <span className="text-xs font-bold text-slate-500 block mb-3 uppercase tracking-wider">
-                  Follow PlayPeak Academy
+                  Follow Pioneer Shooting Academy
                 </span>
                 <div className="flex gap-3">
                   <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-white hover:bg-[#FF6A1A] hover:border-[#FF6A1A] transition-colors">
@@ -204,25 +215,25 @@ const Contact = () => {
 
             {/* Photo Card */}
             <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-md relative group">
-              <img src="/images/playpeak/coach-guiding-kids.jpg" alt="PlayPeak Coach" className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/images/shooting/shooting-squad-outdoor.jpg" alt="Pioneer Shooting Academy Athletes & Coach" className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent p-5 flex flex-col justify-end text-white">
-                <span className="text-xs font-bold text-[#FF6A1A] uppercase tracking-wider">GUIDING YOUNG TALENT</span>
-                <h4 className="font-display font-bold text-white text-base">Nurturing Champions On & Off The Field</h4>
+                <span className="text-xs font-bold text-[#FF6A1A] uppercase tracking-wider">SHOOT TODAY, THEN LEAD TOMORROW</span>
+                <h4 className="font-display font-bold text-white text-base">We don't just teach shooting, we build champions.</h4>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Enquiry / Free Trial Form */}
+          {/* Right Column: Contact Query Form */}
           <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-lg">
             <div className="mb-6">
               <span className="text-xs font-bold text-[#FF6A1A] uppercase tracking-wider">
-                COMPLIMENTARY SESSION
+                DIRECT ACADEMY INQUIRY
               </span>
               <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 mt-1">
-                Book Your Free Trial Session
+                Send Your Contact Query
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Experience our professional coaching drills and modern facilities with zero obligation.
+                Connect directly with the Pioneer Rifle Shooting Academy coaching desk. We will answer your questions and arrange range visits.
               </p>
             </div>
 
@@ -235,62 +246,63 @@ const Contact = () => {
                 <div className="w-16 h-16 rounded-full bg-orange-50 text-[#FF6A1A] flex items-center justify-center mx-auto text-3xl shadow-sm">
                   <FiCheckCircle />
                 </div>
-                <h3 className="font-display font-bold text-2xl text-slate-900">Enquiry Received!</h3>
+                <h3 className="font-display font-bold text-2xl text-slate-900">Query Received!</h3>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
-                  Thank you, {formData.studentName || 'Athlete'}. Our coaching coordinator will call or WhatsApp you shortly to confirm your free trial schedule.
+                  Thank you! Your query has been logged and routed to the Academy Admin panel. Our coach coordinator will call or WhatsApp you shortly.
                 </p>
+                <div className="pt-2">
+                  <a
+                    href="https://wa.me/919893270807?text=Hello%20Pioneer%20Rifle%20Shooting%20Academy,%20I%20just%20submitted%20a%20query%20on%20your%20website.%20Please%20connect%20with%20me."
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 py-2.5 px-5 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold text-xs shadow-md transition-all"
+                  >
+                    <FaWhatsapp className="text-base" /> Chat Directly on WhatsApp (+91 9893270807)
+                  </a>
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-slate-700 font-bold block mb-1">Student / Athlete Name</label>
-                    <input
-                      type="text"
-                      required
-                      name="studentName"
-                      placeholder="e.g. Aryan Sharma"
-                      value={formData.studentName}
-                      onChange={handleChange}
-                      className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-slate-700 font-bold block mb-1">Parent / Guardian Name</label>
-                    <input
-                      type="text"
-                      required
-                      name="parentName"
-                      placeholder="e.g. Priya Sharma"
-                      value={formData.parentName}
-                      onChange={handleChange}
-                      className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
-                    />
-                  </div>
+                <div>
+                  <label className="text-slate-700 font-bold block mb-1">
+                    Full Name <span className="text-[#FF6A1A]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    name="name"
+                    placeholder="e.g. Aryan Sharma"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
+                  />
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-slate-700 font-bold block mb-1">Phone / WhatsApp Number</label>
+                    <label className="text-slate-700 font-bold block mb-1">
+                      Phone Number / WhatsApp <span className="text-[#FF6A1A]">*</span>
+                    </label>
                     <input
                       type="tel"
                       required
-                      name="phoneNumber"
-                      placeholder="e.g. +91 98765 43210"
-                      value={formData.phoneNumber}
+                      name="phone"
+                      placeholder="e.g. +91 98932 70807"
+                      value={formData.phone}
                       onChange={handleChange}
                       className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
                     />
                   </div>
 
                   <div>
-                    <label className="text-slate-700 font-bold block mb-1">Email Address</label>
+                    <label className="text-slate-700 font-bold block mb-1">
+                      Email Address <span className="text-[#FF6A1A]">*</span>
+                    </label>
                     <input
                       type="email"
                       required
                       name="email"
-                      placeholder="e.g. parent@example.com"
+                      placeholder="e.g. shooter@example.com"
                       value={formData.email}
                       onChange={handleChange}
                       className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
@@ -298,61 +310,91 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-slate-700 font-bold block mb-1">Sport Program Preference</label>
-                    <select
-                      name="sportPreference"
-                      value={formData.sportPreference}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-700 font-bold block">
+                      Sport Discipline / Course Preference
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !isCustomSport;
+                        setIsCustomSport(next);
+                        if (!next && !formData.sport) {
+                          setFormData(prev => ({ ...prev, sport: '10M Rifle Shooting' }));
+                        }
+                      }}
+                      className="text-[11px] text-[#FF6A1A] font-bold hover:underline"
+                    >
+                      {isCustomSport ? "← Choose from List" : "+ Enter Manually"}
+                    </button>
+                  </div>
+                  {isCustomSport ? (
+                    <input
+                      type="text"
+                      name="sport"
+                      placeholder="Type custom discipline (e.g. 10M Air Rifle Match Grade)..."
+                      value={formData.sport}
                       onChange={handleChange}
+                      className="w-full p-3.5 rounded-xl bg-slate-50 border border-[#FF6A1A] text-slate-800 font-medium focus:outline-none focus:ring-1 focus:ring-[#FF6A1A]"
+                      required
+                    />
+                  ) : (
+                    <select
+                      name="sport"
+                      value={formData.sport}
+                      onChange={(e) => {
+                        if (e.target.value === 'custom_manual') {
+                          setIsCustomSport(true);
+                          setFormData(prev => ({ ...prev, sport: '' }));
+                        } else {
+                          handleChange(e);
+                        }
+                      }}
                       className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:outline-none focus:border-[#FF6A1A]"
                     >
-                      <option value="Football Academy">Football Academy</option>
-                      <option value="Cricket Coaching">Cricket Coaching</option>
-                      <option value="Badminton Training">Badminton Training</option>
-                      <option value="Basketball Academy">Basketball Academy</option>
-                      <option value="Tennis Development">Tennis Development</option>
-                      <option value="Swimming Program">Swimming Program</option>
+                      <option value="10M Rifle Shooting">10M Rifle Shooting</option>
+                      <option value="10M Pistol Shooting">10M Pistol Shooting</option>
+                      <option value="Beginner Training Course">Beginner Training Course</option>
+                      <option value="Competitive Match Training">Competitive Match Training</option>
+                      <option value="Target Biomechanics & Stance">Target Biomechanics & Stance</option>
+                      <option value="Daily Practice (1 - 1.5 Hrs)">Daily Practice (1 - 1.5 Hrs)</option>
+                      <option value="custom_manual">✎ Enter Manually (Custom Discipline)...</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="text-slate-700 font-bold block mb-1">Age Category</label>
-                    <select
-                      name="ageCategory"
-                      value={formData.ageCategory}
-                      onChange={handleChange}
-                      className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium focus:outline-none focus:border-[#FF6A1A]"
-                    >
-                      <option value="Grassroots (5 - 8 yrs)">Grassroots (5 - 8 yrs)</option>
-                      <option value="Under 10 (U-10)">Under 10 (U-10)</option>
-                      <option value="Under 14 (U-14)">Under 14 (U-14)</option>
-                      <option value="Under 18 (U-18)">Under 18 (U-18)</option>
-                      <option value="Senior / Adult">Senior / Adult</option>
-                    </select>
-                  </div>
+                  )}
                 </div>
 
                 <div>
-                  <label className="text-slate-700 font-bold block mb-1">Any Specific Goals or Questions (Optional)</label>
+                  <label className="text-slate-700 font-bold block mb-1">
+                    Contact Query / Description <span className="text-[#FF6A1A]">*</span>
+                  </label>
                   <textarea
                     rows={4}
+                    required
                     name="message"
-                    placeholder="Tell us about the athlete's previous playing experience, fitness goals, or preferred schedule..."
+                    placeholder="Describe your inquiry, trial requirements, training schedule preferences, or questions..."
                     value={formData.message}
                     onChange={handleChange}
                     className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
                   ></textarea>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-full bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
-                >
-                  {isSubmitting ? 'Submitting Enquiry...' : 'Book Free Trial Session'}
-                  <FiArrowRight />
-                </button>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 rounded-full bg-[#FF6A1A] hover:bg-[#EA580C] text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+                  >
+                    {isSubmitting ? (
+                      <span>Sending Query to Academy Desk...</span>
+                    ) : (
+                      <>
+                        <span>Submit Contact Query</span>
+                        <FiSend />
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
             )}
           </div>

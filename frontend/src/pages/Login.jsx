@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { userinfo } from '../features/userinfo';
+import { PioneerLogoBrand } from '../components/PioneerLogo';
+import PioneerLoader from '../components/PioneerLoader';
 
 const url = import.meta.env.VITE_API_URL;
 
@@ -104,6 +106,16 @@ const Login = () => {
         }
     };
 
+    if (isLoading) {
+        return (
+            <PioneerLoader 
+                message="Authenticating Shooter & Admin..." 
+                subMessage="Validating Shooting Lane & Range Security" 
+                fullScreen={true} 
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex items-center justify-center p-4 py-12">
             <motion.div
@@ -113,36 +125,21 @@ const Login = () => {
             >
                 {/* Brand Logo */}
                 <div className="text-center mb-8">
-                    <Link to="/" className="inline-flex items-center gap-2 mb-3">
-                        <svg viewBox="0 0 100 100" className="w-10 h-10">
-                            <circle cx="50" cy="22" r="12" fill="#FF6A1A" />
-                            <path d="M48 38 L30 54 L38 68 L48 56 L62 78 L78 74 L60 48 L62 38 Z" fill="#FF6A1A" />
-                            <path d="M30 40 L18 52 L26 60 L36 48 Z" fill="#3B82F6" />
-                            <path d="M62 48 L76 34 L84 42 L68 56 Z" fill="#3B82F6" />
-                        </svg>
-                        <span className="font-display font-black text-2xl text-slate-900 tracking-tight">
-                            Play<span className="text-[#FF6A1A]">Peak</span>
-                        </span>
+                    <Link to="/" className="inline-block mb-3">
+                        <PioneerLogoBrand isDark={false} showTagline={true} />
                     </Link>
-                    <h2 className="font-display font-bold text-xl text-slate-900">Athlete & Coach Sign In</h2>
-                    <p className="text-xs text-slate-500 mt-1">Access your academy schedules & QR gate pass</p>
+                    <h2 className="font-display font-bold text-xl text-slate-900 mt-2">Pioneer Academy Admin Login</h2>
+                    <p className="text-xs text-slate-500 mt-1">Authorized Head Coaches & Academy Management Portal</p>
                 </div>
 
                 {/* Quick Demo Fill Buttons */}
-                <div className="grid grid-cols-2 gap-2 mb-6">
-                    <button
-                        type="button"
-                        onClick={() => handleQuickDemoFill('student')}
-                        className="py-2.5 px-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-                    >
-                        <FiUser className="text-[#FF6A1A]" /> Demo Athlete
-                    </button>
+                <div className="mb-6">
                     <button
                         type="button"
                         onClick={() => handleQuickDemoFill('admin')}
-                        className="py-2.5 px-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 px-3 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                     >
-                        <FiShield className="text-blue-600" /> Demo Coach
+                        <FiShield className="text-[#FF6A1A]" /> One-Click Fill Coach / Admin Credentials
                     </button>
                 </div>
 
@@ -203,9 +200,9 @@ const Login = () => {
                 </form>
 
                 <div className="text-center mt-6 pt-6 border-t border-slate-100 text-xs text-slate-500">
-                    <span>New athlete? </span>
-                    <Link to="/signup" className="text-[#FF6A1A] font-bold hover:underline">
-                        Create Account
+                    <span>Need access assistance? </span>
+                    <Link to="/contact" className="text-[#FF6A1A] font-bold hover:underline">
+                        Contact Academy Desk
                     </Link>
                 </div>
             </motion.div>

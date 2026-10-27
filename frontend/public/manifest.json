@@ -1,7 +1,7 @@
 {
-  "short_name": "PlayPeak",
-  "name": "PlayPeak Sports Academy",
-  "description": "PlayPeak Sports Academy Admin & Athlete Hub - High-Performance Training, Live Attendance, and Fee Management.",
+  "short_name": "Pioneer Admin",
+  "name": "Pioneer Rifle Shooting Academy - Admin Panel",
+  "description": "Pioneer Rifle Shooting Academy Indore - Official Admin Panel for Athlete Enrollment, Fees, Reminders & Academy Management.",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -16,7 +16,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "/admin",
   "background_color": "#080C14",
   "theme_color": "#FF6A1A",
   "display": "standalone",
