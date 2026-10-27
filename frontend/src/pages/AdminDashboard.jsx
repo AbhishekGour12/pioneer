@@ -189,200 +189,19 @@ const AdminDashboard = () => {
 
     // ==========================================
     // INITIAL SEED DATA & LOCAL STORAGE LOADERS
+    // ==========================================    // ==========================================
+    // LIVE MONGODB DATA STATES (DIRECT BACKEND API - ZERO LOCALSTORAGE)
     // ==========================================
-
-    const [athletes, setAthletes] = useState(() => {
-        const saved = localStorage.getItem('playpeak_athletes');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            {
-                id: 'ATH-101',
-                name: 'Aarav Sharma',
-                phone: '+91 98261 55678',
-                email: 'aarav.shooting@gmail.com',
-                age: 15,
-                gender: 'Male',
-                sport: '10M Rifle Shooting',
-                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
-                coach: 'Coach Rajesh Sharma (ISSF / NRAI)',
-                planType: 'Monthly',
-                membership: 'Monthly Training Membership',
-                feeAmount: 4700,
-                dueAmount: 0,
-                paymentStatus: 'Paid',
-                joinDate: '2026-08-01',
-                emergencyContact: '+91 98261 55600 (Father)',
-                bloodGroup: 'B+',
-                status: 'Active'
-            },
-            {
-                id: 'ATH-102',
-                name: 'Rohan Mehra',
-                phone: '+91 97554 22331',
-                email: 'rohan.pistol@gmail.com',
-                age: 17,
-                gender: 'Male',
-                sport: '10M Pistol Shooting',
-                batchTime: 'Morning (08:00 AM - 12:00 PM)',
-                coach: 'Coach Vikram Singh (National Medalist)',
-                planType: 'Registration',
-                membership: 'One-Time Annual Registration',
-                feeAmount: 5000,
-                dueAmount: 0,
-                paymentStatus: 'Paid',
-                joinDate: '2026-07-15',
-                emergencyContact: '+91 97554 22300 (Mother)',
-                bloodGroup: 'O+',
-                status: 'Active'
-            },
-            {
-                id: 'ATH-103',
-                name: 'Ananya Verma',
-                phone: '+91 94071 88992',
-                email: 'ananya.shooting@gmail.com',
-                age: 14,
-                gender: 'Female',
-                sport: 'Beginner Training Course',
-                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
-                coach: 'Coach Ananya Sen (Shooting Lead)',
-                planType: 'Monthly',
-                membership: 'Monthly Training Membership',
-                feeAmount: 4700,
-                dueAmount: 0,
-                paymentStatus: 'Paid',
-                joinDate: '2026-08-10',
-                emergencyContact: '+91 94071 88900',
-                bloodGroup: 'A+',
-                status: 'Active'
-            },
-            {
-                id: 'ATH-104',
-                name: 'Kabir Patel',
-                phone: '+91 99812 44332',
-                email: 'kabir.pistol@gmail.com',
-                age: 16,
-                gender: 'Male',
-                sport: '10M Pistol Shooting',
-                batchTime: 'Evening Prime (04:00 PM - 08:00 PM)',
-                coach: 'Coach Vikram Singh (National Medalist)',
-                planType: 'Monthly',
-                membership: 'Monthly Training Membership',
-                feeAmount: 4700,
-                dueAmount: 0,
-                paymentStatus: 'Paid',
-                joinDate: '2026-08-05',
-                emergencyContact: '+91 99812 44300',
-                bloodGroup: 'B+',
-                status: 'Active'
-            }
-        ];
-    });
-
-    const [payments, setPayments] = useState(() => {
-        const saved = localStorage.getItem('playpeak_payments');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'PAY-901', athleteId: 'ATH-101', athleteName: 'Aarav Sharma', sport: '10M Rifle Shooting', plan: 'Monthly Training Membership', amount: 4700, date: '2026-09-01', dueDate: '2026-10-01', method: 'UPI (GPay)', status: 'Completed', receiptNo: 'RCP-2026-0891' },
-            { id: 'PAY-902', athleteId: 'ATH-102', athleteName: 'Rohan Mehra', sport: '10M Pistol Shooting', plan: 'One-Time Annual Registration Fee', amount: 5000, date: '2026-08-15', dueDate: '2026-09-15', method: 'Debit Card', status: 'Completed', receiptNo: 'RCP-2026-0892' },
-            { id: 'PAY-903', athleteId: 'ATH-103', athleteName: 'Ananya Verma', sport: 'Beginner Training Course', plan: 'Monthly Training Membership', amount: 4700, date: '2026-09-05', dueDate: '2026-10-05', method: 'Cash Offline', status: 'Completed', receiptNo: 'RCP-2026-0893' },
-            { id: 'PAY-904', athleteId: 'ATH-104', athleteName: 'Kabir Patel', sport: '10M Pistol Shooting', plan: 'Monthly Training Membership', amount: 4700, date: '2026-08-01', dueDate: '2026-09-01', method: 'Netbanking', status: 'Completed', receiptNo: 'RCP-2026-0894' }
-        ];
-    });
-
-    const [coaches, setCoaches] = useState(() => {
-        const saved = localStorage.getItem('playpeak_coaches');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'COA-01', name: 'Rajesh Sharma', sport: '10M Rifle Shooting', certification: 'ISSF / NRAI Certified Head Coach', phone: '+91 98261 11223', email: 'rajesh.shooting@pioneershooting.com', experience: 14, trainees: 48, monthlySalary: '₹75,000', rating: 4.9, status: 'Active' },
-            { id: 'COA-02', name: 'Vikram Singh', sport: '10M Pistol Shooting', certification: 'National Shooting Medalist & Pistol Coach', phone: '+91 97554 33445', email: 'vikram.pistol@pioneershooting.com', experience: 15, trainees: 54, monthlySalary: '₹85,000', rating: 4.9, status: 'Active' },
-            { id: 'COA-03', name: 'Ananya Sen', sport: 'Beginner Training Course', certification: 'NRAI Certified Shooting Foundation Lead', phone: '+91 94071 55667', email: 'ananya.foundation@pioneershooting.com', experience: 9, trainees: 36, monthlySalary: '₹65,000', rating: 4.8, status: 'Active' },
-            { id: 'COA-04', name: 'Rahul Nair', sport: 'Target Biomechanics & Stance', certification: 'Sports Psychology & Biomechanics Specialist', phone: '+91 99812 77889', email: 'rahul.biomechanics@pioneershooting.com', experience: 10, trainees: 40, monthlySalary: '₹70,000', rating: 4.8, status: 'Active' }
-        ];
-    });
-
-    const [inventory, setInventory] = useState(() => {
-        const saved = localStorage.getItem('playpeak_inventory');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'EQP-101', name: '0.177 Cal Match Air Rifles', sport: '10M Rifle Shooting', category: 'Match Weapons', totalQty: 18, availableQty: 16, damagedQty: 2, location: 'Armory Safe Rack A', minThreshold: 5, unitCost: '₹85,000' },
-            { id: 'EQP-102', name: '0.177 Cal Match Air Pistols', sport: '10M Pistol Shooting', category: 'Match Weapons', totalQty: 22, availableQty: 20, damagedQty: 2, location: 'Armory Safe Rack B', minThreshold: 6, unitCost: '₹72,000' },
-            { id: 'EQP-103', name: 'Match-Grade Flat Pellet Tins (500 Pcs)', sport: 'Ammunition & Pellets', category: 'Consumables', totalQty: 200, availableQty: 175, damagedQty: 0, location: 'Supply Counter', minThreshold: 50, unitCost: '₹650' },
-            { id: 'EQP-104', name: 'Official 10M Target Paper Sheets', sport: 'Target Paper Sheets', category: 'Consumables', totalQty: 2500, availableQty: 2200, damagedQty: 0, location: 'Range Shelf 1', minThreshold: 500, unitCost: '₹8' },
-            { id: 'EQP-105', name: 'SCATT MX-02 Laser Optical Sensors', sport: 'Sighting Biomechanics', category: 'Tech Diagnostics', totalQty: 6, availableQty: 6, damagedQty: 0, location: 'Biomechanics Lab', minThreshold: 2, unitCost: '₹95,000' },
-            { id: 'EQP-106', name: '300-Bar High Pressure Compressed Air Cylinders', sport: 'Range Equipment', category: 'Gas Systems', totalQty: 8, availableQty: 8, damagedQty: 0, location: 'Compressor Bay', minThreshold: 2, unitCost: '₹35,000' }
-        ];
-    });
-
-    const [memberships, setMemberships] = useState(() => {
-        const saved = localStorage.getItem('playpeak_memberships');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'PLN-01', name: 'Monthly Training Membership', sport: '10M Rifle & Pistol Shooting', duration: '1 Month (Open All Days)', price: 4700, activeAthletes: 95, features: ['Daily 1 - 1.5 Hour Sessions', 'Pellet Boxes Included', 'Target Papers Provided', 'Match Weapons & Equipment Access', 'Certified Coach Guidance'], badge: 'Official Monthly Fee' },
-            { id: 'PLN-02', name: 'One-Time Annual Registration', sport: 'Shooter Accreditation', duration: '1 Year', price: 5000, activeAthletes: 120, features: ['Official Pioneer Shooter ID', 'Locker & Range Gate Access', 'District & State Trials Affiliation', 'Safety Audit & Weapon Fitting'], badge: 'Official Annual Fee' }
-        ];
-    });
-
-    // Tournaments & Fixtures Seed State
-    const [tournaments, setTournaments] = useState(() => {
-        const saved = localStorage.getItem('playpeak_tournaments');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'TRN-01', title: '1st Golden Light Rifle Shooting Championship', sport: '10M Rifle & Pistol', ageCategory: 'Junior & Senior', startDate: '2026-10-10', endDate: '2026-10-14', teamsCount: 32, prizePool: 'Trophies & Medals', venue: 'Pioneer Shooting Range Arena', status: 'Completed' },
-            { id: 'TRN-02', title: 'MP State 10M Shooting Selection Trials', sport: '10M Rifle & Pistol', ageCategory: 'Open Category', startDate: '2026-11-05', endDate: '2026-11-08', teamsCount: 45, prizePool: 'State Qualification', venue: 'Indore Shooting Complex', status: 'Upcoming' },
-            { id: 'TRN-03', title: 'Indore District Inter-School Precision Shootout', sport: '10M Air Rifle', ageCategory: 'U-14 & U-17', startDate: '2026-11-20', endDate: '2026-11-22', teamsCount: 24, prizePool: '₹50,000 & Cups', venue: 'Pioneer Range Lanes 1-12', status: 'Upcoming' }
-        ];
-    });
-
-    // Physio & Focus Recovery Seed State
-    const [physioLogs, setPhysioLogs] = useState(() => {
-        const saved = localStorage.getItem('playpeak_physio');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'PHY-01', athleteName: 'Aarav Sharma', sport: '10M Rifle Shooting', injuryType: 'Left Shoulder Isometric Hold Fatigue', injuryDate: '2026-09-18', recoveryStatus: 'In Rehab', therapist: 'Dr. Neha Saxena (Sports PT)', expectedReturn: '2026-10-02', treatment: 'Rotator Cuff Stability & Trigger Breathing' },
-            { id: 'PHY-02', athleteName: 'Rohan Mehra', sport: '10M Pistol Shooting', injuryType: 'Forearm Extensor Muscle Tension', injuryDate: '2026-09-15', recoveryStatus: 'Light Training', therapist: 'Dr. Sameer Khan', expectedReturn: '2026-09-26', treatment: 'Grip Pressure Adjustment & Cryotherapy' },
-            { id: 'PHY-03', athleteName: 'Ananya Verma', sport: 'Beginner Training', injuryType: 'Eye Fatigue & Cervical Neck Strain', injuryDate: '2026-09-10', recoveryStatus: 'Match Fit', therapist: 'Dr. Neha Saxena (Sports PT)', expectedReturn: '2026-09-23', treatment: 'Optical Rest Drills & Neck Posture Realignment' }
-        ];
-    });
-
-    // Biomechanics & Fitness Assessments Seed State
-    const [assessments, setAssessments] = useState(() => {
-        const saved = localStorage.getItem('playpeak_assessments');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'ASM-01', athleteName: 'Aarav Sharma', sport: '10M Rifle', sprint30m: 'Hold: 0.12mm', verticalJump: 'SCATT 96.4%', vo2Max: 'HR: 58 bpm', deadlift: 'Stability 9.8', testDate: '2026-09-12', rating: 'National Qualifying' },
-            { id: 'ASM-02', athleteName: 'Sneha Kulkarni', sport: '10M Pistol', sprint30m: 'Hold: 0.15mm', verticalJump: 'SCATT 94.8%', vo2Max: 'HR: 62 bpm', deadlift: 'Stability 9.5', testDate: '2026-09-14', rating: 'State Level' },
-            { id: 'ASM-03', athleteName: 'Rohan Mehra', sport: '10M Rifle', sprint30m: 'Hold: 0.10mm', verticalJump: 'SCATT 97.8%', vo2Max: 'HR: 54 bpm', deadlift: 'Stability 9.9', testDate: '2026-09-10', rating: 'ISSF Squad Track' }
-        ];
-    });
-
-    const [inquiries, setInquiries] = useState(() => {
-        const saved = localStorage.getItem('playpeak_inquiries');
-        if (saved) {
-            try { return JSON.parse(saved); } catch (e) { }
-        }
-        return [
-            { id: 'INQ-501', name: 'Manish Rawat', phone: '+91 98260 99887', email: 'manish.rawat@gmail.com', sport: '10M Rifle', ageGroup: 'Under 14 (Son)', message: 'Looking for 10M Olympic rifle coaching batch with ISSF certified coach and Feinwerkbau kit.', date: '2026-09-22', status: 'New' },
-            { id: 'INQ-502', name: 'Deepika Sen', phone: '+91 97551 11224', email: 'deepika.sen@yahoo.com', sport: '10M Pistol', ageGroup: 'Under 12 (Daughter)', message: 'Need information regarding beginner safety course, air pistol trials, and monthly equipment rental.', date: '2026-09-21', status: 'Trial Scheduled' },
-            { id: 'INQ-503', name: 'Kunal Joshi', phone: '+91 94073 44556', email: 'kunal.shooting@gmail.com', sport: '10M Rifle', ageGroup: 'Ages 16-19', message: 'Interested in electronic target lanes (SIUS) and SCATT infrared trace stability coaching.', date: '2026-09-19', status: 'Contacted' },
-            { id: 'INQ-504', name: 'Sanjay Patidar', phone: '+91 99814 77880', email: 'sanjay.patidar@gmail.com', sport: '10M Pistol', ageGroup: 'Adult Evening', message: 'Want daily evening 10M pistol lane slot (6:30 PM - 8:00 PM) with match pellets included.', date: '2026-09-18', status: 'Enrolled' }
-        ];
-    });
+    const [athletes, setAthletes] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [coaches, setCoaches] = useState([]);
+    const [inventory, setInventory] = useState([]);
+    const [memberships, setMemberships] = useState([]);
+    const [tournaments, setTournaments] = useState([]);
+    const [physioLogs, setPhysioLogs] = useState([]);
+    const [assessments, setAssessments] = useState([]);
+    const [inquiries, setInquiries] = useState([]);
+    const [isLiveLoading, setIsLiveLoading] = useState(true);
 
     const API_BASE = getApiBase();
 
@@ -591,16 +410,23 @@ const AdminDashboard = () => {
         };
     }, []);
 
-    // Save to LocalStorage whenever state changes
-    useEffect(() => { localStorage.setItem('playpeak_athletes', JSON.stringify(athletes)); }, [athletes]);
-    useEffect(() => { localStorage.setItem('playpeak_payments', JSON.stringify(payments)); }, [payments]);
-    useEffect(() => { localStorage.setItem('playpeak_coaches', JSON.stringify(coaches)); }, [coaches]);
-    useEffect(() => { localStorage.setItem('playpeak_inventory', JSON.stringify(inventory)); }, [inventory]);
-    useEffect(() => { localStorage.setItem('playpeak_memberships', JSON.stringify(memberships)); }, [memberships]);
-    useEffect(() => { localStorage.setItem('playpeak_tournaments', JSON.stringify(tournaments)); }, [tournaments]);
-    useEffect(() => { localStorage.setItem('playpeak_physio', JSON.stringify(physioLogs)); }, [physioLogs]);
-    useEffect(() => { localStorage.setItem('playpeak_assessments', JSON.stringify(assessments)); }, [assessments]);
-    useEffect(() => { localStorage.setItem('playpeak_inquiries', JSON.stringify(inquiries)); }, [inquiries]);
+    // Purge legacy entity caches from LocalStorage so all entities live strictly in MongoDB Atlas
+    useEffect(() => {
+        [
+            'playpeak_athletes',
+            'playpeak_payments',
+            'playpeak_coaches',
+            'playpeak_inventory',
+            'playpeak_memberships',
+            'playpeak_tournaments',
+            'playpeak_physio',
+            'playpeak_assessments',
+            'playpeak_inquiries',
+            'pioneer_inquiries'
+        ].forEach(k => {
+            try { localStorage.removeItem(k); } catch (e) { }
+        });
+    }, []);
 
     const showToast = (msg, type = 'success') => {
         setToastMessage({ msg, type });
@@ -819,7 +645,10 @@ const AdminDashboard = () => {
     };
 
     // Base URL for Pioneer Shooting Production QR Codes & Links
-    const PLAYPEAK_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://pioneershooting.in';
+    // If running on localhost, use the live Vercel URL so phone scanners can access it from anywhere
+    const PLAYPEAK_BASE_URL = (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'))
+        ? window.location.origin
+        : 'https://playpeak.vercel.app';
 
     // Generate QR Code for Self-Enrollment
     const handleOpenQrModal = () => {
@@ -1113,10 +942,6 @@ const AdminDashboard = () => {
             }
             setAthletes(prev => prev.filter(a => !idsToDelete.includes(a.id) && !idsToDelete.includes(a._id)));
             setSelectedAthleteIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
-            try {
-                const local = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
-                localStorage.setItem('playpeak_athletes', JSON.stringify(local.filter(a => !idsToDelete.includes(a.id) && !idsToDelete.includes(a._id))));
-            } catch (e) {}
             showToast(`Athlete "${athleteName}" removed from database.`, 'info');
         }
     };
@@ -1131,10 +956,6 @@ const AdminDashboard = () => {
                 console.warn('Batch delete athletes note:', err.message);
             }
             setAthletes(prev => prev.filter(a => !selectedAthleteIds.includes(a.id) && !selectedAthleteIds.includes(a._id)));
-            try {
-                const local = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
-                localStorage.setItem('playpeak_athletes', JSON.stringify(local.filter(a => !selectedAthleteIds.includes(a.id) && !selectedAthleteIds.includes(a._id))));
-            } catch (e) {}
             setSelectedAthleteIds([]);
             showToast(`Successfully removed ${count} athletes.`, 'info');
         }
@@ -1154,7 +975,6 @@ const AdminDashboard = () => {
             }
             setAthletes([]);
             setSelectedAthleteIds([]);
-            localStorage.setItem('playpeak_athletes', '[]');
             showToast('All athlete records have been cleared.', 'info');
         }
     };
@@ -1266,10 +1086,6 @@ const AdminDashboard = () => {
             }
             setPayments(prev => prev.filter(p => !idsToDelete.includes(p.id) && !idsToDelete.includes(p._id)));
             setSelectedPaymentIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
-            try {
-                const local = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
-                localStorage.setItem('playpeak_payments', JSON.stringify(local.filter(p => !idsToDelete.includes(p.id) && !idsToDelete.includes(p._id))));
-            } catch (e) {}
             showToast('Transaction record deleted.', 'info');
         }
     };
@@ -1284,10 +1100,6 @@ const AdminDashboard = () => {
                 console.warn('Batch delete payments note:', err.message);
             }
             setPayments(prev => prev.filter(p => !selectedPaymentIds.includes(p.id) && !selectedPaymentIds.includes(p._id)));
-            try {
-                const local = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
-                localStorage.setItem('playpeak_payments', JSON.stringify(local.filter(p => !selectedPaymentIds.includes(p.id) && !selectedPaymentIds.includes(p._id))));
-            } catch (e) {}
             setSelectedPaymentIds([]);
             showToast(`Successfully deleted ${count} payment records.`, 'info');
         }
@@ -1307,7 +1119,6 @@ const AdminDashboard = () => {
             }
             setPayments([]);
             setSelectedPaymentIds([]);
-            localStorage.setItem('playpeak_payments', '[]');
             showToast('All payment transaction records cleared.', 'info');
         }
     };
@@ -1699,15 +1510,6 @@ const AdminDashboard = () => {
             }
             setInquiries(prev => prev.filter(i => !matchesInquiry(i, inq)));
             setSelectedInquiryIds(prev => prev.filter(selId => !idsToDelete.includes(selId)));
-            const cleanLocal = (storageKey) => {
-                try {
-                    const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                    const filtered = items.filter(i => !matchesInquiry(i, inq));
-                    localStorage.setItem(storageKey, JSON.stringify(filtered));
-                } catch (e) {}
-            };
-            cleanLocal('pioneer_inquiries');
-            cleanLocal('playpeak_inquiries');
             showToast(`Inquiry for "${targetName}" permanently deleted.`, 'info');
         }
     };
@@ -1725,15 +1527,6 @@ const AdminDashboard = () => {
                 const iKey = i._id || i.id;
                 return !selectedInquiryIds.includes(iKey) && !selectedInquiryIds.includes(i.id) && !selectedInquiryIds.includes(i._id);
             }));
-            const cleanLocalBatch = (storageKey) => {
-                try {
-                    const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                    const filtered = items.filter(i => !selectedInquiryIds.includes(i._id) && !selectedInquiryIds.includes(i.id));
-                    localStorage.setItem(storageKey, JSON.stringify(filtered));
-                } catch (e) {}
-            };
-            cleanLocalBatch('pioneer_inquiries');
-            cleanLocalBatch('playpeak_inquiries');
             setSelectedInquiryIds([]);
             showToast(`Deleted ${count} inquiries successfully.`, 'info');
         }
@@ -1753,8 +1546,6 @@ const AdminDashboard = () => {
             }
             setInquiries([]);
             setSelectedInquiryIds([]);
-            localStorage.setItem('pioneer_inquiries', '[]');
-            localStorage.setItem('playpeak_inquiries', '[]');
             showToast('All contact inquiries have been permanently cleared.', 'info');
         }
     };
@@ -1769,8 +1560,6 @@ const AdminDashboard = () => {
             console.warn('Inquiry status update note:', err.message);
         }
         setInquiries(prev => prev.map(i => (i.id === targetId || (i._id && i._id === targetId)) ? { ...i, status: next } : i));
-        const localInqs = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
-        localStorage.setItem('pioneer_inquiries', JSON.stringify(localInqs.map(i => (i.id === targetId || (i._id && i._id === targetId)) ? { ...i, status: next } : i)));
         showToast(`Inquiry status updated to "${next}"`);
     };
 
@@ -1883,12 +1672,6 @@ const AdminDashboard = () => {
             // 3. Update local states
             setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a));
             setPayments(prev => [newPay, ...prev]);
-
-            // 4. Update localStorage
-            const localAths = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
-            localStorage.setItem('playpeak_athletes', JSON.stringify(localAths.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, dueAmount: 0, paymentStatus: 'Paid' } : a)));
-            const localPays = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
-            localStorage.setItem('playpeak_payments', JSON.stringify([newPay, ...localPays]));
 
             showToast(`Marked ${athlete.name}'s balance (₹${paidAmount.toLocaleString()}) as Fully Paid!`, 'success');
         } catch (err) {
@@ -3791,12 +3574,12 @@ const AdminDashboard = () => {
 
                                 <button
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`${window.location.origin}/enroll`);
-                                        showToast('Enrollment link copied to clipboard!');
+                                        navigator.clipboard.writeText(`${PLAYPEAK_BASE_URL}/enroll`);
+                                        showToast(`Enrollment link (${PLAYPEAK_BASE_URL}/enroll) copied to clipboard!`);
                                     }}
                                     className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
                                 >
-                                    <FiCopy /> Copy Public Link
+                                    <FiCopy /> Copy Public Link ({PLAYPEAK_BASE_URL.replace('https://', '')})
                                 </button>
 
                                 <button

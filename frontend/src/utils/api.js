@@ -1,26 +1,27 @@
 // frontend/src/utils/api.js
-// Universal Dynamic API Base & Socket URL Resolver for Localhost, LAN Mobile, and Cloud/Tunnel Deployments
+// Universal Dynamic API Base & Socket URL Resolver for Localhost, Vercel Production, and Render Cloud Backend
+
+export const RENDER_BACKEND_URL = 'https://pioneer-gvve.onrender.com';
+export const VERCEL_FRONTEND_URL = 'https://playpeak.vercel.app';
 
 export const getApiBase = () => {
+    // 1. If explicit env variable is provided:
     const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl && envUrl.startsWith('http')) {
+        return envUrl.endsWith('/') ? envUrl : `${envUrl}/`;
+    }
 
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
 
-        // If accessed on mobile / LAN IP (e.g. 192.168.x.x) or ngrok tunnel:
-        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-            // Under HTTPS (ngrok or production), always use relative /api/ to prevent Mixed Content
-            if (protocol === 'https:') {
-                return '/api/';
-            }
-            // On LAN HTTP, Vite dev server proxies /api/ -> http://localhost:5000/
-            return '/api/';
+        // If explicitly hosted on Vercel or custom public production domain:
+        if (hostname.includes('vercel.app')) {
+            return `${RENDER_BACKEND_URL}/api/`;
         }
-    }
 
-    if (envUrl && envUrl.trim() !== '') {
-        return envUrl.endsWith('/') ? envUrl : `${envUrl}/`;
+        // On local dev machine OR local mobile device on same Wi-Fi (localhost, 127.0.0.1, 192.168.x.x, 10.x.x.x, *.local, *.ngrok-free.dev):
+        // Relative /api/ is intercepted by Vite dev server and proxied to local backend (port 5000)
+        return '/api/';
     }
 
     return '/api/';
@@ -29,14 +30,11 @@ export const getApiBase = () => {
 export const getSocketUrl = () => {
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-
-        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-            if (protocol === 'https:') {
-                return window.location.origin;
-            }
-            return window.location.origin;
+        if (hostname.includes('vercel.app')) {
+            return RENDER_BACKEND_URL;
         }
+        // Local machine or LAN: point to current host's backend port (5000) or current origin (proxied)
+        return `http://${hostname}:5000`;
     }
 
     const envUrl = import.meta.env.VITE_API_URL;

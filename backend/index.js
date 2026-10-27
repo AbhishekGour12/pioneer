@@ -83,12 +83,17 @@ routes.forEach(({ path, handler }) => {
 });
 
 // Health check endpoint
+let lastDbError = null;
 app.get('/api/health', (req, res) => {
+  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
   res.json({
     status: 'healthy',
     message: 'PlayPeak Sports Academy Backend API & MongoDB Atlas is fully operational',
     timestamp: new Date().toISOString(),
-    dbState: mongoose.connection.readyState === 1 ? 'connected' : 'connecting'
+    dbState: states[mongoose.connection.readyState] || 'unknown',
+    readyState: mongoose.connection.readyState,
+    dbHost: mongoose.connection.host || 'none',
+    dbError: lastDbError
   });
 });
 
@@ -98,11 +103,29 @@ app.get('/', (req, res) => {
 
 // Database connection
 const PORT = process.env.PORT || 5000;
-mongoose.connect(process.env.MONGO_URI)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://pioneersportacademy_db_user:lxIk4lx6tZxdk5AU@cluster0.rvbq5qq.mongodb.net/pioneer?retryWrites=true&w=majority&appName=Cluster0';
+
+mongoose.connect(MONGO_URI, {
+  serverSelectionTimeoutMS: 5000
+})
   .then(() => {
+    lastDbError = null;
     console.log('✅ MongoDB Connected successfully to PlayPeak Sports Cluster');
   })
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+  .catch(err => {
+    lastDbError = err.message;
+    console.error('❌ MongoDB Connection Error:', err);
+  });
+
+mongoose.connection.on('error', (err) => {
+  lastDbError = err.message;
+  console.error('❌ MongoDB runtime error:', err);
+});
+
+mongoose.connection.on('connected', () => {
+  lastDbError = null;
+  console.log('✅ MongoDB Atlas connection established');
+});
 
 server.listen(PORT, () => {
   console.log(`🚀 PlayPeak Sports Academy Server is listening on port ${PORT}`);

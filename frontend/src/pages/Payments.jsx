@@ -91,9 +91,9 @@ const Payments = () => {
         };
 
         try {
-            axios.post(`${API_BASE}inquiries`, leadPayload).catch(() => {});
-            const existing = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
-            localStorage.setItem('pioneer_inquiries', JSON.stringify([leadPayload, ...existing]));
+            axios.post(`${API_BASE}inquiries`, leadPayload).catch(() => {
+                axios.post('/api/inquiries', leadPayload).catch(() => {});
+            });
             window.dispatchEvent(new CustomEvent('pioneer_inquiry_received', { detail: leadPayload }));
             const channel = new BroadcastChannel('playpeak_realtime_sync');
             channel.postMessage({ type: 'INQUIRY_RECEIVED', inquiry: leadPayload });

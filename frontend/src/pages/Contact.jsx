@@ -35,7 +35,7 @@ const Contact = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -52,23 +52,19 @@ const Contact = () => {
       date: new Date().toISOString().split('T')[0]
     };
 
-    // 1. Post to MongoDB Atlas API
-    axios.post(`${API_BASE}inquiries`, leadPayload)
-      .then(() => {
-        console.log("Inquiry submitted to MongoDB Atlas");
-      })
-      .catch((err) => console.warn('Inquiry API note:', err.message));
-
-    // 2. Save to local storage for offline cache & multi-tab recovery
     try {
-      const existing = JSON.parse(localStorage.getItem('playpeak_inquiries') || '[]');
-      localStorage.setItem('playpeak_inquiries', JSON.stringify([leadPayload, ...existing]));
+      // 1. Post to MongoDB Atlas API
+      await axios.post(`${API_BASE}inquiries`, leadPayload);
+      console.log("Inquiry submitted to MongoDB Atlas");
+    } catch (err) {
+      try {
+        await axios.post('/api/inquiries', leadPayload);
+      } catch (err2) {
+        console.warn('Inquiry API note:', err2.message);
+      }
+    }
 
-      const pioneerExisting = JSON.parse(localStorage.getItem('pioneer_inquiries') || '[]');
-      localStorage.setItem('pioneer_inquiries', JSON.stringify([leadPayload, ...pioneerExisting]));
-    } catch (err) {}
-
-    // 3. Instant cross-tab real-time sync with Admin Dashboard
+    // 2. Instant cross-tab real-time sync with Admin Dashboard
     try {
       window.dispatchEvent(new CustomEvent('pioneer_inquiry_received', { detail: leadPayload }));
       const channel = new BroadcastChannel('playpeak_realtime_sync');

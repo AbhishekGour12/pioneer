@@ -163,33 +163,32 @@ const AthleteEnroll = () => {
         try {
             const API_BASE = getApiBase();
             let finalAthlete = newAthlete;
+            let savedToDb = false;
 
-            // Send to MongoDB Atlas API & AWAIT response
+            // Send to MongoDB Atlas API & AWAIT verified response
             try {
-                const res = await axios.post(`${API_BASE}athletes`, newAthlete);
+                const res = await axios.post(`${API_BASE}athletes`, newAthlete, { timeout: 15000 });
                 if (res.data?.data) {
                     finalAthlete = res.data.data;
+                    savedToDb = true;
                 }
             } catch (apiErr) {
                 console.warn('Primary API endpoint failed, attempting fallback...', apiErr);
-                if (API_BASE !== '/api/') {
-                    try {
-                        const fallbackRes = await axios.post('/api/athletes', newAthlete);
-                        if (fallbackRes.data?.data) {
-                            finalAthlete = fallbackRes.data.data;
-                        }
-                    } catch (e2) {
-                        console.error('Fallback endpoint also failed:', e2);
+                const fallbackUrl = API_BASE.includes('onrender.com') ? '/api/athletes' : 'https://pioneer-gvve.onrender.com/api/athletes';
+                try {
+                    const fallbackRes = await axios.post(fallbackUrl, newAthlete, { timeout: 15000 });
+                    if (fallbackRes.data?.data) {
+                        finalAthlete = fallbackRes.data.data;
+                        savedToDb = true;
                     }
+                } catch (e2) {
+                    console.error('Fallback endpoint also failed:', e2);
                 }
             }
 
-            // Save to local storage as local device copy
-            try {
-                const existing = JSON.parse(localStorage.getItem('playpeak_athletes') || '[]');
-                const updated = [finalAthlete, ...existing.filter(a => a.id !== finalAthlete.id)];
-                localStorage.setItem('playpeak_athletes', JSON.stringify(updated));
-            } catch (e) {}
+            if (!savedToDb) {
+                throw new Error('Database server connection timed out. Please check your internet connection and try again.');
+            }
 
             // If amount was paid, also create payment record in MongoDB Atlas
             if (paidAmt > 0) {
@@ -208,10 +207,6 @@ const AthleteEnroll = () => {
                     status: 'Completed',
                     receiptNo: `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`
                 };
-                try {
-                    const existingPay = JSON.parse(localStorage.getItem('playpeak_payments') || '[]');
-                    localStorage.setItem('playpeak_payments', JSON.stringify([newPay, ...existingPay]));
-                } catch (e) {}
 
                 axios.post(`${API_BASE}payments`, newPay).catch(() => {
                     axios.post('/api/payments', newPay).catch(err => console.warn(err));
