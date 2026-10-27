@@ -1620,6 +1620,9 @@ const AdminDashboard = () => {
         }
 
         const nextDueDateStr = dueDate.toISOString().split('T')[0];
+        const nextDueDateFormatted = dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const dueMonthName = dueDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
         const diffMs = today.getTime() - dueDate.getTime();
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
@@ -1628,6 +1631,13 @@ const AdminDashboard = () => {
         let totalDue = monthlyFee;
         let statusBadge = '';
         let badgeType = 'upcoming'; // 'overdue' | 'due_soon' | 'upcoming'
+        const overdueMonthNames = [];
+
+        // Check if due in current month or next month
+        const isThisMonth = (dueDate.getFullYear() === today.getFullYear() && dueDate.getMonth() === today.getMonth());
+        const nextMonthDate = new Date(today);
+        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+        const isNextMonth = (dueDate.getFullYear() === nextMonthDate.getFullYear() && dueDate.getMonth() === nextMonthDate.getMonth());
 
         if (diffDays > 0) {
             isOverdue = true;
@@ -1635,6 +1645,13 @@ const AdminDashboard = () => {
             totalDue = overdueMonths * monthlyFee;
             badgeType = 'overdue';
             statusBadge = `${overdueMonths} Mo Overdue`;
+
+            // Collect overdue month names
+            for (let i = overdueMonths - 1; i >= 0; i--) {
+                const m = new Date(dueDate);
+                m.setMonth(m.getMonth() - i);
+                overdueMonthNames.push(m.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }));
+            }
         } else {
             const daysLeft = Math.abs(diffDays);
             if (daysLeft <= 7) {
@@ -1655,15 +1672,30 @@ const AdminDashboard = () => {
             }
         }
 
+        // Student's latest payment and reference ID
+        const studentPayments = (payments || []).filter(p => p.athleteId === athlete.id || p.athleteName === athlete.name);
+        const lastPayment = studentPayments.length > 0 ? studentPayments[0] : null;
+        const lastReceiptNo = lastPayment?.receiptNo || 'RCP-INIT-2026';
+        const feeDueRefId = `DUE-${(athlete.id || 'ATH').replace('ATH-', '')}-${(dueDate.getMonth() + 1).toString().padStart(2, '0')}${dueDate.getFullYear().toString().slice(-2)}`;
+
         return {
             nextDueDateStr,
+            nextDueDateFormatted,
+            dueMonthName,
+            isThisMonth,
+            isNextMonth,
             isOverdue,
             overdueMonths,
+            overdueMonthNames,
             diffDays,
+            daysLeft: Math.max(0, Math.abs(diffDays)),
             totalDue,
             statusBadge,
             badgeType,
-            monthlyFee
+            monthlyFee,
+            lastReceiptNo,
+            feeDueRefId,
+            lastPayment
         };
     };
 
@@ -1759,13 +1791,22 @@ const AdminDashboard = () => {
             }
 
             // 2. Insert Payment record in MongoDB
+            const paidMonthNames = [];
+            for (let i = 0; i < Number(monthsToPay); i++) {
+                const m = new Date(currentDueDate);
+                m.setMonth(m.getMonth() + i);
+                paidMonthNames.push(m.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }));
+            }
+            const paidMonthStr = paidMonthNames.join(', ');
+
             const receiptNo = `RCP-2026-${Date.now().toString().slice(-4)}-${Math.floor(1000 + Math.random() * 9000)}`;
+            const feeRef = athlete.feeDueRefId || `DUE-${(athlete.id || 'ATH').replace('ATH-', '')}`;
             const newPay = {
                 id: `PAY-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`,
                 athleteId: athlete.id || athId,
                 athleteName: athlete.name,
                 sport: athlete.sport || '10M Rifle Shooting',
-                plan: `${athlete.sport} Monthly Fee (${monthsToPay} Mo)`,
+                plan: `${athlete.sport} Monthly Fee (${paidMonthStr})`,
                 amount: paidAmount,
                 paymentMode: paymentMode,
                 utrNumber: paymentMode === 'Online' ? utrNumber : '',
@@ -1774,7 +1815,7 @@ const AdminDashboard = () => {
                 dueDate: newNextDueDate,
                 status: 'Completed',
                 receiptNo: receiptNo,
-                note: `Monthly Training Fee collected for ${monthsToPay} Month(s). Next Due Date: ${newNextDueDate}`
+                note: `Monthly Training Fee collected for: ${paidMonthStr}. Next Due Date: ${newNextDueDate}. Ref ID: ${feeRef}`
             };
 
             try {
@@ -1789,9 +1830,9 @@ const AdminDashboard = () => {
             // 3. Update local state
             setAthletes(prev => prev.map(a => (a.id === athlete.id || (a._id && a._id === athlete._id)) ? { ...a, ...updatedFields } : a));
 
-            showToast(`✅ Collected ₹${paidAmount.toLocaleString()} (${monthsToPay} Mo) for ${athlete.name}! Next Due Date: ${newNextDueDate}`, 'success');
+            showToast(`✅ Collected ₹${paidAmount.toLocaleString()} for ${athlete.name} (${paidMonthStr})! Next Due: ${newNextDueDate}`, 'success');
 
-            return { success: true, newNextDueDate, receiptNo };
+            return { success: true, newNextDueDate, receiptNo, paidMonthStr };
         } catch (err) {
             console.error('Failed to collect monthly fee:', err);
             showToast(`Error recording fee payment: ${err.message}`, 'error');
@@ -1847,12 +1888,12 @@ const AdminDashboard = () => {
     };
 
     const handleSendIndividualReminder = (athlete) => {
-        const dueText = athlete.isOverdue 
-            ? `Your monthly fee is OVERDUE by ${athlete.overdueMonths} month(s) (Total ₹${athlete.totalDue.toLocaleString()}).`
-            : `Your monthly training fee of ₹${athlete.totalDue.toLocaleString()} is due on ${athlete.nextDueDateStr}.`;
-        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from Pioneer Rifle Shooting Academy: ${dueText} Please pay via UPI (9893270807@upi) or at academy desk. Thank you!`);
+        const monthInfo = athlete.isOverdue 
+            ? `OVERDUE for month(s) of ${athlete.overdueMonthNames?.join(', ') || athlete.dueMonthName} (${athlete.overdueMonths} month(s) overdue). Total pending: ₹${athlete.totalDue?.toLocaleString()}`
+            : `due for month of ${athlete.dueMonthName} (Amount: ₹${athlete.totalDue?.toLocaleString()}, Due Date: ${athlete.nextDueDateFormatted || athlete.nextDueDateStr})`;
+        const text = encodeURIComponent(`Hi ${athlete.name}, reminder from Pioneer Rifle Shooting Academy (Athlete ID: ${athlete.id}, Ref: ${athlete.feeDueRefId || 'DUE'}): Your training fee is ${monthInfo}. Please pay via UPI (9893270807@upi) or at academy desk. Thank you!`);
         window.open(`https://wa.me/${(athlete.phone || '').replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
-        showToast(`Opened WhatsApp reminder for ${athlete.name}`);
+        showToast(`Opened WhatsApp reminder for ${athlete.name} (${athlete.dueMonthName})`);
     };
 
     // ==========================================
@@ -1957,18 +1998,35 @@ const AdminDashboard = () => {
     // Fee Due Reminders Filter State
     const [reminderSearch, setReminderSearch] = useState('');
     const [reminderSportFilter, setReminderSportFilter] = useState('All');
+    const [reminderStartDate, setReminderStartDate] = useState('');
+    const [reminderEndDate, setReminderEndDate] = useState('');
+    const [viewingStudentBillingDetails, setViewingStudentBillingDetails] = useState(null);
 
     const filteredDueAthletes = dueAthletes.filter(a => {
         const matchesSearch = (a.name || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
                               (a.phone || '').includes(reminderSearch) ||
-                              (a.id || '').toLowerCase().includes(reminderSearch.toLowerCase());
+                              (a.id || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
+                              (a.dueMonthName || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
+                              (a.feeDueRefId || '').toLowerCase().includes(reminderSearch.toLowerCase()) ||
+                              (a.lastReceiptNo || '').toLowerCase().includes(reminderSearch.toLowerCase());
         const matchesSport = reminderSportFilter === 'All' || a.sport === reminderSportFilter;
-        const matchesStatus = reminderStatusFilter === 'All' ? true
-                            : reminderStatusFilter === 'Overdue' ? a.isOverdue
-                            : reminderStatusFilter === 'DueSoon' ? a.badgeType === 'due_soon'
-                            : reminderStatusFilter === 'Upcoming' ? a.badgeType === 'upcoming'
-                            : true;
-        return matchesSearch && matchesSport && matchesStatus;
+        
+        let matchesStatus = true;
+        if (reminderStatusFilter === 'Overdue') matchesStatus = a.isOverdue;
+        else if (reminderStatusFilter === 'DueSoon') matchesStatus = a.badgeType === 'due_soon';
+        else if (reminderStatusFilter === 'Upcoming') matchesStatus = a.badgeType === 'upcoming';
+        else if (reminderStatusFilter === 'ThisMonth') matchesStatus = a.isThisMonth;
+        else if (reminderStatusFilter === 'NextMonth') matchesStatus = a.isNextMonth;
+
+        let matchesDateRange = true;
+        if (reminderStartDate) {
+            matchesDateRange = matchesDateRange && (a.nextDueDateStr >= reminderStartDate);
+        }
+        if (reminderEndDate) {
+            matchesDateRange = matchesDateRange && (a.nextDueDateStr <= reminderEndDate);
+        }
+
+        return matchesSearch && matchesSport && matchesStatus && matchesDateRange;
     });
 
     // Payments Hub Filter State
@@ -2550,6 +2608,17 @@ const AdminDashboard = () => {
                                                     <td className="px-5 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-1.5">
                                                             <button
+                                                                onClick={() => {
+                                                                    const sched = calculateAthleteFeeSchedule(athlete);
+                                                                    setViewingStudentBillingDetails({ ...athlete, ...sched });
+                                                                }}
+                                                                title="View Full Profile & Billing Ledger"
+                                                                className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                                                            >
+                                                                <FiEye className="text-xs" />
+                                                            </button>
+
+                                                            <button
                                                                 onClick={() => handleViewAthleteCard(athlete)}
                                                                 title="View ID Badge (QR & Download)"
                                                                 className="p-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF6A1A] transition-colors"
@@ -2962,67 +3031,128 @@ const AdminDashboard = () => {
                             </div>
 
                             {/* Search & Filter Toolbar for Dues */}
-                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                                <div className="relative w-full md:w-80">
-                                    <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by student name, phone, or ID..."
-                                        value={reminderSearch}
-                                        onChange={(e) => setReminderSearch(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
-                                    />
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                                    {/* Category Filter Pills */}
-                                    <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                                        <button
-                                            type="button"
-                                            onClick={() => setReminderStatusFilter('All')}
-                                            className={`px-3 py-1.5 rounded-lg transition-all ${
-                                                reminderStatusFilter === 'All' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-                                            }`}
-                                        >
-                                            All ({dueAthletes.length})
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setReminderStatusFilter('Overdue')}
-                                            className={`px-3 py-1.5 rounded-lg transition-all ${
-                                                reminderStatusFilter === 'Overdue' ? 'bg-red-500 text-white shadow-sm' : 'text-red-600 hover:text-red-700'
-                                            }`}
-                                        >
-                                            Overdue ({dueAthletes.filter(a => a.isOverdue).length})
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setReminderStatusFilter('DueSoon')}
-                                            className={`px-3 py-1.5 rounded-lg transition-all ${
-                                                reminderStatusFilter === 'DueSoon' ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-700 hover:text-amber-900'
-                                            }`}
-                                        >
-                                            Due Soon ({dueAthletes.filter(a => a.badgeType === 'due_soon').length})
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setReminderStatusFilter('Upcoming')}
-                                            className={`px-3 py-1.5 rounded-lg transition-all ${
-                                                reminderStatusFilter === 'Upcoming' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-700 hover:text-emerald-900'
-                                            }`}
-                                        >
-                                            Upcoming ({dueAthletes.filter(a => a.badgeType === 'upcoming').length})
-                                        </button>
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3">
+                                <div className="flex flex-col lg:flex-row gap-3 items-center justify-between">
+                                    <div className="relative w-full lg:w-80">
+                                        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search by student, phone, ID, month, or receipt..."
+                                            value={reminderSearch}
+                                            onChange={(e) => setReminderSearch(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        />
                                     </div>
 
-                                    <select
-                                        value={reminderSportFilter}
-                                        onChange={(e) => setReminderSportFilter(e.target.value)}
-                                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                    {/* Date Range Picker & Selectors */}
+                                    <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                                        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs">
+                                            <span className="text-slate-400 font-bold text-[10px] uppercase">From Due:</span>
+                                            <input
+                                                type="date"
+                                                value={reminderStartDate}
+                                                onChange={(e) => setReminderStartDate(e.target.value)}
+                                                className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none"
+                                                title="Filter by Next Due Date Start"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs">
+                                            <span className="text-slate-400 font-bold text-[10px] uppercase">To Due:</span>
+                                            <input
+                                                type="date"
+                                                value={reminderEndDate}
+                                                onChange={(e) => setReminderEndDate(e.target.value)}
+                                                className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none"
+                                                title="Filter by Next Due Date End"
+                                            />
+                                        </div>
+
+                                        <select
+                                            value={reminderSportFilter}
+                                            onChange={(e) => setReminderSportFilter(e.target.value)}
+                                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            <option value="All">All Disciplines</option>
+                                            {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                        </select>
+
+                                        {(reminderSearch || reminderStartDate || reminderEndDate || reminderSportFilter !== 'All' || reminderStatusFilter !== 'All') && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setReminderSearch('');
+                                                    setReminderStartDate('');
+                                                    setReminderEndDate('');
+                                                    setReminderSportFilter('All');
+                                                    setReminderStatusFilter('All');
+                                                }}
+                                                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center gap-1 transition-colors"
+                                                title="Reset all filters"
+                                            >
+                                                <FiX className="text-xs" />
+                                                <span>Reset</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Category Filter Pills */}
+                                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs font-bold">
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('All')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'All' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                                        }`}
                                     >
-                                        <option value="All">All Disciplines</option>
-                                        {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
-                                    </select>
+                                        All ({dueAthletes.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('Overdue')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'Overdue' ? 'bg-red-500 text-white shadow-sm' : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                        }`}
+                                    >
+                                        Overdue ({dueAthletes.filter(a => a.isOverdue).length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('ThisMonth')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'ThisMonth' ? 'bg-orange-500 text-white shadow-sm' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                                        }`}
+                                    >
+                                        Due This Month ({dueAthletes.filter(a => a.isThisMonth).length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('NextMonth')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'NextMonth' ? 'bg-blue-600 text-white shadow-sm' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                                        }`}
+                                    >
+                                        Due Next Month ({dueAthletes.filter(a => a.isNextMonth).length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('DueSoon')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'DueSoon' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                                        }`}
+                                    >
+                                        Due Soon ({dueAthletes.filter(a => a.badgeType === 'due_soon').length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReminderStatusFilter('Upcoming')}
+                                        className={`px-3 py-1.5 rounded-xl transition-all ${
+                                            reminderStatusFilter === 'Upcoming' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                        }`}
+                                    >
+                                        Upcoming ({dueAthletes.filter(a => a.badgeType === 'upcoming').length})
+                                    </button>
                                 </div>
                             </div>
 
@@ -3041,12 +3171,12 @@ const AdminDashboard = () => {
                                                         title="Select All Due Students"
                                                     />
                                                 </th>
-                                                <th className="px-5 py-4">Athlete & Contact</th>
+                                                <th className="px-5 py-4">Athlete & References</th>
                                                 <th className="px-5 py-4">Discipline & Rate</th>
-                                                <th className="px-5 py-4">Next Due Date & Cycle</th>
+                                                <th className="px-5 py-4">Due Month & Cycle Date</th>
                                                 <th className="px-5 py-4">Calculated Due</th>
-                                                <th className="px-5 py-4">Status</th>
-                                                <th className="px-5 py-4 text-right">Collect & Remind</th>
+                                                <th className="px-5 py-4">Billing Status</th>
+                                                <th className="px-5 py-4 text-right">Actions & Remind</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
@@ -3075,8 +3205,18 @@ const AdminDashboard = () => {
                                                             />
                                                         </td>
                                                         <td className="px-5 py-4">
-                                                            <div className="font-bold text-slate-900 text-sm">{athlete.name}</div>
+                                                            <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                                                <span>{athlete.name}</span>
+                                                            </div>
                                                             <div className="text-[11px] text-slate-400">{athlete.phone} • <span className="font-mono text-slate-500">{athlete.id}</span></div>
+                                                            <div className="text-[10px] font-mono flex items-center gap-1.5 text-slate-500 mt-0.5">
+                                                                <span className="bg-orange-50 text-[#FF6A1A] font-bold px-1.5 py-0.5 rounded border border-orange-200/60">
+                                                                    Ref: {athlete.feeDueRefId}
+                                                                </span>
+                                                                <span className="text-slate-400">
+                                                                    Last RCP: {athlete.lastReceiptNo}
+                                                                </span>
+                                                            </div>
                                                         </td>
 
                                                         <td className="px-5 py-4">
@@ -3085,15 +3225,16 @@ const AdminDashboard = () => {
                                                         </td>
 
                                                         <td className="px-5 py-4">
-                                                            <div className="font-extrabold text-slate-900">{athlete.nextDueDateStr}</div>
+                                                            <div className="font-extrabold text-slate-900">{athlete.nextDueDateFormatted || athlete.nextDueDateStr}</div>
                                                             {athlete.isOverdue ? (
-                                                                <div className="text-[11px] font-bold text-red-600 flex items-center gap-1">
+                                                                <div className="text-[11px] font-bold text-red-600 flex items-center gap-1 mt-0.5">
                                                                     <span>⚠️</span>
-                                                                    <span>{athlete.overdueMonths} Month{athlete.overdueMonths > 1 ? 's' : ''} Overdue</span>
+                                                                    <span>Due For: {athlete.overdueMonthNames?.join(', ') || athlete.dueMonthName} ({athlete.overdueMonths} Mo Overdue)</span>
                                                                 </div>
                                                             ) : (
-                                                                <div className="text-[11px] font-semibold text-emerald-600">
-                                                                    Due in {athlete.daysLeft} days
+                                                                <div className="text-[11px] font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
+                                                                    <span>📅</span>
+                                                                    <span>Due For: {athlete.dueMonthName} {athlete.isNextMonth ? '(Next Month)' : athlete.isThisMonth ? '(This Month)' : ''}</span>
                                                                 </div>
                                                             )}
                                                         </td>
@@ -3103,7 +3244,7 @@ const AdminDashboard = () => {
                                                                 ₹{athlete.totalDue.toLocaleString()}
                                                             </div>
                                                             <div className="text-[10px] text-slate-400">
-                                                                {athlete.isOverdue ? `${athlete.overdueMonths} mo × ₹${athlete.monthlyFee.toLocaleString()}` : 'Upcoming 1 Month'}
+                                                                {athlete.isOverdue ? `${athlete.overdueMonths} mo × ₹${athlete.monthlyFee.toLocaleString()}` : `1 Month Fee (${athlete.dueMonthName})`}
                                                             </div>
                                                         </td>
 
@@ -3115,12 +3256,21 @@ const AdminDashboard = () => {
                                                                     ? 'bg-amber-100 text-amber-800'
                                                                     : 'bg-emerald-100 text-emerald-700'
                                                             }`}>
-                                                                {athlete.isOverdue ? `🔴 ${athlete.overdueMonths} Mo Overdue` : athlete.badgeType === 'due_soon' ? `🟡 ${athlete.statusBadge}` : `🟢 Current`}
+                                                                {athlete.isOverdue ? `🔴 ${athlete.overdueMonths} Mo Overdue` : athlete.badgeType === 'due_soon' ? `🟡 ${athlete.statusBadge}` : `🟢 Current Cycle`}
                                                             </span>
                                                         </td>
 
                                                         <td className="px-5 py-4 text-right">
-                                                            <div className="flex items-center justify-end gap-2">
+                                                            <div className="flex items-center justify-end gap-1.5">
+                                                                <button
+                                                                    onClick={() => setViewingStudentBillingDetails(athlete)}
+                                                                    className="py-1.5 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+                                                                    title="View full student profile & billing history"
+                                                                >
+                                                                    <FiEye className="text-xs" />
+                                                                    <span>Details</span>
+                                                                </button>
+
                                                                 <button
                                                                     onClick={() => handleOpenCollectFeeModal(athlete)}
                                                                     className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
@@ -3132,7 +3282,7 @@ const AdminDashboard = () => {
 
                                                                 <button
                                                                     onClick={() => handleSendIndividualReminder(athlete)}
-                                                                    className="py-1.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
+                                                                    className="py-1.5 px-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm"
                                                                     title="Send WhatsApp payment reminder"
                                                                 >
                                                                     <FaWhatsapp />
@@ -3858,12 +4008,33 @@ const AdminDashboard = () => {
                                         <span className="font-bold text-slate-800">{feeCollectionTarget.sport}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 font-medium">Fee Reference ID:</span>
+                                        <span className="font-mono font-bold text-[#FF6A1A] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                                            {feeCollectionTarget.feeDueRefId || `DUE-${feeCollectionTarget.id}`}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
                                         <span className="text-slate-500 font-medium">Monthly Standard Fee:</span>
                                         <span className="font-bold text-[#FF6A1A]">₹{(feeCollectionTarget.monthlyFee || 4700).toLocaleString()}/month</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-slate-500 font-medium">Current Next Due Date:</span>
-                                        <span className="font-bold text-slate-900">{feeCollectionTarget.nextDueDateStr || feeCollectionTarget.nextDueDate || 'Not set'}</span>
+                                        <span className="font-bold text-slate-900">{feeCollectionTarget.nextDueDateFormatted || feeCollectionTarget.nextDueDateStr || feeCollectionTarget.nextDueDate || 'Not set'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-orange-50/80 p-2 rounded-xl border border-orange-200/60">
+                                        <span className="text-slate-600 font-bold">Paying for Month(s):</span>
+                                        <span className="font-extrabold text-[#FF6A1A]">
+                                            {(() => {
+                                                let curr = feeCollectionTarget.nextDueDate ? new Date(feeCollectionTarget.nextDueDate) : new Date();
+                                                const mNames = [];
+                                                for (let i = 0; i < Number(feeMonthsToCollect || 1); i++) {
+                                                    let m = new Date(curr);
+                                                    m.setMonth(m.getMonth() + i);
+                                                    mNames.push(m.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }));
+                                                }
+                                                return mNames.join(', ');
+                                            })()}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-slate-500 font-medium">Current Status:</span>
@@ -3907,7 +4078,7 @@ const AdminDashboard = () => {
                                         </strong>
                                     </div>
                                     <div className="text-[11px] text-slate-500 flex items-center justify-between border-t border-orange-200/60 pt-2">
-                                        <span>Next Due Date after Payment:</span>
+                                        <span>Next Due Date will advance to:</span>
                                         <span className="font-bold text-emerald-700">
                                             {(() => {
                                                 let curr;
@@ -3996,6 +4167,262 @@ const AdminDashboard = () => {
                                     </button>
                                 </div>
                             </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ========================================================================= */}
+            {/* MODAL: STUDENT COMPLETE PROFILE & BILLING LEDGER DETAILS */}
+            {/* ========================================================================= */}
+            <AnimatePresence>
+                {viewingStudentBillingDetails && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 space-y-6"
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A1A] to-orange-400 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
+                                        {viewingStudentBillingDetails.name?.charAt(0) || 'A'}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-display font-black text-xl text-slate-900">
+                                                {viewingStudentBillingDetails.name}
+                                            </h3>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                viewingStudentBillingDetails.isOverdue
+                                                    ? 'bg-red-100 text-red-700'
+                                                    : viewingStudentBillingDetails.badgeType === 'due_soon'
+                                                    ? 'bg-amber-100 text-amber-800'
+                                                    : 'bg-emerald-100 text-emerald-700'
+                                            }`}>
+                                                {viewingStudentBillingDetails.isOverdue 
+                                                    ? `🔴 ${viewingStudentBillingDetails.overdueMonths} Mo Overdue` 
+                                                    : `🟢 Current Cycle`}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-slate-500 font-medium flex items-center gap-2 mt-0.5">
+                                            <span className="font-mono">{viewingStudentBillingDetails.id}</span>
+                                            <span>•</span>
+                                            <span className="font-bold text-slate-700">{viewingStudentBillingDetails.sport}</span>
+                                            <span>•</span>
+                                            <span className="bg-orange-50 text-[#FF6A1A] font-mono text-[11px] font-bold px-2 py-0.5 rounded border border-orange-200">
+                                                Ref: {viewingStudentBillingDetails.feeDueRefId}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setViewingStudentBillingDetails(null)}
+                                    className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                                >
+                                    <FiX className="text-xl" />
+                                </button>
+                            </div>
+
+                            {/* Section 1: Billing & Next Due Highlight Card */}
+                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-5 text-white shadow-xl space-y-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400 block">
+                                            BILLING CYCLE STATUS
+                                        </span>
+                                        <div className="font-display font-black text-2xl mt-1">
+                                            {viewingStudentBillingDetails.isOverdue ? (
+                                                <span className="text-red-400">⚠️ {viewingStudentBillingDetails.overdueMonths} Month(s) Overdue</span>
+                                            ) : (
+                                                <span className="text-emerald-400">📅 Fee Due for {viewingStudentBillingDetails.dueMonthName}</span>
+                                            )}
+                                        </div>
+                                        {viewingStudentBillingDetails.isOverdue && viewingStudentBillingDetails.overdueMonthNames?.length > 0 && (
+                                            <p className="text-xs text-slate-300 mt-1">
+                                                Pending Months: <span className="text-red-300 font-bold">{viewingStudentBillingDetails.overdueMonthNames.join(', ')}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                                            TOTAL DUE AMOUNT
+                                        </span>
+                                        <div className="font-display font-black text-2xl text-[#FF6A1A] mt-1">
+                                            ₹{viewingStudentBillingDetails.totalDue?.toLocaleString()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-700/60 text-xs">
+                                    <div>
+                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Monthly Standard</span>
+                                        <strong className="text-white text-sm">₹{(viewingStudentBillingDetails.monthlyFee || 4700).toLocaleString()}/mo</strong>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Next Due Date</span>
+                                        <strong className="text-white text-sm">{viewingStudentBillingDetails.nextDueDateFormatted || viewingStudentBillingDetails.nextDueDateStr}</strong>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Paid Months</span>
+                                        <strong className="text-emerald-400 text-sm">{viewingStudentBillingDetails.paidMonthsCount || 1} Month(s)</strong>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Total Paid</span>
+                                        <strong className="text-emerald-400 text-sm">₹{(viewingStudentBillingDetails.amountPaid || 0).toLocaleString()}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section 2: Student Personal & Academic Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Personal Info */}
+                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2.5 text-xs">
+                                    <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+                                        <FiUsers className="text-[#FF6A1A]" />
+                                        <span>Student Personal Profile</span>
+                                    </h4>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Phone:</span>
+                                        <a href={`tel:${viewingStudentBillingDetails.phone}`} className="font-bold text-slate-900 hover:text-[#FF6A1A]">
+                                            {viewingStudentBillingDetails.phone}
+                                        </a>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Email:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.email || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Age & Gender:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.age} yrs • {viewingStudentBillingDetails.gender}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Blood Group:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.bloodGroup || 'B+'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Emergency Contact:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.emergencyContact || 'N/A'}</span>
+                                    </div>
+                                </div>
+
+                                {/* Training Info */}
+                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-2.5 text-xs">
+                                    <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+                                        <FiActivity className="text-[#FF6A1A]" />
+                                        <span>Training & Academy Shift</span>
+                                    </h4>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Sport:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.sport}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Batch Timing:</span>
+                                        <span className="font-bold text-slate-900 text-right">{viewingStudentBillingDetails.batchTime}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Assigned Coach:</span>
+                                        <span className="font-bold text-slate-900 text-right">{viewingStudentBillingDetails.coach}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Enrolled Since:</span>
+                                        <span className="font-bold text-slate-900">{viewingStudentBillingDetails.joinDate || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500 font-medium">Membership:</span>
+                                        <span className="font-bold text-slate-900 text-right truncate max-w-[180px]" title={viewingStudentBillingDetails.membership}>
+                                            {viewingStudentBillingDetails.membership}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section 3: Payment & Receipts Ledger for this Student */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                                        <FiClock className="text-[#FF6A1A]" />
+                                        <span>Payment Receipts & Ledger History</span>
+                                    </h4>
+                                    <span className="text-[11px] text-slate-500 font-semibold">
+                                        {payments.filter(p => p.athleteId === viewingStudentBillingDetails.id || p.athleteName === viewingStudentBillingDetails.name).length} Recorded Receipt(s)
+                                    </span>
+                                </div>
+
+                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <table className="w-full text-left text-xs text-slate-600">
+                                        <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                                            <tr>
+                                                <th className="px-3.5 py-2.5">Receipt #</th>
+                                                <th className="px-3.5 py-2.5">Date</th>
+                                                <th className="px-3.5 py-2.5">Month / Plan</th>
+                                                <th className="px-3.5 py-2.5">Amount</th>
+                                                <th className="px-3.5 py-2.5">Mode</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {payments.filter(p => p.athleteId === viewingStudentBillingDetails.id || p.athleteName === viewingStudentBillingDetails.name).length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="px-4 py-6 text-center text-slate-400 font-medium">
+                                                        No payment records found for this student yet.
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                payments.filter(p => p.athleteId === viewingStudentBillingDetails.id || p.athleteName === viewingStudentBillingDetails.name).map(pay => (
+                                                    <tr key={pay.id || pay._id} className="hover:bg-slate-50/70">
+                                                        <td className="px-3.5 py-2.5 font-mono font-bold text-[#FF6A1A]">{pay.receiptNo || pay.id}</td>
+                                                        <td className="px-3.5 py-2.5 text-slate-700 font-medium">{pay.date}</td>
+                                                        <td className="px-3.5 py-2.5 font-medium text-slate-800">{pay.plan}</td>
+                                                        <td className="px-3.5 py-2.5 font-bold text-emerald-600">₹{pay.amount?.toLocaleString()}</td>
+                                                        <td className="px-3.5 py-2.5">
+                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                                                                {pay.paymentMode || pay.method || 'Cash'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Section 4: Modal Action Buttons */}
+                            <div className="pt-2 flex flex-wrap sm:flex-nowrap gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewingStudentBillingDetails(null)}
+                                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const ath = viewingStudentBillingDetails;
+                                        setViewingStudentBillingDetails(null);
+                                        handleSendIndividualReminder(ath);
+                                    }}
+                                    className="w-full sm:w-auto px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                >
+                                    <FaWhatsapp className="text-sm" />
+                                    <span>Send WhatsApp Notice</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const ath = viewingStudentBillingDetails;
+                                        setViewingStudentBillingDetails(null);
+                                        handleOpenCollectFeeModal(ath);
+                                    }}
+                                    className="w-full flex-1 py-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md shadow-orange-500/20 active:scale-98"
+                                >
+                                    <FiDollarSign className="text-sm" />
+                                    <span>Collect Fee for {viewingStudentBillingDetails.dueMonthName}</span>
+                                </button>
+                            </div>
                         </motion.div>
                     </div>
                 )}
