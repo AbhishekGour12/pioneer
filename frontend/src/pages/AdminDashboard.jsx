@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     FiGrid,
     FiUsers,
-    FiDollarSign,
     FiSearch,
     FiPlus,
     FiEdit2,
@@ -50,7 +49,8 @@ import {
     FaTrophy, 
     FaWhatsapp, 
     FaQrcode,
-    FaMedal
+    FaMedal,
+    FaRupeeSign
 } from 'react-icons/fa';
 import { 
     GiCricketBat, 
@@ -1524,7 +1524,7 @@ const AdminDashboard = () => {
     };
 
     const handleToggleSelectAllInquiries = () => {
-        const allKeys = inquiries.map(i => i._id || i.id).filter(Boolean);
+        const allKeys = filteredInquiries.map(i => i._id || i.id).filter(Boolean);
         if (selectedInquiryIds.length >= allKeys.length && allKeys.length > 0) {
             setSelectedInquiryIds([]);
         } else {
@@ -1977,6 +1977,46 @@ const AdminDashboard = () => {
         exportToExcel(filteredPayments, 'Pioneer_Payments_Ledger', columns);
     };
 
+    const exportInquiriesToExcel = () => {
+        const columns = [
+            { key: 'id', label: 'Lead ID' },
+            { key: 'name', label: 'Lead Name' },
+            { key: 'phone', label: 'Phone' },
+            { key: 'email', label: 'Email' },
+            { key: 'sport', label: 'Sport Discipline' },
+            { key: 'planInterested', label: 'Plan Interested' },
+            { key: 'status', label: 'Status' },
+            { key: 'date', label: 'Date' },
+            { key: 'message', label: 'Message' }
+        ];
+        exportToExcel(filteredInquiries, 'Pioneer_Contact_Queries', columns);
+    };
+
+    // Helper to calculate date boundaries for quick filters
+    const getDateBoundaries = (preset) => {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        if (preset === 'Today') {
+            return { start: todayStr, end: todayStr };
+        }
+        if (preset === 'ThisWeek') {
+            const day = now.getDay();
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(now);
+            monday.setDate(diff);
+            return { start: monday.toISOString().split('T')[0], end: todayStr };
+        }
+        if (preset === 'ThisMonth') {
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            return { start: startOfMonth, end: todayStr };
+        }
+        if (preset === 'ThisYear') {
+            const startOfYear = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+            return { start: startOfYear, end: todayStr };
+        }
+        return { start: '', end: '' };
+    };
+
     // Calculate Summary Stats
     const totalAthletesCount = athletes.length;
     const activeAthletesCount = athletes.filter(a => a.status === 'Active').length;
@@ -1985,6 +2025,18 @@ const AdminDashboard = () => {
     const totalPendingDues = dueAthletes.reduce((acc, a) => acc + (a.isOverdue || a.dueAmount > 0 ? Number(a.totalDue || a.dueAmount || 0) : 0), 0);
     const totalCoachesCount = coaches.length;
 
+    // Athletes & Students Date Range Filter State
+    const [athleteStartDate, setAthleteStartDate] = useState('');
+    const [athleteEndDate, setAthleteEndDate] = useState('');
+    const [athleteDatePreset, setAthleteDatePreset] = useState('All');
+
+    const handleAthleteDatePreset = (preset) => {
+        setAthleteDatePreset(preset);
+        const { start, end } = getDateBoundaries(preset);
+        setAthleteStartDate(start);
+        setAthleteEndDate(end);
+    };
+
     // Filter athletes
     const filteredAthletes = athletes.filter(a => {
         const matchesSearch = (a.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1992,7 +2044,17 @@ const AdminDashboard = () => {
                               (a.sport || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSport = filterSport === 'All' || a.sport === filterSport;
         const matchesStatus = filterStatus === 'All' || a.paymentStatus === filterStatus || a.status === filterStatus || a.planType === filterStatus;
-        return matchesSearch && matchesSport && matchesStatus;
+        
+        const joinDateStr = a.joinDate ? a.joinDate.split('T')[0] : (a.createdAt ? a.createdAt.split('T')[0] : '');
+        let matchesDateRange = true;
+        if (athleteStartDate) {
+            matchesDateRange = matchesDateRange && (joinDateStr >= athleteStartDate);
+        }
+        if (athleteEndDate) {
+            matchesDateRange = matchesDateRange && (joinDateStr <= athleteEndDate);
+        }
+
+        return matchesSearch && matchesSport && matchesStatus && matchesDateRange;
     });
 
     // Fee Due Reminders Filter State
@@ -2032,6 +2094,16 @@ const AdminDashboard = () => {
     // Payments Hub Filter State
     const [paymentSearch, setPaymentSearch] = useState('');
     const [paymentModeFilter, setPaymentModeFilter] = useState('All');
+    const [paymentStartDate, setPaymentStartDate] = useState('');
+    const [paymentEndDate, setPaymentEndDate] = useState('');
+    const [paymentDatePreset, setPaymentDatePreset] = useState('All');
+
+    const handlePaymentDatePreset = (preset) => {
+        setPaymentDatePreset(preset);
+        const { start, end } = getDateBoundaries(preset);
+        setPaymentStartDate(start);
+        setPaymentEndDate(end);
+    };
 
     const filteredPayments = payments.filter(p => {
         const matchesSearch = (p.athleteName || '').toLowerCase().includes(paymentSearch.toLowerCase()) ||
@@ -2041,7 +2113,53 @@ const AdminDashboard = () => {
         const matchesMode = paymentModeFilter === 'All' ||
                             (paymentModeFilter === 'Cash' && (p.paymentMode === 'Cash' || (p.method || '').toLowerCase().includes('cash'))) ||
                             (paymentModeFilter === 'Online' && (p.paymentMode === 'Online' || (p.method || '').toLowerCase().includes('upi') || (p.method || '').toLowerCase().includes('online') || p.utrNumber));
-        return matchesSearch && matchesMode;
+        
+        const payDateStr = p.date ? p.date.split('T')[0] : (p.createdAt ? p.createdAt.split('T')[0] : '');
+        let matchesDateRange = true;
+        if (paymentStartDate) {
+            matchesDateRange = matchesDateRange && (payDateStr >= paymentStartDate);
+        }
+        if (paymentEndDate) {
+            matchesDateRange = matchesDateRange && (payDateStr <= paymentEndDate);
+        }
+
+        return matchesSearch && matchesMode && matchesDateRange;
+    });
+
+    const filteredPaymentsTotal = filteredPayments.reduce((acc, p) => acc + Number(p.amount || 0), 0);
+
+    // Contact Inquiries Filter State
+    const [inquirySearch, setInquirySearch] = useState('');
+    const [inquiryStatusFilter, setInquiryStatusFilter] = useState('All');
+    const [inquiryStartDate, setInquiryStartDate] = useState('');
+    const [inquiryEndDate, setInquiryEndDate] = useState('');
+    const [inquiryDatePreset, setInquiryDatePreset] = useState('All');
+
+    const handleInquiryDatePreset = (preset) => {
+        setInquiryDatePreset(preset);
+        const { start, end } = getDateBoundaries(preset);
+        setInquiryStartDate(start);
+        setInquiryEndDate(end);
+    };
+
+    const filteredInquiries = inquiries.filter(inq => {
+        const matchesSearch = (inq.name || '').toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                              (inq.phone || '').includes(inquirySearch) ||
+                              (inq.email || '').toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                              (inq.sport || '').toLowerCase().includes(inquirySearch.toLowerCase()) ||
+                              (inq.message || '').toLowerCase().includes(inquirySearch.toLowerCase());
+        const matchesStatus = inquiryStatusFilter === 'All' || inq.status === inquiryStatusFilter;
+        
+        const inqDateStr = inq.date && inq.date.length === 10 ? inq.date : (inq.createdAt ? inq.createdAt.split('T')[0] : (inq.date ? inq.date.split('T')[0] : ''));
+        let matchesDateRange = true;
+        if (inquiryStartDate) {
+            matchesDateRange = matchesDateRange && (inqDateStr >= inquiryStartDate);
+        }
+        if (inquiryEndDate) {
+            matchesDateRange = matchesDateRange && (inqDateStr <= inquiryEndDate);
+        }
+
+        return matchesSearch && matchesStatus && matchesDateRange;
     });
 
     return (
@@ -2158,7 +2276,7 @@ const AdminDashboard = () => {
                     {[
                         { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                         { id: 'athletes', name: 'Athletes & Students', icon: <FiUsers />, badge: athletes.length },
-                        { id: 'payments', name: 'Payments Hub', icon: <FiDollarSign />, badge: payments.length },
+                        { id: 'payments', name: 'Payments Hub', icon: <FaRupeeSign />, badge: payments.length },
                         { id: 'reminders', name: 'Fee Due Reminders', icon: <FiBell />, alertBadge: dueAthletes.length },
                         { id: 'inquiries', name: 'Contact Us Queries', icon: <FiMessageSquare />, badge: inquiries.length }
                     ].map((tab) => (
@@ -2226,7 +2344,7 @@ const AdminDashboard = () => {
                                 {[
                                     { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                                     { id: 'athletes', name: 'Athletes & Students', icon: <FiUsers /> },
-                                    { id: 'payments', name: 'Payments Hub', icon: <FiDollarSign /> },
+                                    { id: 'payments', name: 'Payments Hub', icon: <FaRupeeSign /> },
                                     { id: 'reminders', name: 'Fee Due Reminders', icon: <FiBell /> },
                                     { id: 'inquiries', name: 'Contact Us Queries', icon: <FiMessageSquare /> }
                                 ].map((tab) => (
@@ -2304,8 +2422,8 @@ const AdminDashboard = () => {
                                         <div className="font-display font-black text-2xl text-slate-900">₹{totalCollectedRevenue.toLocaleString()}</div>
                                         <span className="text-[11px] text-emerald-600 font-semibold">{payments.length} Transactions</span>
                                     </div>
-                                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
-                                        <FiDollarSign />
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                        <FaRupeeSign />
                                     </div>
                                 </div>
 
@@ -2478,50 +2596,125 @@ const AdminDashboard = () => {
                             </div>
 
                             {/* Filters & Search Toolbar */}
-                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                                
-                                <div className="relative w-full md:w-80">
-                                    <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by student name, phone, or sport..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
-                                    />
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3.5">
+                                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                    <div className="relative w-full md:w-80">
+                                        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search by student name, phone, or sport..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                                        <select
+                                            value={filterSport}
+                                            onChange={(e) => setFilterSport(e.target.value)}
+                                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            <option value="All">All Sports</option>
+                                            {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                        </select>
+
+                                        <select
+                                            value={filterStatus}
+                                            onChange={(e) => setFilterStatus(e.target.value)}
+                                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            <option value="All">All Statuses & Plans</option>
+                                            <option value="Monthly">Monthly Plan</option>
+                                            <option value="Yearly">Yearly Plan</option>
+                                            <option value="Paid">Paid Fees</option>
+                                            <option value="Due">Due Fees</option>
+                                            <option value="Overdue">Overdue</option>
+                                        </select>
+
+                                        <button
+                                            onClick={exportAthletesToExcel}
+                                            className="py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                                            title="Export Athlete Roster to Excel"
+                                        >
+                                            <FiDownload />
+                                            <span>Export Excel</span>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                    <select
-                                        value={filterSport}
-                                        onChange={(e) => setFilterSport(e.target.value)}
-                                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
-                                    >
-                                        <option value="All">All Sports</option>
-                                        {sportsList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
-                                    </select>
+                                {/* Enrollment Date Range & Preset Filter Row */}
+                                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-bold text-slate-600 flex items-center gap-1">
+                                            <FiCalendar className="text-sm text-[#FF6A1A]" /> Enrolled Date:
+                                        </span>
 
-                                    <select
-                                        value={filterStatus}
-                                        onChange={(e) => setFilterStatus(e.target.value)}
-                                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
-                                    >
-                                        <option value="All">All Statuses & Plans</option>
-                                        <option value="Monthly">Monthly Plan</option>
-                                        <option value="Yearly">Yearly Plan</option>
-                                        <option value="Paid">Paid Fees</option>
-                                        <option value="Due">Due Fees</option>
-                                        <option value="Overdue">Overdue</option>
-                                    </select>
+                                        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                            {[
+                                                { id: 'All', label: 'All Time' },
+                                                { id: 'Today', label: 'Today' },
+                                                { id: 'ThisWeek', label: 'This Week' },
+                                                { id: 'ThisMonth', label: 'This Month' },
+                                                { id: 'ThisYear', label: 'This Year' }
+                                            ].map(preset => (
+                                                <button
+                                                    key={preset.id}
+                                                    onClick={() => handleAthleteDatePreset(preset.id)}
+                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                                                        athleteDatePreset === preset.id && !athleteStartDate && !athleteEndDate && preset.id === 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : athleteDatePreset === preset.id && preset.id !== 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            ))}
+                                        </div>
 
-                                    <button
-                                        onClick={exportAthletesToExcel}
-                                        className="py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
-                                        title="Export Athlete Roster to Excel"
-                                    >
-                                        <FiDownload />
-                                        <span>Export Excel</span>
-                                    </button>
+                                        {/* Custom Date Range Pickers */}
+                                        <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">From:</span>
+                                            <input
+                                                type="date"
+                                                value={athleteStartDate}
+                                                onChange={(e) => {
+                                                    setAthleteStartDate(e.target.value);
+                                                    setAthleteDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">To:</span>
+                                            <input
+                                                type="date"
+                                                value={athleteEndDate}
+                                                onChange={(e) => {
+                                                    setAthleteEndDate(e.target.value);
+                                                    setAthleteDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                        </div>
+
+                                        {(athleteStartDate || athleteEndDate || athleteDatePreset !== 'All') && (
+                                            <button
+                                                onClick={() => {
+                                                    setAthleteStartDate('');
+                                                    setAthleteEndDate('');
+                                                    setAthleteDatePreset('All');
+                                                }}
+                                                className="px-2 py-1 text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 rounded-lg transition-all"
+                                            >
+                                                Reset Dates
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="text-[11px] font-semibold text-slate-500">
+                                        Showing <span className="font-bold text-slate-900">{filteredAthletes.length}</span> of {athletes.length} registered students
+                                    </div>
                                 </div>
                             </div>
 
@@ -2783,45 +2976,114 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Search & Filter Bar */}
-                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                                <div className="relative w-full md:w-80">
-                                    <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by student name, receipt #, or UTR..."
-                                        value={paymentSearch}
-                                        onChange={(e) => setPaymentSearch(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
-                                    />
+                            {/* Search & Date Filter Bar */}
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3.5">
+                                <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+                                    <div className="relative w-full md:w-80">
+                                        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search by student name, receipt #, or UTR..."
+                                            value={paymentSearch}
+                                            onChange={(e) => setPaymentSearch(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                                            {['All', 'Cash', 'Online'].map(mode => (
+                                                <button
+                                                    key={mode}
+                                                    onClick={() => setPaymentModeFilter(mode)}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                                        paymentModeFilter === mode ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
+                                                    }`}
+                                                >
+                                                    {mode === 'All' ? 'All Modes' : mode === 'Cash' ? 'Cash Only' : 'Online (UTR)'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                    <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                                        <button
-                                            onClick={() => setPaymentModeFilter('All')}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                                paymentModeFilter === 'All' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                                            }`}
-                                        >
-                                            All Modes
-                                        </button>
-                                        <button
-                                            onClick={() => setPaymentModeFilter('Cash')}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                                paymentModeFilter === 'Cash' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                                            }`}
-                                        >
-                                            Cash Only
-                                        </button>
-                                        <button
-                                            onClick={() => setPaymentModeFilter('Online')}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                                paymentModeFilter === 'Online' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'
-                                            }`}
-                                        >
-                                            Online (UTR)
-                                        </button>
+                                {/* Date Range & Preset Filter Row */}
+                                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-bold text-slate-600 flex items-center gap-1">
+                                            <FiCalendar className="text-sm text-[#FF6A1A]" /> Date Filter:
+                                        </span>
+
+                                        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                            {[
+                                                { id: 'All', label: 'All Time' },
+                                                { id: 'Today', label: 'Today' },
+                                                { id: 'ThisWeek', label: 'This Week' },
+                                                { id: 'ThisMonth', label: 'This Month' }
+                                            ].map(preset => (
+                                                <button
+                                                    key={preset.id}
+                                                    onClick={() => handlePaymentDatePreset(preset.id)}
+                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                                                        paymentDatePreset === preset.id && !paymentStartDate && !paymentEndDate && preset.id === 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : paymentDatePreset === preset.id && preset.id !== 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Custom Date Range Pickers */}
+                                        <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">From:</span>
+                                            <input
+                                                type="date"
+                                                value={paymentStartDate}
+                                                onChange={(e) => {
+                                                    setPaymentStartDate(e.target.value);
+                                                    setPaymentDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">To:</span>
+                                            <input
+                                                type="date"
+                                                value={paymentEndDate}
+                                                onChange={(e) => {
+                                                    setPaymentEndDate(e.target.value);
+                                                    setPaymentDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                        </div>
+
+                                        {(paymentStartDate || paymentEndDate || paymentDatePreset !== 'All') && (
+                                            <button
+                                                onClick={() => {
+                                                    setPaymentStartDate('');
+                                                    setPaymentEndDate('');
+                                                    setPaymentDatePreset('All');
+                                                }}
+                                                className="px-2 py-1 text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 rounded-lg transition-all"
+                                            >
+                                                Reset Dates
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Live Filter Metric */}
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[11px] font-semibold text-slate-500">
+                                            Showing <span className="font-bold text-slate-900">{filteredPayments.length}</span> of {payments.length} transactions
+                                        </span>
+                                        <span className="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                                            <span>Filtered Collections:</span>
+                                            <span className="font-black">₹{filteredPaymentsTotal.toLocaleString()}</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -3276,7 +3538,7 @@ const AdminDashboard = () => {
                                                                     className="py-1.5 px-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
                                                                     title="Collect fee and advance next due date"
                                                                 >
-                                                                    <FiDollarSign className="text-xs" />
+                                                                    <FaRupeeSign className="text-xs" />
                                                                     <span>Collect Fee</span>
                                                                 </button>
 
@@ -3352,6 +3614,14 @@ const AdminDashboard = () => {
                                     )}
 
                                     <button
+                                        onClick={exportInquiriesToExcel}
+                                        className="py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+                                        title="Export Leads to Excel"
+                                    >
+                                        <FiDownload /> Export Excel
+                                    </button>
+
+                                    <button
                                         onClick={() => {
                                             setEditingInquiry(null);
                                             setIsCustomSportInquiry(false);
@@ -3372,23 +3642,130 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
 
+                            {/* Search & Date Filter Bar for Inquiries */}
+                            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3.5">
+                                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                    <div className="relative w-full md:w-80">
+                                        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search by lead name, phone, email, or message..."
+                                            value={inquirySearch}
+                                            onChange={(e) => setInquirySearch(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF6A1A]"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                                        <select
+                                            value={inquiryStatusFilter}
+                                            onChange={(e) => setInquiryStatusFilter(e.target.value)}
+                                            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                        >
+                                            <option value="All">All Lead Statuses</option>
+                                            <option value="New">New</option>
+                                            <option value="Contacted">Contacted</option>
+                                            <option value="Trial Scheduled">Trial Scheduled</option>
+                                            <option value="Enrolled">Enrolled</option>
+                                            <option value="Closed">Closed</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Date Range & Preset Filter Row */}
+                                <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-bold text-slate-600 flex items-center gap-1">
+                                            <FiCalendar className="text-sm text-[#FF6A1A]" /> Lead Date:
+                                        </span>
+
+                                        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                            {[
+                                                { id: 'All', label: 'All Time' },
+                                                { id: 'Today', label: 'Today' },
+                                                { id: 'ThisWeek', label: 'This Week' },
+                                                { id: 'ThisMonth', label: 'This Month' },
+                                                { id: 'ThisYear', label: 'This Year' }
+                                            ].map(preset => (
+                                                <button
+                                                    key={preset.id}
+                                                    onClick={() => handleInquiryDatePreset(preset.id)}
+                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                                                        inquiryDatePreset === preset.id && !inquiryStartDate && !inquiryEndDate && preset.id === 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : inquiryDatePreset === preset.id && preset.id !== 'All'
+                                                            ? 'bg-[#FF6A1A] text-white shadow-sm'
+                                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Custom Date Range Pickers */}
+                                        <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-xl border border-slate-200">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">From:</span>
+                                            <input
+                                                type="date"
+                                                value={inquiryStartDate}
+                                                onChange={(e) => {
+                                                    setInquiryStartDate(e.target.value);
+                                                    setInquiryDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">To:</span>
+                                            <input
+                                                type="date"
+                                                value={inquiryEndDate}
+                                                onChange={(e) => {
+                                                    setInquiryEndDate(e.target.value);
+                                                    setInquiryDatePreset('Custom');
+                                                }}
+                                                className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
+                                            />
+                                        </div>
+
+                                        {(inquiryStartDate || inquiryEndDate || inquiryDatePreset !== 'All' || inquirySearch || inquiryStatusFilter !== 'All') && (
+                                            <button
+                                                onClick={() => {
+                                                    setInquiryStartDate('');
+                                                    setInquiryEndDate('');
+                                                    setInquiryDatePreset('All');
+                                                    setInquirySearch('');
+                                                    setInquiryStatusFilter('All');
+                                                }}
+                                                className="px-2 py-1 text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 rounded-lg transition-all"
+                                            >
+                                                Reset Filters
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="text-[11px] font-semibold text-slate-500">
+                                        Showing <span className="font-bold text-slate-900">{filteredInquiries.length}</span> of {inquiries.length} inquiries
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Multi-Select Toolbar when Inquiries exist */}
-                            {inquiries.length > 0 && (
+                            {filteredInquiries.length > 0 && (
                                 <div className="bg-white rounded-2xl px-5 py-3 border border-slate-200/90 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
                                     <label className="flex items-center gap-2.5 font-bold text-slate-700 cursor-pointer select-none">
                                         <input
                                             type="checkbox"
-                                            checked={selectedInquiryIds.length === inquiries.length && inquiries.length > 0}
+                                            checked={selectedInquiryIds.length === filteredInquiries.length && filteredInquiries.length > 0}
                                             onChange={handleToggleSelectAllInquiries}
                                             className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
                                         />
-                                        <span>Select All Leads ({inquiries.length})</span>
+                                        <span>Select All Leads ({filteredInquiries.length})</span>
                                     </label>
 
                                     {selectedInquiryIds.length > 0 ? (
                                         <div className="flex items-center gap-3">
                                             <span className="font-bold text-[#FF6A1A] bg-orange-50 px-3 py-1 rounded-full text-[11px] border border-orange-200">
-                                                {selectedInquiryIds.length} of {inquiries.length} selected
+                                                {selectedInquiryIds.length} of {filteredInquiries.length} selected
                                             </span>
                                             <button
                                                 onClick={() => setSelectedInquiryIds([])}
@@ -3405,19 +3782,23 @@ const AdminDashboard = () => {
                                 </div>
                             )}
 
-                            {inquiries.length === 0 ? (
+                            {filteredInquiries.length === 0 ? (
                                 <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/90 shadow-sm max-w-lg mx-auto space-y-3">
                                     <div className="w-16 h-16 rounded-full bg-orange-50 text-[#FF6A1A] flex items-center justify-center mx-auto text-2xl shadow-sm">
                                         <FiMessageSquare />
                                     </div>
-                                    <h3 className="font-display font-bold text-xl text-slate-900">No Inquiries Yet</h3>
+                                    <h3 className="font-display font-bold text-xl text-slate-900">
+                                        {inquiries.length === 0 ? 'No Inquiries Yet' : 'No Matching Leads Found'}
+                                    </h3>
                                     <p className="text-xs text-slate-500 leading-relaxed">
-                                        All contact queries submitted through the Contact Us page and Membership enrollment will appear here in real time.
+                                        {inquiries.length === 0
+                                            ? 'All contact queries submitted through the Contact Us page and Membership enrollment will appear here in real time.'
+                                            : 'No contact inquiries matched your selected date range or search keyword. Try clearing filters.'}
                                     </p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                                    {inquiries.map((inq, inqIdx) => {
+                                    {filteredInquiries.map((inq, inqIdx) => {
                                         const inqKey = inq._id || inq.id || `inq_${inqIdx}`;
                                         const isSelected = selectedInquiryIds.includes(inqKey) || selectedInquiryIds.includes(inq.id) || selectedInquiryIds.includes(inq._id);
                                         return (
@@ -3508,7 +3889,7 @@ const AdminDashboard = () => {
                 {[
                     { id: 'overview', name: 'Dashboard', icon: <FiGrid /> },
                     { id: 'athletes', name: 'Athletes', icon: <FiUsers /> },
-                    { id: 'payments', name: 'Payments', icon: <FiDollarSign /> },
+                    { id: 'payments', name: 'Payments', icon: <FaRupeeSign /> },
                     { id: 'reminders', name: 'Fee Dues', icon: <FiBell /> },
                     { id: 'inquiries', name: 'Queries', icon: <FiMessageSquare /> }
                 ].map((item) => (
@@ -3959,7 +4340,7 @@ const AdminDashboard = () => {
                             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                                 <div className="flex items-center gap-2.5">
                                     <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#FF6A1A] flex items-center justify-center font-black">
-                                        <FiDollarSign className="text-lg" />
+                                        <FaRupeeSign className="text-base" />
                                     </div>
                                     <div>
                                         <h3 className="font-display font-black text-slate-900 text-base">Collect Monthly Fee</h3>
@@ -4419,7 +4800,7 @@ const AdminDashboard = () => {
                                     }}
                                     className="w-full flex-1 py-3 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md shadow-orange-500/20 active:scale-98"
                                 >
-                                    <FiDollarSign className="text-sm" />
+                                    <FaRupeeSign className="text-sm" />
                                     <span>Collect Fee for {viewingStudentBillingDetails.dueMonthName}</span>
                                 </button>
                             </div>

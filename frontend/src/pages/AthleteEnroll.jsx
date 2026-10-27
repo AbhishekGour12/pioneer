@@ -14,7 +14,6 @@ import {
     FiCheck,
     FiClock,
     FiAward,
-    FiDollarSign,
     FiAlertCircle,
     FiActivity,
     FiMapPin,
