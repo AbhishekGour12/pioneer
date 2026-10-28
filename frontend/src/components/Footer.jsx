@@ -61,7 +61,6 @@ const Footer = () => {
                             <li><Link to="/enroll" className="hover:text-[#FF6A1A] transition-colors font-semibold text-orange-400">Athlete Self-Enroll (QR)</Link></li>
                             <li><Link to="/about" className="hover:text-[#FF6A1A] transition-colors">Expert Coaching Support</Link></li>
                             <li><Link to="/gallery" className="hover:text-[#FF6A1A] transition-colors">Academy Gallery</Link></li>
-                            <li><Link to="/admin" className="hover:text-[#FF6A1A] transition-colors flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#FF6A1A]" /> Admin Portal</Link></li>
                             <li><Link to="/contact" className="hover:text-[#FF6A1A] transition-colors">Book Range Visit</Link></li>
                         </ul>
                     </div>
@@ -96,7 +95,6 @@ const Footer = () => {
                     <p>© {new Date().getFullYear()} Pioneer Rifle Shooting Academy. All rights reserved.</p>
                     <div className="flex items-center gap-6">
                         <Link to="/membership" className="hover:text-slate-300">Fee Structure (₹4,700/mo)</Link>
-                        <Link to="/admin" className="hover:text-[#FF6A1A] font-semibold">Staff & Admin Login</Link>
                         <Link to="/contact" className="hover:text-slate-400">Privacy Policy</Link>
                     </div>
                 </div>

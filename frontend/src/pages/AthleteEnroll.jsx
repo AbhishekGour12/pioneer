@@ -18,7 +18,11 @@ import {
     FiActivity,
     FiMapPin,
     FiDownload,
-    FiPrinter
+    FiPrinter,
+    FiCamera,
+    FiTrash2,
+    FiUploadCloud,
+    FiRefreshCw
 } from 'react-icons/fi';
 import { FaQrcode } from 'react-icons/fa';
 import { GiWhistle, GiMedal } from 'react-icons/gi';
@@ -26,7 +30,7 @@ import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 import axios from 'axios';
 import { PioneerLogoBrand } from '../components/PioneerLogo';
-import { getApiBase } from '../utils/api';
+import { getApiBase, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
 
 const AthleteEnroll = () => {
     const navigate = useNavigate();
@@ -52,8 +56,57 @@ const AthleteEnroll = () => {
         utrNumber: '',
         emergencyContact: '',
         bloodGroup: 'B+',
+        photo: '',
+        photoKey: '',
         notes: ''
     });
+
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+    const [photoUploadError, setPhotoUploadError] = useState('');
+
+    const handlePhotoSelect = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            setPhotoUploadError('File size exceeds 10MB limit.');
+            return;
+        }
+
+        try {
+            setIsUploadingPhoto(true);
+            setPhotoUploadError('');
+            const res = await uploadAthletePhoto(file);
+            if (res.success && res.url) {
+                if (formData.photoKey && formData.photoKey !== res.key) {
+                    deleteAthletePhoto(formData.photoKey).catch(() => {});
+                }
+                setFormData(prev => ({
+                    ...prev,
+                    photo: res.url,
+                    photoKey: res.key
+                }));
+            } else {
+                setPhotoUploadError('Upload failed. Please try again.');
+            }
+        } catch (err) {
+            console.error('Photo upload error:', err);
+            setPhotoUploadError(err.response?.data?.message || 'Could not upload photo to server.');
+        } finally {
+            setIsUploadingPhoto(false);
+        }
+    };
+
+    const handleRemovePhoto = async () => {
+        if (formData.photoKey || formData.photo) {
+            deleteAthletePhoto(formData.photoKey || formData.photo).catch(() => {});
+        }
+        setFormData(prev => ({
+            ...prev,
+            photo: '',
+            photoKey: ''
+        }));
+    };
 
     const [isCustomSport, setIsCustomSport] = useState(false);
     const [isCustomTiming, setIsCustomTiming] = useState(false);
@@ -165,6 +218,8 @@ const AthleteEnroll = () => {
             joinDate: new Date().toISOString().split('T')[0],
             emergencyContact: formData.emergencyContact || formData.phone,
             bloodGroup: formData.bloodGroup,
+            photo: formData.photo || '',
+            photoKey: formData.photoKey || '',
             status: 'Active'
         };
 
@@ -420,9 +475,18 @@ const AthleteEnroll = () => {
                         {/* Digital ID Pass */}
                         <div className="bg-slate-950 rounded-2xl p-5 text-white space-y-4 relative overflow-hidden shadow-lg">
                             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                                <div>
-                                    <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">DIGITAL ATHLETE PASS</span>
-                                    <h3 className="font-display font-bold text-lg">{enrolledPass.name}</h3>
+                                <div className="flex items-center gap-3">
+                                    {enrolledPass.photo ? (
+                                        <img src={enrolledPass.photo} alt={enrolledPass.name} className="w-12 h-12 rounded-xl object-cover border border-[#FF6A1A]/40 shadow-md shrink-0" />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm shrink-0">
+                                            {enrolledPass.name?.slice(0, 2).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">DIGITAL ATHLETE PASS</span>
+                                        <h3 className="font-display font-bold text-lg">{enrolledPass.name}</h3>
+                                    </div>
                                 </div>
                                 <span className="px-2.5 py-1 rounded-full bg-[#FF6A1A]/20 text-[#FF6A1A] text-xs font-mono font-bold">
                                     {enrolledPass.id}
@@ -510,6 +574,86 @@ const AthleteEnroll = () => {
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
                                 <span>1. Athlete Information</span>
                             </h3>
+
+                            {/* Student Passport Photo Upload (Cloudflare R2) */}
+                            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        <FiCamera className="text-[#FF6A1A]" />
+                                        <span>Student Passport Photo (Cloudflare R2 Storage)</span>
+                                    </label>
+                                    <span className="text-[10px] font-semibold text-slate-400">Optional • Max 10MB</span>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="relative group shrink-0">
+                                        {formData.photo ? (
+                                            <div className="relative">
+                                                <img 
+                                                    src={formData.photo} 
+                                                    alt="Student Preview" 
+                                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemovePhoto}
+                                                    title="Delete Image"
+                                                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transition-colors"
+                                                >
+                                                    <FiTrash2 className="text-xs" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 group-hover:border-[#FF6A1A] transition-colors">
+                                                <FiCamera className="text-xl sm:text-2xl" />
+                                                <span className="text-[9px] font-bold mt-1">Photo</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 space-y-1.5">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm">
+                                                {isUploadingPhoto ? (
+                                                    <>
+                                                        <FiRefreshCw className="animate-spin text-xs" />
+                                                        <span>Uploading to R2...</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FiUploadCloud className="text-sm text-[#FF6A1A]" />
+                                                        <span>{formData.photo ? 'Change / Replace Photo' : 'Upload Student Photo'}</span>
+                                                    </>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handlePhotoSelect}
+                                                    disabled={isUploadingPhoto}
+                                                    className="hidden"
+                                                />
+                                            </label>
+
+                                            {formData.photo && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemovePhoto}
+                                                    className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors inline-flex items-center gap-1"
+                                                >
+                                                    <FiTrash2 className="text-xs" />
+                                                    <span>Delete</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-500">
+                                            JPG, PNG, or WEBP. Uploaded directly to Cloudflare R2 for athlete pass & range security.
+                                        </p>
+                                        {photoUploadError && (
+                                            <p className="text-[11px] text-red-500 font-semibold">{photoUploadError}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>

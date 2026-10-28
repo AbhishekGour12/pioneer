@@ -45,5 +45,38 @@ export const getSocketUrl = () => {
     return 'http://localhost:5000';
 };
 
+import axios from 'axios';
+
 export const API_BASE = getApiBase();
 export const SOCKET_URL = getSocketUrl();
+
+/**
+ * Upload athlete student photo to Cloudflare R2 storage via backend
+ * @param {File|Blob|string} fileOrBase64 
+ * @returns {Promise<{ url: string, key: string, storage: string }>}
+ */
+export const uploadAthletePhoto = async (fileOrBase64) => {
+    const base = getApiBase();
+    let res;
+    if (typeof fileOrBase64 === 'string') {
+        res = await axios.post(`${base}upload`, { base64: fileOrBase64 });
+    } else {
+        const formData = new FormData();
+        formData.append('photo', fileOrBase64);
+        res = await axios.post(`${base}upload`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    }
+    return res.data;
+};
+
+/**
+ * Delete athlete photo from Cloudflare R2 / storage
+ * @param {string} keyOrUrl
+ */
+export const deleteAthletePhoto = async (keyOrUrl) => {
+    if (!keyOrUrl) return null;
+    const base = getApiBase();
+    const res = await axios.post(`${base}upload/delete`, { url: keyOrUrl, key: keyOrUrl });
+    return res.data;
+};

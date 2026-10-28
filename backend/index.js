@@ -23,6 +23,12 @@ import inventoryRoutes from './routes/InventoryRoutes.js';
 import membershipRoutes from './routes/MembershipRoutes.js';
 import inquiryRoutes from './routes/InquiryRoutes.js';
 import statsRoutes from './routes/StatsRoutes.js';
+import uploadRoutes from './routes/UploadRoutes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
@@ -36,7 +42,7 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('⚡ Socket client connected to PlayPeak Arena:', socket.id);
+  console.log('⚡ Socket client connected to Pioneer Academy:', socket.id);
 
   socket.on('disconnect', () => {
     console.log('🔌 Socket client disconnected:', socket.id);
@@ -49,8 +55,11 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
+
+// Static uploads directory for local fallback
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Attach io to requests
 app.use((req, res, next) => {
@@ -74,7 +83,8 @@ const routes = [
   { path: 'inventory', handler: inventoryRoutes },
   { path: 'memberships', handler: membershipRoutes },
   { path: 'inquiries', handler: inquiryRoutes },
-  { path: 'stats', handler: statsRoutes }
+  { path: 'stats', handler: statsRoutes },
+  { path: 'upload', handler: uploadRoutes }
 ];
 
 routes.forEach(({ path, handler }) => {

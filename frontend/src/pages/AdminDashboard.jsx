@@ -39,7 +39,9 @@ import {
     FiExternalLink,
     FiSmartphone,
     FiHeart,
-    FiTrendingUp
+    FiTrendingUp,
+    FiCamera,
+    FiUploadCloud
 } from 'react-icons/fi';
 import { 
     FaFutbol, 
@@ -73,9 +75,15 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { userinfo } from '../features/userinfo';
-import { getApiBase, getSocketUrl } from '../utils/api';
+import { getApiBase, getSocketUrl, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
+import { PioneerLogoBrand, PioneerLogoIcon } from '../components/PioneerLogo';
 
 const AdminDashboard = () => {
+    // Set document title
+    useEffect(() => {
+        document.title = 'Pioneer Rifle Shooting Academy • Admin Command Center';
+    }, []);
+
     // Current Active Tab
     const [activeTab, setActiveTab] = useState('overview'); 
     // Tabs: overview, athletes, payments, reminders, coaches, inventory, memberships, tournaments, physio, assessments, inquiries
@@ -113,6 +121,12 @@ const AdminDashboard = () => {
     const [feeCollectionUtr, setFeeCollectionUtr] = useState('');
     const [isProcessingFeeCollection, setIsProcessingFeeCollection] = useState(false);
     const [reminderStatusFilter, setReminderStatusFilter] = useState('All');
+
+    // Custom Student Monthly Fee Rate Update Modal
+    const [updatingFeeAthlete, setUpdatingFeeAthlete] = useState(null);
+    const [customFeeInput, setCustomFeeInput] = useState(4700);
+    const [customFeeReason, setCustomFeeReason] = useState('');
+    const [isSavingCustomFee, setIsSavingCustomFee] = useState(false);
 
     const [showAddCoachModal, setShowAddCoachModal] = useState(false);
     const [editingCoach, setEditingCoach] = useState(null);
@@ -183,7 +197,7 @@ const AdminDashboard = () => {
             promptEvent.prompt();
             promptEvent.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    showToast('🎉 Pioneer Academy Admin App added to Home Screen as mobile app!');
+                    showToast('🎉 Pioneer Rifle Shooting Academy Admin App added to Home Screen as mobile app!');
                 }
                 window.deferredPWAInstallPrompt = null;
                 setDeferredPrompt(null);
@@ -727,8 +741,60 @@ const AdminDashboard = () => {
         paymentMode: 'Cash',
         utrNumber: '',
         emergencyContact: '',
-        bloodGroup: 'B+'
+        bloodGroup: 'B+',
+        photo: '',
+        photoKey: ''
     });
+
+    const [isUploadingAthletePhoto, setIsUploadingAthletePhoto] = useState(false);
+    const [athletePhotoError, setAthletePhotoError] = useState('');
+
+    const handleAdminPhotoSelect = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            setAthletePhotoError('File size exceeds 10MB limit.');
+            return;
+        }
+
+        try {
+            setIsUploadingAthletePhoto(true);
+            setAthletePhotoError('');
+            const res = await uploadAthletePhoto(file);
+            if (res.success && res.url) {
+                if (athleteForm.photoKey && athleteForm.photoKey !== res.key) {
+                    deleteAthletePhoto(athleteForm.photoKey).catch(() => {});
+                }
+                setAthleteForm(prev => ({
+                    ...prev,
+                    photo: res.url,
+                    photoKey: res.key
+                }));
+                showToast('Student photo uploaded to Cloudflare R2 storage!', 'success');
+            } else {
+                setAthletePhotoError('Upload failed. Please try again.');
+            }
+        } catch (err) {
+            console.error('Photo upload error:', err);
+            setAthletePhotoError(err.response?.data?.message || 'Could not upload photo.');
+            showToast('Failed to upload photo', 'error');
+        } finally {
+            setIsUploadingAthletePhoto(false);
+        }
+    };
+
+    const handleAdminRemovePhoto = async () => {
+        if (athleteForm.photoKey || athleteForm.photo) {
+            deleteAthletePhoto(athleteForm.photoKey || athleteForm.photo).catch(() => {});
+        }
+        setAthleteForm(prev => ({
+            ...prev,
+            photo: '',
+            photoKey: ''
+        }));
+        showToast('Student photo removed. Click Save Changes to confirm.', 'info');
+    };
 
     const handleOpenAddAthlete = () => {
         setEditingAthlete(null);
@@ -756,10 +822,13 @@ const AdminDashboard = () => {
             utrNumber: '',
             emergencyContact: '',
             bloodGroup: 'B+',
+            photo: '',
+            photoKey: '',
             monthlyFee: 4700,
             registrationFee: 5000,
             nextDueDate: defaultNextDue
         });
+        setAthletePhotoError('');
         setShowAddAthleteModal(true);
     };
 
@@ -836,13 +905,14 @@ const AdminDashboard = () => {
         try {
             if (editingAthlete) {
                 const targetId = editingAthlete._id || editingAthlete.id;
+                const newMonthlyFee = Number(athleteForm.monthlyFee) || 4700;
                 const updatedAth = {
                     ...editingAthlete,
                     ...athleteForm,
                     email: editingAthlete.email || `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
                     dueAmount: calculatedDue,
                     paymentStatus: finalStatus,
-                    monthlyFee: athleteForm.monthlyFee || 4700,
+                    monthlyFee: newMonthlyFee,
                     registrationFee: athleteForm.registrationFee || 5000,
                     nextDueDate: athleteForm.nextDueDate || editingAthlete.nextDueDate || (() => {
                         const d = new Date();
@@ -869,12 +939,13 @@ const AdminDashboard = () => {
                 }
 
                 setAthletes(prev => prev.map(a => (a.id === editingAthlete.id || (a._id && a._id === editingAthlete._id)) ? savedAth : a));
-                showToast(`Athlete profile for "${athleteForm.name}" updated successfully!`, 'success');
+                showToast(`Athlete profile for "${athleteForm.name}" updated successfully (Monthly Fee: ₹${newMonthlyFee}/mo)!`, 'success');
             } else {
                 const newId = `ATH-${Date.now().toString().slice(-4)}-${Math.floor(100 + Math.random() * 900)}`;
                 const nextM = new Date();
                 nextM.setMonth(nextM.getMonth() + 1);
                 const defaultNextDue = nextM.toISOString().split('T')[0];
+                const initialMonthlyFee = Number(athleteForm.monthlyFee) || 4700;
 
                 const newAthlete = {
                     id: newId,
@@ -882,7 +953,7 @@ const AdminDashboard = () => {
                     email: `${athleteForm.name.toLowerCase().replace(/\s+/g, '')}@pioneershooting.in`,
                     dueAmount: calculatedDue,
                     paymentStatus: finalStatus,
-                    monthlyFee: 4700,
+                    monthlyFee: initialMonthlyFee,
                     registrationFee: 5000,
                     nextDueDate: athleteForm.nextDueDate || defaultNextDue,
                     lastPaymentDate: new Date().toISOString().split('T')[0],
@@ -1664,11 +1735,12 @@ const AdminDashboard = () => {
             totalDue = monthlyFee;
         }
 
-        if (Number(athlete.dueAmount || 0) > 0) {
+        // Only incorporate partial legacy balance if status is specifically Partial
+        if (athlete.paymentStatus === 'Partial' && Number(athlete.dueAmount || 0) > 0) {
             totalDue = Math.max(totalDue, Number(athlete.dueAmount));
             if (!isOverdue) {
                 badgeType = 'due_soon';
-                statusBadge = 'Balance Due';
+                statusBadge = 'Partial Due';
             }
         }
 
@@ -1737,6 +1809,56 @@ const AdminDashboard = () => {
             setBroadcastingNotice(false);
             showToast(`🚀 Dispatched automated fee reminder to ${selectedReminderIds.length} selected students!`, 'success');
         }, 800);
+    };
+
+    const handleOpenUpdateFeeModal = (athlete) => {
+        setUpdatingFeeAthlete(athlete);
+        setCustomFeeInput(athlete.monthlyFee || 4700);
+        setCustomFeeReason(athlete.feeNotes || '');
+    };
+
+    const handleSaveCustomFee = async (e) => {
+        if (e) e.preventDefault();
+        if (!updatingFeeAthlete) return;
+
+        const newFee = Number(customFeeInput);
+        if (isNaN(newFee) || newFee < 0) {
+            showToast('Please enter a valid monthly fee amount.', 'error');
+            return;
+        }
+
+        setIsSavingCustomFee(true);
+        const targetId = updatingFeeAthlete._id || updatingFeeAthlete.id;
+
+        const payload = {
+            monthlyFee: newFee,
+            dueAmount: newFee, // Instantly sync next month due amount to the new fee rate
+            feeNotes: customFeeReason.trim()
+        };
+
+        try {
+            let savedAth = null;
+            try {
+                const res = await axios.put(`${API_BASE}athletes/${targetId}`, payload);
+                if (res.data?.data) savedAth = res.data.data;
+            } catch (err) {
+                const res2 = await axios.put(`/api/athletes/${targetId}`, payload);
+                if (res2.data?.data) savedAth = res2.data.data;
+            }
+
+            setAthletes(prev => prev.map(a => (a.id === updatingFeeAthlete.id || (a._id && a._id === updatingFeeAthlete._id))
+                ? { ...a, monthlyFee: newFee, dueAmount: newFee, feeNotes: customFeeReason.trim(), ...(savedAth || {}) }
+                : a
+            ));
+
+            showToast(`✅ Updated monthly fee for "${updatingFeeAthlete.name}" to ₹${newFee.toLocaleString()}/mo! Next month due will now reflect this rate.`, 'success');
+            setUpdatingFeeAthlete(null);
+        } catch (err) {
+            console.error('Failed to update athlete fee:', err);
+            showToast(`Error updating fee: ${err.message}`, 'error');
+        } finally {
+            setIsSavingCustomFee(false);
+        }
     };
 
     const handleOpenCollectFeeModal = (athlete) => {
@@ -2200,22 +2322,10 @@ const AdminDashboard = () => {
                     </button>
 
                     <Link to="/" className="flex items-center gap-2.5 group">
-                        <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 100 100" className="w-8 h-8">
-                                <circle cx="50" cy="22" r="12" fill="#FF6A1A" />
-                                <path d="M48 38 L30 54 L38 68 L48 56 L62 78 L78 74 L60 48 L62 38 Z" fill="#FF6A1A" />
-                                <path d="M30 40 L18 52 L26 60 L36 48 Z" fill="#3B82F6" />
-                                <path d="M62 48 L76 34 L84 42 L68 56 Z" fill="#3B82F6" />
-                            </svg>
-                        </div>
-                        <div className="leading-tight">
-                            <span className="font-display font-extrabold text-lg text-white tracking-tight">
-                                Pioneer <span className="text-[#FF6A1A]">Academy</span>
-                            </span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block -mt-0.5">
-                                ADMIN PWA CENTER
-                            </span>
-                        </div>
+                        <PioneerLogoBrand isDark={true} showTagline={false} />
+                        <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full bg-[#FF6A1A]/15 border border-[#FF6A1A]/35 text-[#FF6A1A] text-[9px] font-black tracking-wider uppercase ml-1">
+                            Admin Portal
+                        </span>
                     </Link>
                 </div>
 
@@ -2333,10 +2443,10 @@ const AdminDashboard = () => {
                                 className="relative w-72 bg-slate-900 text-white p-5 flex flex-col space-y-2 z-10 shadow-2xl overflow-y-auto"
                             >
                                 <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                                    <span className="font-display font-black text-lg text-white">
-                                        Pioneer <span className="text-[#FF6A1A]">Academy</span> Admin
-                                    </span>
-                                    <button onClick={() => setMobileDrawerOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-white">
+                                    <Link to="/" onClick={() => setMobileDrawerOpen(false)} className="group">
+                                        <PioneerLogoBrand isDark={true} showTagline={true} />
+                                    </Link>
+                                    <button onClick={() => setMobileDrawerOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-white" aria-label="Close Navigation Drawer">
                                         <FiX className="text-xl" />
                                     </button>
                                 </div>
@@ -2755,10 +2865,25 @@ const AdminDashboard = () => {
                                                             className="w-4 h-4 rounded text-[#FF6A1A] focus:ring-orange-500 border-slate-300 cursor-pointer"
                                                         />
                                                     </td>
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-bold text-slate-900 text-sm">{athlete.name}</div>
-                                                        <div className="text-[11px] text-slate-400">{athlete.id} • {athlete.phone} • {athlete.age} Yrs ({athlete.gender})</div>
-                                                    </td>
+                                                                    <td className="px-5 py-4">
+                                                                        <div className="flex items-center gap-3">
+                                                                            {athlete.photo ? (
+                                                                                <img
+                                                                                    src={athlete.photo}
+                                                                                    alt={athlete.name}
+                                                                                    className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
+                                                                                />
+                                                                            ) : (
+                                                                                <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs shrink-0">
+                                                                                    {athlete.name?.slice(0, 2).toUpperCase()}
+                                                                                </div>
+                                                                            )}
+                                                                            <div>
+                                                                                <div className="font-bold text-slate-900 text-sm">{athlete.name}</div>
+                                                                                <div className="text-[11px] text-slate-400">{athlete.id} • {athlete.phone} • {athlete.age} Yrs ({athlete.gender})</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
 
                                                     <td className="px-5 py-4">
                                                         <div className="font-semibold text-slate-800 flex items-center gap-1.5">
@@ -2769,14 +2894,33 @@ const AdminDashboard = () => {
                                                     </td>
 
                                                     <td className="px-5 py-4">
-                                                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] uppercase inline-block mb-1 ${
-                                                            athlete.planType === 'Yearly'
-                                                                ? 'bg-purple-100 text-purple-700'
-                                                                : 'bg-blue-100 text-blue-700'
-                                                        }`}>
-                                                            {athlete.planType || 'Monthly'} Pass
-                                                        </span>
+                                                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                                            <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] uppercase inline-block ${
+                                                                athlete.planType === 'Yearly'
+                                                                    ? 'bg-purple-100 text-purple-700'
+                                                                    : 'bg-blue-100 text-blue-700'
+                                                            }`}>
+                                                                {athlete.planType || 'Monthly'} Pass
+                                                            </span>
+                                                            {(athlete.monthlyFee && athlete.monthlyFee !== 4700) ? (
+                                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                                                                    Custom: ₹{athlete.monthlyFee.toLocaleString()}/mo
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                                                    ₹4,700/mo
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <div className="text-[11px] text-slate-500 font-medium">{athlete.membership}</div>
+                                                        <button
+                                                            onClick={() => handleOpenUpdateFeeModal(athlete)}
+                                                            className="text-[10px] text-orange-600 hover:text-orange-700 font-bold hover:underline flex items-center gap-1 mt-1"
+                                                            title="Change this student's monthly fee rate"
+                                                        >
+                                                            <FaRupeeSign className="text-[9px]" />
+                                                            <span>Change Fee Rate</span>
+                                                        </button>
                                                     </td>
 
                                                     <td className="px-5 py-4">
@@ -2820,6 +2964,14 @@ const AdminDashboard = () => {
                                                             </button>
 
                                                             <button
+                                                                onClick={() => handleOpenUpdateFeeModal(athlete)}
+                                                                title={`Change Monthly Fee Rate (Currently ₹${(athlete.monthlyFee || 4700).toLocaleString()}/mo)`}
+                                                                className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors"
+                                                            >
+                                                                <FaRupeeSign className="text-xs" />
+                                                            </button>
+
+                                                            <button
                                                                 onClick={() => {
                                                                     setEditingAthlete(athlete);
                                                                     setAthleteForm({
@@ -2840,10 +2992,13 @@ const AdminDashboard = () => {
                                                                         utrNumber: athlete.utrNumber || '',
                                                                         emergencyContact: athlete.emergencyContact || '',
                                                                         bloodGroup: athlete.bloodGroup || 'B+',
+                                                                        photo: athlete.photo || athlete.photoUrl || '',
+                                                                        photoKey: athlete.photoKey || '',
                                                                         monthlyFee: athlete.monthlyFee || 4700,
                                                                         registrationFee: athlete.registrationFee || 5000,
                                                                         nextDueDate: athlete.nextDueDate ? new Date(athlete.nextDueDate).toISOString().split('T')[0] : ''
                                                                     });
+                                                                    setAthletePhotoError('');
                                                                     setIsCustomSportAdmin(!sportsList.some(s => s.name === athlete.sport));
                                                                     setIsCustomTimingAdmin(!adminTimingShifts.includes(athlete.batchTime));
                                                                     setShowAddAthleteModal(true);
@@ -3483,7 +3638,18 @@ const AdminDashboard = () => {
 
                                                         <td className="px-5 py-4">
                                                             <div className="font-semibold text-slate-800">{athlete.sport}</div>
-                                                            <div className="text-[11px] text-[#FF6A1A] font-bold">₹{athlete.monthlyFee.toLocaleString()}/mo</div>
+                                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                                <span className={`text-[11px] font-bold ${athlete.monthlyFee !== 4700 ? 'text-amber-850 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-mono' : 'text-[#FF6A1A]'}`}>
+                                                                    ₹{athlete.monthlyFee.toLocaleString()}/mo {athlete.monthlyFee !== 4700 ? '(Custom)' : ''}
+                                                                </span>
+                                                                <button
+                                                                    onClick={() => handleOpenUpdateFeeModal(athlete)}
+                                                                    className="text-[10px] text-blue-600 hover:text-blue-800 font-bold underline"
+                                                                    title="Change this student's monthly fee rate"
+                                                                >
+                                                                    Change
+                                                                </button>
+                                                            </div>
                                                         </td>
 
                                                         <td className="px-5 py-4">
@@ -3524,6 +3690,15 @@ const AdminDashboard = () => {
 
                                                         <td className="px-5 py-4 text-right">
                                                             <div className="flex items-center justify-end gap-1.5">
+                                                                <button
+                                                                    onClick={() => handleOpenUpdateFeeModal(athlete)}
+                                                                    className="py-1.5 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs flex items-center gap-1 shadow-sm transition-all border border-amber-200"
+                                                                    title="Update monthly fee rate"
+                                                                >
+                                                                    <FaRupeeSign className="text-xs" />
+                                                                    <span>Set Fee</span>
+                                                                </button>
+
                                                                 <button
                                                                     onClick={() => setViewingStudentBillingDetails(athlete)}
                                                                     className="py-1.5 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
@@ -3943,6 +4118,92 @@ const AdminDashboard = () => {
                                     </span>
                                 </div>
 
+                                {/* Student Passport Photo (Cloudflare R2) */}
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                            <FiCamera className="text-[#FF6A1A]" />
+                                            <span>Student Passport Photo (Cloudflare R2)</span>
+                                        </label>
+                                        {athleteForm.photo ? (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                                                Photo Attached
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-semibold text-slate-400">Optional • Max 10MB</span>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative shrink-0">
+                                            {athleteForm.photo ? (
+                                                <div className="relative group">
+                                                    <img
+                                                        src={athleteForm.photo}
+                                                        alt={athleteForm.name || "Student"}
+                                                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAdminRemovePhoto}
+                                                        title="Delete Photo"
+                                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transition-colors"
+                                                    >
+                                                        <FiTrash2 className="text-xs" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                                                    <FiCamera className="text-xl sm:text-2xl" />
+                                                    <span className="text-[9px] font-bold mt-1">No Photo</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-1 space-y-1.5">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm">
+                                                    {isUploadingAthletePhoto ? (
+                                                        <>
+                                                            <FiRefreshCw className="animate-spin text-xs" />
+                                                            <span>Uploading to R2...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FiUploadCloud className="text-sm text-[#FF6A1A]" />
+                                                            <span>{athleteForm.photo ? 'Change / Replace Photo' : 'Upload Student Photo'}</span>
+                                                        </>
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleAdminPhotoSelect}
+                                                        disabled={isUploadingAthletePhoto}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+
+                                                {athleteForm.photo && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAdminRemovePhoto}
+                                                        className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors inline-flex items-center gap-1"
+                                                    >
+                                                        <FiTrash2 className="text-xs" />
+                                                        <span>Delete</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="text-[11px] text-slate-500">
+                                                Uploaded to Cloudflare R2 bucket. Used across athlete roster, gate check-in & ID cards.
+                                            </p>
+                                            {athletePhotoError && (
+                                                <p className="text-[11px] text-red-500 font-semibold">{athletePhotoError}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
                                     <input
@@ -4218,24 +4479,40 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
-                                    <div>
-                                        <label className="block font-bold text-slate-700 mb-1">Monthly Fee (₹)</label>
-                                        <input
-                                            type="number"
-                                            value={athleteForm.monthlyFee || 4700}
-                                            onChange={(e) => setAthleteForm({ ...athleteForm, monthlyFee: Number(e.target.value) })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
-                                        />
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                                            <FaRupeeSign className="text-[#FF6A1A]" />
+                                            <span>Monthly Training Fee Rate (₹/month)</span>
+                                        </label>
+                                        {(athleteForm.monthlyFee || 4700) !== 4700 ? (
+                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                                                Custom Rate Active
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] text-slate-500 font-semibold">Standard ₹4,700/mo</span>
+                                        )}
                                     </div>
-                                    <div>
-                                        <label className="block font-bold text-slate-700 mb-1">Next Due / Billing Date</label>
-                                        <input
-                                            type="date"
-                                            value={athleteForm.nextDueDate ? athleteForm.nextDueDate.split('T')[0] : ''}
-                                            onChange={(e) => setAthleteForm({ ...athleteForm, nextDueDate: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
-                                        />
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Monthly Amount (₹)</label>
+                                            <input
+                                                type="number"
+                                                value={athleteForm.monthlyFee || 4700}
+                                                onChange={(e) => setAthleteForm({ ...athleteForm, monthlyFee: Number(e.target.value) })}
+                                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Next Billing / Due Date</label>
+                                            <input
+                                                type="date"
+                                                value={athleteForm.nextDueDate ? athleteForm.nextDueDate.split('T')[0] : ''}
+                                                onChange={(e) => setAthleteForm({ ...athleteForm, nextDueDate: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -4554,6 +4831,156 @@ const AdminDashboard = () => {
             </AnimatePresence>
 
             {/* ========================================================================= */}
+            {/* MODAL: CUSTOMIZE STUDENT MONTHLY RECURRING FEE RATE */}
+            {/* ========================================================================= */}
+            <AnimatePresence>
+                {updatingFeeAthlete && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 p-6 space-y-6"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                                <div className="flex items-center gap-3">
+                                    {updatingFeeAthlete.photo ? (
+                                        <img
+                                            src={updatingFeeAthlete.photo}
+                                            alt={updatingFeeAthlete.name}
+                                            className="w-12 h-12 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md shrink-0"
+                                        />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center font-bold text-[#FF6A1A] text-base shrink-0">
+                                            {updatingFeeAthlete.name?.slice(0, 2).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">Custom Monthly Fee Rate</span>
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-bold">
+                                                {updatingFeeAthlete.id}
+                                            </span>
+                                        </div>
+                                        <h3 className="font-display font-black text-xl text-slate-900 leading-tight">
+                                            {updatingFeeAthlete.name}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setUpdatingFeeAthlete(null)}
+                                    className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors"
+                                >
+                                    <FiX className="text-xl" />
+                                </button>
+                            </div>
+
+                            {/* Current Rate Info */}
+                            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-500 font-medium">Standard Academy Rate:</span>
+                                    <span className="font-bold text-slate-700">₹4,700 / mo</span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-500 font-medium">Current Student Rate:</span>
+                                    <span className="font-bold text-[#FF6A1A] text-sm">
+                                        ₹{(updatingFeeAthlete.monthlyFee || 4700).toLocaleString()} / mo
+                                        {(updatingFeeAthlete.monthlyFee && updatingFeeAthlete.monthlyFee !== 4700) ? (
+                                            <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-300">Custom</span>
+                                        ) : (
+                                            <span className="ml-1.5 px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-bold">Standard</span>
+                                        )}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs border-t border-slate-200 pt-2">
+                                    <span className="text-slate-500 font-medium">Next Due Billing Cycle:</span>
+                                    <span className="font-bold text-slate-900">
+                                        {calculateAthleteFeeSchedule(updatingFeeAthlete).nextDueDateFormatted} ({calculateAthleteFeeSchedule(updatingFeeAthlete).dueMonthName})
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Edit Form */}
+                            <form onSubmit={handleSaveCustomFee} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                        New Monthly Fee Rate (₹ / month) <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-base">₹</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="50"
+                                            required
+                                            value={customFeeInput}
+                                            onChange={(e) => setCustomFeeInput(e.target.value)}
+                                            placeholder="4700"
+                                            className="w-full pl-8 pr-4 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-900 text-lg focus:border-[#FF6A1A] focus:outline-none transition-colors"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                        Reason / Concession Note (Optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={customFeeReason}
+                                        onChange={(e) => setCustomFeeReason(e.target.value)}
+                                        placeholder="e.g. Sibling discount, National Medalist, Merit concession..."
+                                        className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 focus:border-[#FF6A1A] focus:outline-none transition-colors"
+                                    />
+                                </div>
+
+                                {/* Live Impact Summary */}
+                                <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1">
+                                    <p className="font-bold flex items-center gap-1.5 text-amber-950">
+                                        <FiInfo className="text-amber-600 shrink-0" />
+                                        Next Month Due Impact:
+                                    </p>
+                                    <p className="text-[11px] leading-relaxed">
+                                        Updating this will immediately set <strong>{updatingFeeAthlete.name}</strong>'s upcoming next month due to <strong>₹{(Number(customFeeInput) || 0).toLocaleString()}</strong>.
+                                        Future monthly dues, automated SMS/WhatsApp alerts, and receipts will use this custom amount until changed again.
+                                    </p>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center justify-end gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setUpdatingFeeAthlete(null)}
+                                        className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingCustomFee}
+                                        className="px-6 py-2.5 rounded-xl bg-[#FF6A1A] hover:bg-[#e55a10] text-white font-bold text-sm shadow-lg shadow-orange-500/25 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isSavingCustomFee ? (
+                                            <>
+                                                <FiRefreshCw className="animate-spin text-sm" />
+                                                <span>Saving Rate...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiCheck className="text-base" />
+                                                <span>Save & Apply New Fee (₹{(Number(customFeeInput) || 0).toLocaleString()})</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ========================================================================= */}
             {/* MODAL: STUDENT COMPLETE PROFILE & BILLING LEDGER DETAILS */}
             {/* ========================================================================= */}
             <AnimatePresence>
@@ -4568,9 +4995,13 @@ const AdminDashboard = () => {
                             {/* Modal Header */}
                             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A1A] to-orange-400 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
-                                        {viewingStudentBillingDetails.name?.charAt(0) || 'A'}
-                                    </div>
+                                    {viewingStudentBillingDetails.photo ? (
+                                        <img src={viewingStudentBillingDetails.photo} alt={viewingStudentBillingDetails.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-md" />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A1A] to-orange-400 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
+                                            {viewingStudentBillingDetails.name?.charAt(0) || 'A'}
+                                        </div>
+                                    )}
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h3 className="font-display font-black text-xl text-slate-900">
@@ -4639,8 +5070,24 @@ const AdminDashboard = () => {
 
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-700/60 text-xs">
                                     <div>
-                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Monthly Standard</span>
-                                        <strong className="text-white text-sm">₹{(viewingStudentBillingDetails.monthlyFee || 4700).toLocaleString()}/mo</strong>
+                                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Monthly Fee Rate</span>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                            <strong className="text-white text-sm">₹{(viewingStudentBillingDetails.monthlyFee || 4700).toLocaleString()}/mo</strong>
+                                            {(viewingStudentBillingDetails.monthlyFee && viewingStudentBillingDetails.monthlyFee !== 4700) && (
+                                                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-bold border border-amber-500/40">Custom</span>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    const target = athletes.find(a => a.id === viewingStudentBillingDetails.id || a._id === viewingStudentBillingDetails._id) || viewingStudentBillingDetails;
+                                                    setViewingStudentBillingDetails(null);
+                                                    handleOpenUpdateFeeModal(target);
+                                                }}
+                                                className="px-2 py-0.5 rounded bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 hover:text-white text-[10px] font-bold border border-orange-500/40 transition-colors ml-1"
+                                                title="Change monthly fee rate for this student"
+                                            >
+                                                Edit Rate
+                                            </button>
+                                        </div>
                                     </div>
                                     <div>
                                         <span className="text-slate-400 block text-[10px] uppercase font-bold">Next Due Date</span>
@@ -5933,9 +6380,22 @@ const AdminDashboard = () => {
                             className="bg-slate-950 rounded-3xl max-w-sm w-full shadow-2xl border border-slate-800 text-white overflow-hidden p-6 space-y-5"
                         >
                             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                                <div>
-                                    <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">OFFICIAL ATHLETE PASS</span>
-                                    <h3 className="font-display font-black text-lg text-white">{viewingAthleteCard.name}</h3>
+                                <div className="flex items-center gap-3">
+                                    {viewingAthleteCard.photo ? (
+                                        <img
+                                            src={viewingAthleteCard.photo}
+                                            alt={viewingAthleteCard.name}
+                                            className="w-12 h-12 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md shrink-0"
+                                        />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm shrink-0">
+                                            {viewingAthleteCard.name?.slice(0, 2).toUpperCase()}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">OFFICIAL ATHLETE PASS</span>
+                                        <h3 className="font-display font-black text-lg text-white">{viewingAthleteCard.name}</h3>
+                                    </div>
                                 </div>
                                 <button onClick={() => setViewingAthleteCard(null)} className="p-1 text-slate-400 hover:text-white">
                                     <FiX className="text-lg" />
@@ -6034,17 +6494,12 @@ const AdminDashboard = () => {
                         >
                             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A1A] to-amber-500 p-2.5 shadow-lg flex items-center justify-center">
-                                        <svg viewBox="0 0 100 100" className="w-full h-full">
-                                            <circle cx="50" cy="22" r="12" fill="#FFFFFF" />
-                                            <path d="M48 38 L30 54 L38 68 L48 56 L62 78 L78 74 L60 48 L62 38 Z" fill="#FFFFFF" />
-                                            <path d="M30 40 L18 52 L26 60 L36 48 Z" fill="#1E293B" />
-                                            <path d="M62 48 L76 34 L84 42 L68 56 Z" fill="#1E293B" />
-                                        </svg>
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700/80 p-1.5 shadow-lg flex items-center justify-center shrink-0">
+                                        <PioneerLogoIcon className="w-9 h-9" />
                                     </div>
                                     <div>
-                                        <h3 className="font-display font-black text-lg text-white">Pioneer Academy Admin App</h3>
-                                        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">PWA Mobile & Desktop Edition</span>
+                                        <h3 className="font-display font-black text-base sm:text-lg text-white">Pioneer Rifle Shooting Academy</h3>
+                                        <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider">Official Admin PWA App</span>
                                     </div>
                                 </div>
                                 <button onClick={() => setShowInstallModal(false)} className="p-1 text-slate-400 hover:text-white">
@@ -6095,7 +6550,7 @@ const AdminDashboard = () => {
                                             deferredPrompt.prompt();
                                             deferredPrompt.userChoice.then((choice) => {
                                                 if (choice.outcome === 'accepted') {
-                                                    showToast('🎉 Pioneer Academy Admin App installed successfully!');
+                                                    showToast('🎉 Pioneer Rifle Shooting Academy Admin App installed successfully!');
                                                 }
                                             });
                                         }

@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Athlete from '../models/Athlete.js';
+import { deleteFileFromStorage } from '../utils/r2Upload.js';
 
 const router = express.Router();
 
@@ -140,6 +141,14 @@ router.delete('/:id', async (req, res) => {
     try {
         const deleted = await Athlete.findOneAndDelete(getQueryFilter(req.params.id));
         if (!deleted) return res.status(404).json({ success: false, message: 'Athlete not found' });
+        
+        // Clean up athlete photo from Cloudflare R2 / storage
+        if (deleted.photoKey || deleted.photo) {
+            deleteFileFromStorage(deleted.photoKey || deleted.photo).catch(err => {
+                console.warn('Could not remove photo on athlete deletion:', err.message);
+            });
+        }
+
         if (req.io) req.io.emit('athlete_deleted', deleted);
         res.json({ success: true, message: 'Athlete removed from academy records', data: deleted });
     } catch (err) {

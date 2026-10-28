@@ -34,6 +34,8 @@ const AthleteSchema = new mongoose.Schema({
     status: { type: String, default: 'Active' },
     paymentMode: { type: String, default: 'Cash' },
     utrNumber: { type: String, default: '' },
+    photo: { type: String, default: '' },
+    photoKey: { type: String, default: '' },
     notes: { type: String, default: '' }
 }, { timestamps: true, strict: false });
 
