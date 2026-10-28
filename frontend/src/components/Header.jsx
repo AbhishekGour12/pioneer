@@ -39,7 +39,6 @@ const Header = () => {
         { name: 'About', path: '/about', icon: <FiInfo /> },
         { name: 'Programs', path: '/services', icon: <FiActivity /> },
         { name: 'Facilities', path: '/facilities', icon: <FiMapPin /> },
-        { name: 'Coaches', path: '/about#coaches', icon: <FiAward /> },
         { name: 'Gallery', path: '/gallery', icon: <FiImage /> },
         { name: 'Memberships', path: '/membership', icon: <FiAward /> },
         { name: 'Contact', path: '/contact', icon: <FiMail /> },

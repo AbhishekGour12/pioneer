@@ -37,7 +37,6 @@ const Home = () => {
     const [isVideoPlaying, setIsVideoPlaying] = useState(true);
     const [activeHeroSlide, setActiveHeroSlide] = useState(1);
     const [galleryScrollIndex, setGalleryScrollIndex] = useState(0);
-    const [testimonialIndex, setTestimonialIndex] = useState(0);
 
     // Initial Autoplay with Sound and User Gesture Handling
     useEffect(() => {
@@ -235,28 +234,6 @@ const Home = () => {
             id: 5,
             image: '/images/shooting/program-beginner-course.jpg',
             title: 'Expert Coach Mentoring Junior Shooter at Range'
-        }
-    ];
-
-    // Testimonials
-    const testimonials = [
-        {
-            quote: "Pioneer Rifle Shooting Academy transformed my precision and mental focus. The coaches gave me personalized trigger guidance that helped me qualify for the State Championship.",
-            author: "Priya Sharma",
-            role: "10M Air Rifle Junior Shooter",
-            avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80"
-        },
-        {
-            quote: "We don't just teach shooting, we build champions is truly lived here. Weapons, pellets, and target papers are all provided so athletes can focus purely on excellence.",
-            author: "Rohan Mehta",
-            role: "Parent of Pistol Shooter",
-            avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80"
-        },
-        {
-            quote: "Flexible timings from 8:00 AM to 8:00 PM make it easy to practice 1.5 hours daily alongside school studies. Best shooting range in Indore!",
-            author: "Amit Verma",
-            role: "Student - 10M Air Pistol Program",
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"
         }
     ];
 
@@ -774,81 +751,8 @@ const Home = () => {
                 </div>
             </section>
 
-
             {/* ========================================================================= */}
-            {/* 6. SECTION: TESTIMONIALS / WHAT PARENTS & STUDENTS SAY */}
-            {/* ========================================================================= */}
-            <section className="py-16 sm:py-20 bg-slate-50 border-t border-slate-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
-                    {/* Header with Navigation Arrows */}
-                    <div className="flex items-end justify-between gap-4 mb-8">
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                                <span className="text-xs font-bold uppercase tracking-wider text-[#FF6A1A]">
-                                    TESTIMONIALS
-                                </span>
-                            </div>
-                            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                                What Parents & Students Say
-                            </h2>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setTestimonialIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))}
-                                className="w-9 h-9 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-[#FF6A1A] hover:border-[#FF6A1A] transition-colors"
-                                aria-label="Previous Testimonial"
-                            >
-                                <FiChevronLeft />
-                            </button>
-                            <button
-                                onClick={() => setTestimonialIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))}
-                                className="w-9 h-9 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-[#FF6A1A] hover:border-[#FF6A1A] transition-colors"
-                                aria-label="Next Testimonial"
-                            >
-                                <FiChevronRight />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 3 Testimonial Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {testimonials.map((t, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
-                            >
-                                <p className="text-slate-700 text-sm leading-relaxed italic mb-6">
-                                    "{t.quote}"
-                                </p>
-
-                                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                                    <img
-                                        src={t.avatar}
-                                        alt={t.author}
-                                        className="w-11 h-11 rounded-full object-cover border border-slate-200"
-                                    />
-                                    <div>
-                                        <h4 className="font-display font-bold text-slate-900 text-sm leading-tight">
-                                            {t.author}
-                                        </h4>
-                                        <p className="text-[11px] text-slate-500 mt-0.5">
-                                            {t.role}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                </div>
-            </section>
-
-
-            {/* ========================================================================= */}
-            {/* 7. SECTION: BOTTOM CTA / YOUR SPORTING JOURNEY STARTS HERE */}
+            {/* 6. SECTION: BOTTOM CTA / YOUR SPORTING JOURNEY STARTS HERE */}
             {/* ========================================================================= */}
             <section className="relative overflow-hidden bg-[#0A0E17] text-white py-20 lg:py-24">
                 

@@ -59,7 +59,6 @@ const Footer = () => {
                             <li><Link to="/facilities" className="hover:text-[#FF6A1A] transition-colors">Shooting Range & Armory</Link></li>
                             <li><Link to="/membership" className="hover:text-[#FF6A1A] transition-colors">Fee Structure & Inclusions</Link></li>
                             <li><Link to="/enroll" className="hover:text-[#FF6A1A] transition-colors font-semibold text-orange-400">Athlete Self-Enroll (QR)</Link></li>
-                            <li><Link to="/about" className="hover:text-[#FF6A1A] transition-colors">Expert Coaching Support</Link></li>
                             <li><Link to="/gallery" className="hover:text-[#FF6A1A] transition-colors">Academy Gallery</Link></li>
                             <li><Link to="/contact" className="hover:text-[#FF6A1A] transition-colors">Book Range Visit</Link></li>
                         </ul>

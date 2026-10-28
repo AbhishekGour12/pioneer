@@ -64,38 +64,6 @@ const About = () => {
         }
     ];
 
-    // Coaching Faculty
-    const coaches = [
-        {
-            name: "Coach Rajesh Sharma",
-            role: "Head Coach - 10M Air Rifle",
-            badge: "NRAI / ISSF Certified",
-            desc: "14+ years of national shooting coaching. Guided numerous junior and senior shooters to state and national medals.",
-            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop"
-        },
-        {
-            name: "Coach Vikram Singh",
-            role: "Director of Pistol Development",
-            badge: "National Medalist Coach",
-            desc: "Expert in 10M Air Pistol trigger biomechanics, recoil stabilization, and high-pressure match temperament.",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop"
-        },
-        {
-            name: "Coach Ananya Sen",
-            role: "Beginner Training & Foundation Lead",
-            badge: "Certified Shooting Mentor",
-            desc: "Specializes in firearm safety, stance foundation, sighting geometry, and youth athlete talent nurturing.",
-            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop"
-        },
-        {
-            name: "Coach Rahul Nair",
-            role: "Mental Focus & Biomechanics Coach",
-            badge: "Sports Psychology Specialist",
-            desc: "Focuses on breath control, heart rate synchronization, visual focus, and competitive match endurance.",
-            image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop"
-        }
-    ];
-
     return (
         <div className="bg-white min-h-screen text-slate-800">
             
@@ -234,52 +202,6 @@ const About = () => {
                     </div>
 
                 </div>
-            </div>
-
-            {/* Coaching Staff Showcase */}
-            <div className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <div className="text-center max-w-2xl mx-auto mb-14">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#FF6A1A]">
-                            EXPERT COACHES
-                        </span>
-                    </div>
-                    <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
-                        Meet Our National Coaching Panel
-                    </h2>
-                    <p className="text-slate-500 text-sm mt-2">
-                        Learn directly from certified national coaches and tournament veterans.
-                    </p>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {coaches.map((coach, idx) => (
-                        <div
-                            key={idx}
-                            className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
-                        >
-                            <div className="h-60 relative overflow-hidden bg-slate-100">
-                                <img src={coach.image} alt={coach.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                <span className="absolute top-3 right-3 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900/85 text-[#FF6A1A] backdrop-blur-md">
-                                    {coach.badge}
-                                </span>
-                            </div>
-
-                            <div className="p-5 space-y-2 flex-grow">
-                                <h3 className="font-display font-extrabold text-lg text-slate-900 group-hover:text-[#FF6A1A] transition-colors">
-                                    {coach.name}
-                                </h3>
-                                <p className="text-xs font-semibold text-slate-500">{coach.role}</p>
-                                <p className="text-xs text-slate-600 leading-relaxed pt-1">
-                                    {coach.desc}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
             </div>
 
             {/* Bottom Call to Action */}
