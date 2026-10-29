@@ -75,7 +75,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 import { userinfo } from '../features/userinfo';
-import { getApiBase, getSocketUrl, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
+import { getApiBase, getSocketUrl, resolveAssetUrl, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
 import { PioneerLogoBrand, PioneerLogoIcon } from '../components/PioneerLogo';
 
 const AdminDashboard = () => {
@@ -2869,7 +2869,7 @@ const AdminDashboard = () => {
                                                                         <div className="flex items-center gap-3">
                                                                             {athlete.photo ? (
                                                                                 <img
-                                                                                    src={athlete.photo}
+                                                                                    src={resolveAssetUrl(athlete.photo || athlete.photoUrl)}
                                                                                     alt={athlete.name}
                                                                                     className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0 shadow-sm"
                                                                                 />
@@ -4139,7 +4139,7 @@ const AdminDashboard = () => {
                                             {athleteForm.photo ? (
                                                 <div className="relative group">
                                                     <img
-                                                        src={athleteForm.photo}
+                                                        src={resolveAssetUrl(athleteForm.photo)}
                                                         alt={athleteForm.name || "Student"}
                                                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md"
                                                     />
@@ -4847,7 +4847,7 @@ const AdminDashboard = () => {
                                 <div className="flex items-center gap-3">
                                     {updatingFeeAthlete.photo ? (
                                         <img
-                                            src={updatingFeeAthlete.photo}
+                                            src={resolveAssetUrl(updatingFeeAthlete.photo)}
                                             alt={updatingFeeAthlete.name}
                                             className="w-12 h-12 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md shrink-0"
                                         />
@@ -4996,7 +4996,7 @@ const AdminDashboard = () => {
                             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
                                 <div className="flex items-center gap-3">
                                     {viewingStudentBillingDetails.photo ? (
-                                        <img src={viewingStudentBillingDetails.photo} alt={viewingStudentBillingDetails.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-md" />
+                                        <img src={resolveAssetUrl(viewingStudentBillingDetails.photo)} alt={viewingStudentBillingDetails.name} className="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-md" />
                                     ) : (
                                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FF6A1A] to-orange-400 text-white flex items-center justify-center font-black text-xl shadow-md shadow-orange-500/20">
                                             {viewingStudentBillingDetails.name?.charAt(0) || 'A'}
@@ -6383,7 +6383,7 @@ const AdminDashboard = () => {
                                 <div className="flex items-center gap-3">
                                     {viewingAthleteCard.photo ? (
                                         <img
-                                            src={viewingAthleteCard.photo}
+                                            src={resolveAssetUrl(viewingAthleteCard.photo)}
                                             alt={viewingAthleteCard.name}
                                             className="w-12 h-12 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md shrink-0"
                                         />

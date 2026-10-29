@@ -27,6 +27,18 @@ export const getApiBase = () => {
     return '/api/';
 };
 
+export const resolveAssetUrl = (url) => {
+    if (!url || typeof window === 'undefined') return url || '';
+
+    try {
+        const apiOrigin = new URL('/', new URL(getApiBase(), window.location.origin));
+        return new URL(url, apiOrigin).toString();
+    } catch (error) {
+        console.error('Could not resolve uploaded asset URL:', error);
+        return url;
+    }
+};
+
 export const getSocketUrl = () => {
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
@@ -67,7 +79,10 @@ export const uploadAthletePhoto = async (fileOrBase64) => {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     }
-    return res.data;
+    return {
+        ...res.data,
+        url: resolveAssetUrl(res.data.url)
+    };
 };
 
 /**

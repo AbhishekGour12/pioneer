@@ -609,44 +609,9 @@ const Home = () => {
                             </div>
                         </div>
 
-                        {/* Center Column: Coach with Kids Image with Overlay Badge */}
-                        <div className="lg:col-span-4 relative group">
-                            <div className="rounded-3xl overflow-hidden shadow-lg border border-slate-200">
-                                <img
-                                    src="/images/shooting/program-beginner-course.jpg"
-                                    alt="Shooting mentor guiding young shooter"
-                                    className="w-full h-80 sm:h-96 object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                            </div>
-
-                            {/* Floating bottom-right dark badge */}
-                            <div className="absolute bottom-4 right-4 bg-[#0F172A]/90 backdrop-blur-md text-white p-3.5 rounded-2xl border border-white/10 shadow-xl max-w-[190px]">
-                                <div className="flex items-center justify-between gap-2">
-                                    <p className="text-xs font-bold leading-snug">
-                                        We don't just teach shooting, we build champions.
-                                    </p>
-                                    <div className="w-6 h-6 rounded-full bg-white text-slate-900 flex items-center justify-center shrink-0">
-                                        <FiChevronRight className="text-xs" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right Column: 3 Feature Cards */}
-                        <div className="lg:col-span-4 space-y-4">
+                        {/* Academy Feature Cards */}
+                        <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
-                                <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#FF6A1A] flex items-center justify-center text-xl shrink-0">
-                                    <GiWhistle />
-                                </div>
-                                <div>
-                                    <h4 className="font-display font-bold text-slate-900 text-sm">Expert Coaching Support</h4>
-                                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                                        Certified national coaches for 10M air rifle & pistol guidance.
-                                    </p>
-                                </div>
-                            </div>
-
                             <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
                                 <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
                                     <FiTarget />

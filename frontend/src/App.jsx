@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -8,7 +8,6 @@ import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Gallery from './pages/Gallery';
-import Reviews from './pages/Reviews';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Catalog from './pages/Catalog';
@@ -48,7 +47,7 @@ function AppContent({ user, ProtectedRoute }) {
             <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/gallery" element={<Gallery />} />
-            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/reviews" element={<Navigate to="/" replace />} />
             <Route path="/membership" element={<Payments />} />
             <Route path="/catalog" element={<Catalog />} />
             <Route path="/facilities" element={<Catalog />} />

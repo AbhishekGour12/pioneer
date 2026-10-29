@@ -30,7 +30,7 @@ import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 import axios from 'axios';
 import { PioneerLogoBrand } from '../components/PioneerLogo';
-import { getApiBase, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
+import { getApiBase, resolveAssetUrl, uploadAthletePhoto, deleteAthletePhoto } from '../utils/api';
 
 const AthleteEnroll = () => {
     const navigate = useNavigate();
@@ -67,6 +67,7 @@ const AthleteEnroll = () => {
     const handlePhotoSelect = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        e.target.value = '';
 
         if (file.size > 10 * 1024 * 1024) {
             setPhotoUploadError('File size exceeds 10MB limit.');
@@ -174,6 +175,10 @@ const AthleteEnroll = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isUploadingPhoto) {
+            setSubmitError('Please wait for the photo upload to finish before submitting the form.');
+            return;
+        }
         if (!formData.name.trim() || !formData.phone.trim()) {
             alert('Please enter your full name and contact number.');
             return;
@@ -477,7 +482,7 @@ const AthleteEnroll = () => {
                             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                                 <div className="flex items-center gap-3">
                                     {enrolledPass.photo ? (
-                                        <img src={enrolledPass.photo} alt={enrolledPass.name} className="w-12 h-12 rounded-xl object-cover border border-[#FF6A1A]/40 shadow-md shrink-0" />
+                                        <img src={resolveAssetUrl(enrolledPass.photo)} alt={enrolledPass.name} className="w-12 h-12 rounded-xl object-cover border border-[#FF6A1A]/40 shadow-md shrink-0" />
                                     ) : (
                                         <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm shrink-0">
                                             {enrolledPass.name?.slice(0, 2).toUpperCase()}
@@ -590,7 +595,7 @@ const AthleteEnroll = () => {
                                         {formData.photo ? (
                                             <div className="relative">
                                                 <img 
-                                                    src={formData.photo} 
+                                                    src={resolveAssetUrl(formData.photo)}
                                                     alt="Student Preview" 
                                                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-[#FF6A1A] shadow-md"
                                                 />
@@ -1088,12 +1093,17 @@ const AthleteEnroll = () => {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploadingPhoto}
                             className={`w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6A1A] via-orange-500 to-amber-500 text-white font-display font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-transform ${
-                                isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-95 active:scale-98'
+                                isSubmitting || isUploadingPhoto ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-95 active:scale-98'
                             }`}
                         >
-                            {isSubmitting ? (
+                            {isUploadingPhoto ? (
+                                <>
+                                    <FiRefreshCw className="animate-spin" />
+                                    <span>Uploading Photo...</span>
+                                </>
+                            ) : isSubmitting ? (
                                 <>
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     <span>Saving to Database & Enrolling...</span>

@@ -8,17 +8,11 @@ import {
     FiStar,
     FiCheckCircle,
     FiClock,
-    FiZap,
     FiLayers,
     FiX,
-    FiArrowRight,
-    FiCalendar,
-    FiUsers,
     FiShield,
     FiMapPin,
     FiActivity,
-    FiCheck,
-    FiPhoneCall,
     FiHelpCircle,
     FiSliders,
     FiTarget
@@ -47,15 +41,6 @@ const Catalog = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [sortBy, setSortBy] = useState('popular');
     const [selectedFacilityModal, setSelectedFacilityModal] = useState(null);
-    const [bookingFacilityModal, setBookingFacilityModal] = useState(null);
-    const [bookingSuccessNotice, setBookingSuccessNotice] = useState(null);
-
-    // Booking form state
-    const [bookingDate, setBookingDate] = useState(new Date().toISOString().split('T')[0]);
-    const [bookingSlot, setBookingSlot] = useState('Evening Prime (05:00 PM - 07:00 PM)');
-    const [playerCount, setPlayerCount] = useState('1 Shooter');
-    const [userName, setUserName] = useState('');
-    const [userPhone, setUserPhone] = useState('');
 
     const categories = [
         'All',
@@ -75,9 +60,7 @@ const Catalog = () => {
                 badgeIcon: <FiTarget className="text-[#FF6A1A]" />,
                 rating: 4.9,
                 reviews: 412,
-                hourlyRate: "Included in Pass",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 6,
                 capacity: "12 Individual Shooting Lanes",
                 dimensions: "10-Meter Olympic Standard Distance",
                 surface: "Anti-Vibration Acoustic Modular Shooting Floor",
@@ -103,9 +86,7 @@ const Catalog = () => {
                 badgeIcon: <MdOutlineSportsScore className="text-[#FF6A1A]" />,
                 rating: 4.9,
                 reviews: 388,
-                hourlyRate: "Included in Pass",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 8,
                 capacity: "Dual Paper & Electronic Analysis",
                 dimensions: "10M Certified Precision Distance",
                 surface: "Precision Backstop & Pellet Traps",
@@ -131,9 +112,7 @@ const Catalog = () => {
                 badgeIcon: <FiShield className="text-[#FF6A1A]" />,
                 rating: 4.9,
                 reviews: 365,
-                hourlyRate: "Included in Pass",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 4,
                 capacity: "Full Armory Suite",
                 dimensions: "Biometrically Secured Armory",
                 surface: "Custom Weapon Mounting & Workbench",
@@ -159,9 +138,7 @@ const Catalog = () => {
                 badgeIcon: <FiActivity className="text-[#FF6A1A]" />,
                 rating: 4.9,
                 reviews: 320,
-                hourlyRate: "Integrated Coaching",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 5,
                 capacity: "4 Sensor Stations",
                 dimensions: "Digital Trajectory Lab",
                 surface: "Static Hold Platform",
@@ -187,9 +164,7 @@ const Catalog = () => {
                 badgeIcon: <GiMedal className="text-[#FF6A1A]" />,
                 rating: 4.8,
                 reviews: 290,
-                hourlyRate: "Included in Pass",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 10,
                 capacity: "Pellet Sorting & Ammunition Station",
                 dimensions: "Precision Inspection Counter",
                 surface: "Felt-Lined Inspection Trays",
@@ -215,9 +190,7 @@ const Catalog = () => {
                 badgeIcon: <GiLaurelCrown className="text-[#FF6A1A]" />,
                 rating: 4.9,
                 reviews: 315,
-                hourlyRate: "Included in Pass",
                 monthlyPass: "₹4,700 / mo",
-                availableSlots: 8,
                 capacity: "20 Shooters Lounge",
                 dimensions: "Acoustic Quiet Conditioning Zone",
                 surface: "Soft Carpet & Posture Mats",
@@ -272,29 +245,6 @@ const Catalog = () => {
         setFilteredFacilities(results);
     }, [searchTerm, selectedCategory, sortBy, facilities]);
 
-    // Handle Quick Slot Booking Submission
-    const handleConfirmBooking = (e) => {
-        e.preventDefault();
-        if (!userName.trim() || !userPhone.trim()) {
-            alert('Please enter your full name and contact phone number.');
-            return;
-        }
-
-        const facilityName = bookingFacilityModal ? bookingFacilityModal.title : 'Sports Arena';
-        setBookingSuccessNotice({
-            facility: facilityName,
-            date: bookingDate,
-            slot: bookingSlot,
-            players: playerCount,
-            name: userName,
-            bookingId: `PPK-${Math.floor(100000 + Math.random() * 900000)}`
-        });
-
-        setBookingFacilityModal(null);
-        setUserName('');
-        setUserPhone('');
-    };
-
     return (
         <div className="bg-slate-50 min-h-screen text-slate-800 pb-20">
             
@@ -317,7 +267,7 @@ const Catalog = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                         
                         {/* Hero Text */}
-                        <div className="lg:col-span-8 space-y-5">
+                        <div className="lg:col-span-12 space-y-5">
                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF6A1A]/15 border border-[#FF6A1A]/30 text-[#FF6A1A] text-xs font-bold uppercase tracking-wider">
                                 <span className="w-2 h-2 rounded-full bg-[#FF6A1A] animate-pulse" />
                                 <span>PIONEER RIFLE SHOOTING ACADEMY • WORLD-CLASS PRECISION INFRASTRUCTURE</span>
@@ -367,60 +317,6 @@ const Catalog = () => {
                             </div>
                         </div>
 
-                        {/* Fast Slot Inquiry Card */}
-                        <div className="lg:col-span-4">
-                            <div className="bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 text-slate-900 space-y-4">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div>
-                                        <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">
-                                            Instant Booking
-                                        </span>
-                                        <h3 className="font-display font-bold text-base text-slate-900">
-                                            Reserve A Court Slot
-                                        </h3>
-                                    </div>
-                                    <span className="w-8 h-8 rounded-full bg-orange-50 text-[#FF6A1A] flex items-center justify-center text-sm">
-                                        <FiCalendar />
-                                    </span>
-                                </div>
-
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    Choose your favorite sports court or training lane. Slots can be booked hourly or through monthly academy passes.
-                                </p>
-
-                                <div className="space-y-2.5">
-                                    <button
-                                        onClick={() => {
-                                            if (facilities.length > 0) {
-                                                setBookingFacilityModal(facilities[0]);
-                                            }
-                                        }}
-                                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF6A1A] to-orange-500 text-white font-bold text-xs uppercase tracking-wider hover:opacity-95 shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition-transform active:scale-98"
-                                    >
-                                        <span>Book Hourly Slot</span>
-                                        <FiArrowRight />
-                                    </button>
-                                    
-                                    <Link
-                                        to="/membership"
-                                        className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors text-center"
-                                    >
-                                        <FiZap className="text-[#FF6A1A]" />
-                                        <span>View Academy Memberships</span>
-                                    </Link>
-                                </div>
-
-                                <div className="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-1">
-                                    <span className="flex items-center gap-1">
-                                        <FiCheckCircle className="text-emerald-500 text-xs" /> Clean Lockers
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                        <FiCheckCircle className="text-emerald-500 text-xs" /> Pro Gear Rental
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </section>
@@ -428,43 +324,6 @@ const Catalog = () => {
             {/* MAIN CONTENT CONTAINER */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
                 
-                {/* SUCCESS NOTIFICATION TOAST / BANNER */}
-                <AnimatePresence>
-                    {bookingSuccessNotice && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            className="mb-8 p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                        >
-                            <div className="flex items-start gap-3.5">
-                                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                                    <FiCheck className="text-xl" />
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-bold text-sm text-emerald-950">
-                                            Booking Request Confirmed!
-                                        </h4>
-                                        <span className="px-2 py-0.5 rounded-full bg-emerald-200/70 text-emerald-900 text-[10px] font-mono font-bold">
-                                            ID: {bookingSuccessNotice.bookingId}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-emerald-800">
-                                        Reserved <strong>{bookingSuccessNotice.facility}</strong> for <strong>{bookingSuccessNotice.name}</strong> on <strong>{bookingSuccessNotice.date}</strong> ({bookingSuccessNotice.slot}, {bookingSuccessNotice.players}). A confirmation SMS has been dispatched.
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setBookingSuccessNotice(null)}
-                                className="px-3 py-1.5 rounded-lg bg-emerald-200/60 hover:bg-emerald-200 text-emerald-900 text-xs font-bold self-end sm:self-center transition-colors"
-                            >
-                                Dismiss
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 {/* SEARCH & CATEGORY FILTER TOOLBAR */}
                 <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80 mb-10 space-y-4">
                     <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -504,7 +363,7 @@ const Catalog = () => {
                                     onChange={(e) => setSortBy(e.target.value)}
                                     className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#FF6A1A]"
                                 >
-                                    <option value="popular">Most Booked / Reviews</option>
+                                    <option value="popular">Most Reviewed</option>
                                     <option value="rating">Highest Rated</option>
                                     <option value="name">Arena Name (A-Z)</option>
                                 </select>
@@ -604,9 +463,6 @@ const Catalog = () => {
                                     <span className="font-semibold text-slate-200 flex items-center gap-1">
                                         <FiMapPin className="text-[#FF6A1A]" /> Indore Main Arena
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md font-mono font-bold text-[11px]">
-                                        {facility.availableSlots} Slots Today
-                                    </span>
                                 </div>
                             </div>
 
@@ -673,10 +529,10 @@ const Catalog = () => {
                             <div className="p-6 pt-0 border-t border-slate-100 flex items-center justify-between gap-3 mt-auto">
                                 <div>
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                                        Slot Pricing
+                                        Monthly Training Fee
                                     </span>
                                     <div className="font-display font-extrabold text-base text-slate-900">
-                                        {facility.hourlyRate}
+                                        {facility.monthlyPass}
                                     </div>
                                 </div>
 
@@ -686,12 +542,6 @@ const Catalog = () => {
                                         className="py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
                                     >
                                         Specs
-                                    </button>
-                                    <button
-                                        onClick={() => setBookingFacilityModal(facility)}
-                                        className="py-2.5 px-4 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-sm shadow-orange-500/20 transition-all active:scale-98"
-                                    >
-                                        Book Slot
                                     </button>
                                 </div>
                             </div>
@@ -746,15 +596,6 @@ const Catalog = () => {
                             </p>
                         </div>
 
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-2.5">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
-                                <FiUsers />
-                            </div>
-                            <h4 className="font-bold text-sm text-white">Coaches & Referees</h4>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Official certified referees and sport-specific tactical coaches available for corporate leagues and youth batches.
-                            </p>
-                        </div>
                     </div>
                 </section>
 
@@ -765,7 +606,7 @@ const Catalog = () => {
                             <FiHelpCircle /> FAQs
                         </div>
                         <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
-                            Court Booking & Facility Rules
+                            Training & Facility Rules
                         </h2>
                         <p className="text-xs sm:text-sm text-slate-500">
                             Everything you need to know before stepping onto Pioneer shooting lanes.
@@ -803,15 +644,6 @@ const Catalog = () => {
                             </p>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                            <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-[#FF6A1A]" />
-                                What is the cancellation and rescheduling policy?
-                            </h4>
-                            <p className="text-xs text-slate-600 leading-relaxed pl-4">
-                                You can reschedule your reserved slot up to 4 hours prior to the session via your dashboard or by calling reception at +91 9893270807 / 9294771208 with zero deduction.
-                            </p>
-                        </div>
                     </div>
                 </section>
 
@@ -940,184 +772,25 @@ const Catalog = () => {
                             {/* Modal Footer */}
                             <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-4">
                                 <div>
-                                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Hourly Fee</span>
+                                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Monthly Training Fee</span>
                                     <span className="font-display font-extrabold text-lg text-slate-900">
-                                        {selectedFacilityModal.hourlyRate}
+                                        {selectedFacilityModal.monthlyPass}
                                     </span>
                                 </div>
 
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setSelectedFacilityModal(null)}
-                                        className="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs"
-                                    >
-                                        Close
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const f = selectedFacilityModal;
-                                            setSelectedFacilityModal(null);
-                                            setBookingFacilityModal(f);
-                                        }}
-                                        className="px-5 py-2.5 rounded-xl bg-[#FF6A1A] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider shadow-sm"
-                                    >
-                                        Book This Arena
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            {/* MODAL 2: INSTANT SLOT BOOKING FORM */}
-            <AnimatePresence>
-                {bookingFacilityModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden relative my-8"
-                        >
-                            {/* Header */}
-                            <div className="p-6 bg-slate-950 text-white flex items-center justify-between">
-                                <div>
-                                    <span className="text-[10px] font-bold text-[#FF6A1A] uppercase tracking-wider block">
-                                        Slot Reservation
-                                    </span>
-                                    <h3 className="font-display font-bold text-lg text-white">
-                                        {bookingFacilityModal.title}
-                                    </h3>
-                                    <span className="text-xs text-slate-400">
-                                        {bookingFacilityModal.hourlyRate} • Indore Campus
-                                    </span>
-                                </div>
                                 <button
-                                    onClick={() => setBookingFacilityModal(null)}
-                                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                                    onClick={() => setSelectedFacilityModal(null)}
+                                    className="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs"
                                 >
-                                    <FiX />
+                                    Close
                                 </button>
                             </div>
-
-                            {/* Booking Form */}
-                            <form onSubmit={handleConfirmBooking} className="p-6 sm:p-8 space-y-4">
-                                
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                                            Select Date
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={bookingDate}
-                                            min={new Date().toISOString().split('T')[0]}
-                                            onChange={(e) => setBookingDate(e.target.value)}
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                                            Expected Players
-                                        </label>
-                                        <select
-                                            value={playerCount}
-                                            onChange={(e) => setPlayerCount(e.target.value)}
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
-                                        >
-                                            <option value="1-2 Players">1 - 2 Players (Practice)</option>
-                                            <option value="2-4 Players">2 - 4 Players (Doubles/Small)</option>
-                                            <option value="5-10 Players">5 - 10 Players (Half Court)</option>
-                                            <option value="11-22 Players">11 - 22 Players (Full Team Match)</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                                        Select Time Slot
-                                    </label>
-                                    <select
-                                        value={bookingSlot}
-                                        onChange={(e) => setBookingSlot(e.target.value)}
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#FF6A1A]"
-                                    >
-                                        <option value="Morning Dawn (06:00 AM - 08:00 AM)">Morning Dawn (06:00 AM - 08:00 AM)</option>
-                                        <option value="Morning Batch (08:00 AM - 10:00 AM)">Morning Batch (08:00 AM - 10:00 AM)</option>
-                                        <option value="Afternoon Session (02:00 PM - 04:00 PM)">Afternoon Session (02:00 PM - 04:00 PM)</option>
-                                        <option value="Evening Prime (05:00 PM - 07:00 PM)">Evening Prime (05:00 PM - 07:00 PM)</option>
-                                        <option value="Floodlight Night (07:30 PM - 09:30 PM)">Floodlight Night (07:30 PM - 09:30 PM)</option>
-                                        <option value="Late Night Match (09:30 PM - 11:00 PM)">Late Night Match (09:30 PM - 11:00 PM)</option>
-                                    </select>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                                            Your Full Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. Aryan Sharma"
-                                            value={userName}
-                                            onChange={(e) => setUserName(e.target.value)}
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6A1A]"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                                            Phone Number
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            placeholder="+91 98932 70807"
-                                            value={userPhone}
-                                            onChange={(e) => setUserPhone(e.target.value)}
-                                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6A1A]"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-[11px] text-slate-500 space-y-1">
-                                    <div className="flex justify-between text-slate-700 font-semibold">
-                                        <span>Arena:</span>
-                                        <span className="text-slate-900">{bookingFacilityModal.title}</span>
-                                    </div>
-                                    <div className="flex justify-between text-slate-700 font-semibold">
-                                        <span>Standard Rate:</span>
-                                        <span className="text-[#FF6A1A]">{bookingFacilityModal.hourlyRate}</span>
-                                    </div>
-                                    <p className="text-[10px] text-slate-400 pt-1">
-                                        * Payment is settled upon arena arrival via Cash/UPI or auto-debited from your active Academy Pass.
-                                    </p>
-                                </div>
-
-                                <div className="pt-2 flex gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setBookingFacilityModal(null)}
-                                        className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#FF6A1A] to-orange-500 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 hover:opacity-95 active:scale-98 transition-all"
-                                    >
-                                        Confirm Slot
-                                    </button>
-                                </div>
-                            </form>
                         </motion.div>
                     </div>
                 )}
             </AnimatePresence>
+
+
 
         </div>
     );
